@@ -1,0 +1,352 @@
+@import '@fontsource-variable/inter-tight';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource/instrument-serif/400.css';
+@import '@fontsource/instrument-serif/400-italic.css';
+
+:root {
+  --ink: #050b24;
+  --ink-2: #0a1438;
+  --ink-3: #111d4a;
+  --blue: #1940b4;
+  --blue-2: #2c5bff;
+  --sky: #9db7ff;
+  --paper: #f3f4f9;
+  --paper-2: #e6e9f3;
+  --white: #ffffff;
+  --accent: #ffb547;
+  --muted-dark: rgba(255, 255, 255, 0.58);
+  --muted-light: rgba(5, 11, 36, 0.6);
+  --line-dark: rgba(255, 255, 255, 0.12);
+  --line-light: rgba(5, 11, 36, 0.12);
+
+  --f-sans: 'Inter Tight Variable', 'Inter Tight', system-ui, sans-serif;
+  --f-serif: 'Instrument Serif', 'Times New Roman', serif;
+  --f-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --gutter: clamp(16px, 3.2vw, 48px);
+  --header-h: 84px;
+  --radius: 22px;
+}
+
+/* ---------- Theme tokens ----------
+   Any element with data-theme re-declares the palette, so a section can
+   force dark (e.g. the reel) while the page follows the global theme. */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f4f5fa;
+  --bg-2: #ffffff;
+  --bg-3: #e7eaf4;
+  --fg: #050b24;
+  --fg-2: rgba(5, 11, 36, 0.66);
+  --fg-3: rgba(5, 11, 36, 0.42);
+  --line: rgba(5, 11, 36, 0.1);
+  --line-2: rgba(5, 11, 36, 0.2);
+  --hl: #2c5bff;
+  --hl-inv: #9db7ff;
+  --card: #ffffff;
+  --card-line: rgba(5, 11, 36, 0.08);
+  --chip: rgba(5, 11, 36, 0.05);
+  --glass: rgba(244, 245, 250, 0.62);
+  --shadow: 0 30px 80px -40px rgba(5, 11, 36, 0.3);
+  --glow: rgba(44, 91, 255, 0.16);
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #050b24;
+  --bg-2: #0a1438;
+  --bg-3: #02061a;
+  --fg: #ffffff;
+  --fg-2: rgba(255, 255, 255, 0.64);
+  --fg-3: rgba(255, 255, 255, 0.42);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-2: rgba(255, 255, 255, 0.24);
+  --hl: #9db7ff;
+  --hl-inv: #1940b4;
+  --card: rgba(255, 255, 255, 0.045);
+  --card-line: rgba(255, 255, 255, 0.1);
+  --chip: rgba(255, 255, 255, 0.06);
+  --glass: rgba(8, 15, 44, 0.55);
+  --shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.7);
+  --glow: rgba(44, 91, 255, 0.35);
+}
+[data-theme] {
+  color: var(--fg);
+}
+
+/* Circular theme reveal (View Transitions API) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+body {
+  font-family: var(--f-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--fg);
+  background: var(--bg);
+  overflow-x: clip;
+  transition: background-color 0.6s;
+}
+
+img,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+::selection {
+  background: var(--blue-2);
+  color: var(--white);
+}
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.serif {
+  font-family: var(--f-serif);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+.container {
+  width: 100%;
+  padding-inline: var(--gutter);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* SplitText masks */
+.split-line-mask {
+  overflow: clip;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+/* Grain overlay */
+[data-theme='light'] .grain {
+  filter: invert(1);
+  opacity: 0.045;
+}
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 1.2s steps(6) infinite;
+  will-change: transform;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -4%); }
+  60% { transform: translate(-4%, -2%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Roll text (hover micro-interaction) */
+.roll {
+  display: inline-flex;
+  overflow: hidden;
+  position: relative;
+  line-height: 1.2;
+  vertical-align: top;
+}
+.roll__row {
+  display: inline-flex;
+  white-space: pre;
+}
+.roll__row--clone {
+  position: absolute;
+  left: 0;
+  top: 100%;
+}
+.roll__char {
+  display: inline-block;
+  transition: transform 0.6s var(--ease-out);
+  transition-delay: calc(var(--i) * 18ms);
+}
+.roll-host:hover .roll__char,
+.roll-host:focus-visible .roll__char {
+  transform: translateY(-100%);
+}
+
+/* Pill button — "light" variant is the theme's inverse (ink on light, white on dark) */
+.btn {
+  --btn-bg: var(--fg);
+  --btn-fg: var(--bg);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 10px 0 24px;
+  border-radius: 999px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  isolation: isolate;
+  transition: color 0.5s;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--blue-2);
+  border-radius: inherit;
+  transform: translateY(101%);
+  transition: transform 0.7s var(--ease-out);
+  z-index: -1;
+}
+.btn:hover::before {
+  transform: translateY(0);
+}
+.btn:hover {
+  color: var(--white);
+}
+.btn__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--btn-fg);
+  color: var(--btn-bg);
+  transition: transform 0.7s var(--ease-out), background 0.5s, color 0.5s;
+  overflow: hidden;
+}
+.btn:hover .btn__icon {
+  background: var(--white);
+  color: var(--blue-2);
+  transform: rotate(-45deg);
+}
+.btn--ghost {
+  --btn-bg: transparent;
+  --btn-fg: var(--fg);
+  border: 1px solid var(--line-2);
+}
+.btn--ghost .btn__icon {
+  background: var(--chip);
+  color: var(--fg);
+}
+.btn--blue {
+  --btn-bg: var(--blue-2);
+  --btn-fg: var(--white);
+  box-shadow: 0 14px 40px -14px rgba(44, 91, 255, 0.8);
+}
+.btn--blue::before {
+  background: var(--white);
+}
+.btn--blue:hover {
+  color: var(--ink);
+}
+.btn--blue .btn__icon {
+  background: var(--white);
+  color: var(--blue-2);
+}
+.btn--blue:hover .btn__icon {
+  background: var(--blue-2);
+  color: var(--white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    animation: none;
+  }
+}
+
+/* Reveal targets stay hidden until their animation is created */
+[data-reveal] {
+  visibility: hidden;
+}
+
+/* Marquee */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+}
+.marquee__track {
+  display: flex;
+  flex: none;
+  will-change: transform;
+}
+.marquee__copy {
+  display: flex;
+  flex: none;
+  align-items: center;
+}

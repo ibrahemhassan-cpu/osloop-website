@@ -1,0 +1,150 @@
+/* value visuals */
+.vv {
+  position: relative;
+  flex: 1;
+  min-height: 180px;
+}
+.vv--orbit {
+  display: grid;
+  place-items: center;
+}
+.vv__core {
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--blue-2);
+  font-weight: 600;
+  font-size: 14px;
+}
+.vv__sat {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  animation: orbit 16s linear infinite;
+  animation-delay: calc(var(--k) * -4s);
+}
+.vv__sat span {
+  position: absolute;
+  transform: translate(-50%, -50%) translateX(min(150px, 14vw)) rotate(0deg);
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  white-space: nowrap;
+  animation: counter 16s linear infinite;
+  animation-delay: calc(var(--k) * -4s);
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes counter {
+  from {
+    transform: translate(-50%, -50%) translateX(min(150px, 14vw)) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) translateX(min(150px, 14vw)) rotate(-360deg);
+  }
+}
+.vv--blob {
+  display: grid;
+  place-items: center;
+}
+.vv__blob {
+  width: min(220px, 60%);
+  aspect-ratio: 1;
+  background: linear-gradient(135deg, #2c5bff, #9db7ff);
+  border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%;
+  animation: blob 9s ease-in-out infinite alternate;
+  filter: blur(0.5px);
+}
+.vv__blob--2 {
+  position: absolute;
+  width: min(140px, 40%);
+  background: linear-gradient(135deg, #ffb547, #ff7a3d);
+  mix-blend-mode: screen;
+  animation-duration: 7s;
+  animation-direction: alternate-reverse;
+  transform: translate(40%, 20%);
+}
+@keyframes blob {
+  0% { border-radius: 42% 58% 63% 37% / 41% 44% 56% 59%; rotate: 0deg; }
+  50% { border-radius: 63% 37% 39% 61% / 55% 62% 38% 45%; }
+  100% { border-radius: 36% 64% 48% 52% / 62% 38% 62% 38%; rotate: 160deg; }
+}
+.vv--gem {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.vv--gem svg {
+  width: min(200px, 60%);
+  filter: drop-shadow(0 20px 40px rgba(44, 91, 255, 0.4));
+}
+.vv__gem {
+  transform-origin: 100px 100px;
+  animation: gem 6s ease-in-out infinite;
+}
+@keyframes gem {
+  50% {
+    transform: translateY(-8px) rotate(4deg);
+  }
+}
+.vv__shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.7) 50%, transparent 60%);
+  transform: translateX(-100%);
+  animation: shine 4.5s var(--ease-io) infinite;
+  mix-blend-mode: overlay;
+}
+@keyframes shine {
+  60%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+.vv--waves {
+  display: grid;
+  place-items: center;
+}
+.vv__wave {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 1.5px solid var(--blue-2);
+  animation: ripple 4s var(--ease-out) infinite;
+  animation-delay: calc(var(--k) * 1s);
+  opacity: 0;
+}
+@keyframes ripple {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+.vv__bubble {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  padding: 18px 22px;
+  border-radius: 24px 24px 24px 6px;
+  background: var(--ink);
+}
+.vv__bubble span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--white);
+  animation: typing 1.4s ease-in-out infinite;
+}
+.vv__bubble span:nth-child(2) { animation-delay: 0.18s; }
+.vv__bubble span:nth-child(3) { animation-delay: 0.36s; }
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
