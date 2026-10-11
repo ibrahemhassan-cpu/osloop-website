@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { gsap, useGSAP, prefersReducedMotion } from '../lib/gsap'
-import { brand } from '../lib/content'
+import { LogoWhite } from './Logo'
 
 export function Preloader({ onReveal, onDone }: { onReveal: () => void; onDone: () => void }) {
   const root = useRef<HTMLDivElement>(null)
@@ -49,8 +49,8 @@ export function Preloader({ onReveal, onDone }: { onReveal: () => void; onDone: 
   return (
     <div className="pre" ref={root} aria-hidden>
       <div className="pre__logo-wrap">
-        <img src={brand.logoWhite} alt="" className="pre__logo pre__logo--ghost" />
-        <img src={brand.logoWhite} alt="" className="pre__logo pre__logo--fill" />
+        <LogoWhite className="pre__logo pre__logo--ghost" hidden />
+        <LogoWhite className="pre__logo pre__logo--fill" hidden />
       </div>
       <div className="pre__bottom">
         <div className="pre__meta mono">

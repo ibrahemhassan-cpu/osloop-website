@@ -4,7 +4,7 @@ The OsLoop Media Production site, built with React, GSAP, Lenis, Three.js and Mo
 
 | Route | Page |
 | --- | --- |
-| `/` | Home: a draggable 3D glass ∞ hero, about, live showreel, services, selected work, 3D process ring, values, reviews, the crew and a contact form |
+| `/` | Home: a draggable 3D glass ∞ hero, about, live showreel, nine services, selected work, 3D process ring, values, reviews, the team wheel and a contact form |
 | `/projects` | All projects, with animated category filters |
 | `/projects/:slug` | One project's story: where it started → how it was made → where it ended |
 
@@ -24,13 +24,34 @@ This is a single-page app. `vercel.json` and `public/_redirects` (Netlify) send 
 
 Everything lives in **`src/lib/content.ts`**:
 
-- `projects` — titles, covers, and the story text for each project (start / journey / end). The quotes are real client reviews.
-- `team` — roles and skills. Add `name` and `photo` and the cards switch to portraits automatically.
-- `contact.formEndpoint` — paste a form endpoint (for example a free Formspree form) so messages arrive in your inbox. While it's empty, the form opens the visitor's email app with the message already filled in.
-- `contact.whatsapp` — set a number to show a WhatsApp link.
-- `reel` — the YouTube showreel and its start time (1:17). Add a muted MP4 loop for best quality.
+- `services` — the nine services. Each one has an `images` list: two or more images crossfade every ~3 s, while a single image stays still.
+- `pipeline` — the seven process steps. Their card backgrounds are in `public/process/`.
+- `projects` — the six projects in order, with their real links (YouTube, the brand manual, the website). The story text is a draft and should be replaced with the real details.
+- `team` — roles. Add `name` and `photo` to each member; the photo becomes the main visual of the card.
+- `contact` — the budget options, WhatsApp number and form settings (see below).
 
 Navigation links are in `src/lib/nav.ts`.
+
+### Logo files
+
+Drop the official SVGs into `public/brand/` using these names, and the site switches to them on its own:
+
+| File | Used for |
+| --- | --- |
+| `osloop-media-production.svg` | navbar, footer, preloader |
+| `osloop-media-production-white.svg` | optional white version for dark backgrounds (otherwise the colour logo is inverted) |
+| `osloop.svg` | the general logo behind the glass loop in the hero |
+
+### Contact form + spam protection
+
+The form validates every field, includes a hidden honeypot field, and supports Cloudflare Turnstile.
+
+1. Create a Turnstile widget at dash.cloudflare.com. Put the **site key** in `contact.turnstileSiteKey`, or set the `VITE_TURNSTILE_SITE_KEY` env var.
+2. Create a free form at formspree.io.
+3. On Vercel, set the env vars `TURNSTILE_SECRET_KEY` and `FORMSPREE_ENDPOINT`.
+4. Set `contact.formEndpoint` to `'/api/contact'`. The function in `api/contact.ts` verifies Turnstile on the server and then forwards the message to Formspree.
+
+Until those steps are done, the form opens the visitor's email app with the brief already filled in. In local development, Cloudflare's test key is used so you can see the check working.
 
 ## Where things live
 

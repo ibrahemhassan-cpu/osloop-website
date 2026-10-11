@@ -1,0 +1,25 @@
+.iloop {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-3);
+}
+.iloop img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 0.6s ease, transform 3.6s ease-out;
+}
+.iloop img.is-on {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .iloop img {
+    transition: none;
+    transform: none;
+  }
+}

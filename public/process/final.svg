@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 780">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16285f"/><stop offset="1" stop-color="#050b24"/></linearGradient>
+    <radialGradient id="glow" cx="50%" cy="36%" r="55%"><stop offset="0" stop-color="#2c5bff" stop-opacity=".55"/><stop offset="1" stop-color="#2c5bff" stop-opacity="0"/></radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#9db7ff" stroke-opacity=".07"/></pattern>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2c5bff"/><stop offset="1" stop-color="#0b1640"/></linearGradient>
+  </defs>
+  <rect width="600" height="780" fill="url(#bg)"/>
+  <rect width="600" height="780" fill="url(#grid)"/>
+  <circle cx="300" cy="290" r="320" fill="url(#glow)"/>
+  <rect x="80" y="140" width="440" height="270" rx="18" fill="#0b1640" stroke="#cfdcff" stroke-width="4"/>
+  <rect x="96" y="156" width="408" height="238" rx="10" fill="url(#screen)"/>
+  <circle cx="300" cy="262" r="46" fill="#eef2ff"/>
+  <path d="M288 240v44l36-22z" fill="#2c5bff"/>
+  <rect x="120" y="364" width="360" height="6" rx="3" fill="#eef2ff" opacity=".25"/>
+  <rect x="120" y="364" width="360" height="6" rx="3" fill="#ffb547"/>
+  <rect x="420" y="172" width="64" height="28" rx="8" fill="#ffb547"/>
+  <path d="M436 180v12M436 186h8M444 180v12M454 180v12M454 186l8-6M454 186l8 6" stroke="#050b24" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M250 410l-20 60h140l-20-60" fill="#0b1640" stroke="#cfdcff" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M200 470h200" stroke="#cfdcff" stroke-width="4" stroke-linecap="round"/>
+  <g transform="translate(430 470)">
+    <circle r="40" fill="#ffb547"/>
+    <path d="M-18 0l12 12 24-26" fill="none" stroke="#050b24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g fill="#eef2ff"><path d="M120 110l5 12 12 5-12 5-5 12-5-12-12-5 12-5z"/><path d="M490 100l4 9 9 4-9 4-4 9-4-9-9-4 9-4z"/><path d="M150 500l3 7 7 3-7 3-3 7-3-7-7-3 7-3z"/></g>
+</svg>

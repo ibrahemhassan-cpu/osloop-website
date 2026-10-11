@@ -1,142 +1,117 @@
-import { useRef, type CSSProperties } from 'react'
+import { useRef, useState } from 'react'
 import { gsap, useGSAP } from '../../lib/gsap'
 import { team } from '../../lib/content'
 
-// Card colours — `ink` tones get dark text for contrast.
-const TONES = [
-  { c: '#2c5bff', ink: false },
-  { c: '#0b1640', ink: false },
-  { c: '#9db7ff', ink: true },
-  { c: '#ffb547', ink: true },
-  { c: '#1940b4', ink: false },
-  { c: '#ff8a65', ink: true },
-  { c: '#46c2ff', ink: true },
-  { c: '#3a2a8c', ink: false },
-]
+const N = team.length
+const STEP = 360 / N
 
-const ICONS: Record<string, React.ReactNode> = {
-  CD: <path d="M3 11l18-7-7 18-2-8-9-3z" />,
-  SW: <path d="M6 3h9l4 4v14H6zM9 10h7M9 14h7M9 18h4" />,
-  SB: <path d="M3 5h8v6H3zM13 5h8v6h-8zM3 13h8v6H3zM13 13h8v6h-8z" />,
-  IL: <path d="M4 20l4-1L19 8l-3-3L5 16zM14 7l3 3" />,
-  '3D': <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5" />,
-  AN: <path d="M4 12c3-6 5-6 8 0s5 6 8 0" />,
-  FX: <path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z" />,
-  SFX: <path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10" />,
+/** Stand-in portrait until the designed team photos arrive (same treatment for every card). */
+function Placeholder({ i }: { i: number }) {
+  const hue = [222, 230, 214, 205, 238, 218, 226, 210][i % 8]
+  return (
+    <svg className="tcard__ph" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden>
+      <defs>
+        <linearGradient id={`tg${i}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={`hsl(${hue} 70% 46%)`} />
+          <stop offset="1" stopColor="#050b24" />
+        </linearGradient>
+      </defs>
+      <rect width="300" height="400" fill={`url(#tg${i})`} />
+      <circle cx="150" cy="150" r="62" fill="rgba(255,255,255,.18)" />
+      <path d="M40 400c0-80 50-130 110-130s110 50 110 130z" fill="rgba(255,255,255,.14)" />
+    </svg>
+  )
 }
 
 /**
- * "The crew" — cards start stacked like a deck and fan into an arc as you scroll.
- * Hover lifts a card and reveals the craft behind it. Real names/photos plug in from content.ts.
+ * The crew — a wheel of portrait cards. While pinned, scrolling turns the wheel clockwise and
+ * each member passes through the centre; scrolling up turns it back.
  */
 export function Team() {
   const root = useRef<HTMLElement>(null)
+  const [active, setActive] = useState(0)
 
   useGSAP(
     () => {
       const cards = gsap.utils.toArray<HTMLElement>('.tcard', root.current)
-      const n = cards.length
-      const mid = (n - 1) / 2
-      const mm = gsap.matchMedia()
-
-      mm.add('(min-width: 900px)', () => {
-        const spread = () => Math.min(window.innerWidth * 0.105, 170)
-        gsap.set(cards, {
-          x: 0,
-          y: (i) => 60 + i * -3,
-          rotation: (i) => (i % 2 ? 1 : -1) * (2 + (i % 3) * 2),
-          scale: 0.86,
-        })
-        gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: root.current,
-              start: 'top top',
-              end: '+=120%',
-              pin: '.team__stage',
-              scrub: 1.2,
-              invalidateOnRefresh: true,
-            },
-          })
-          .to(cards, {
-            x: (i) => (i - mid) * spread(),
-            y: (i) => Math.pow(Math.abs(i - mid), 2) * 9,
-            rotation: (i) => (i - mid) * 5.5,
-            scale: 1,
-            ease: 'power2.inOut',
-            stagger: { each: 0.02, from: 'center' },
-          })
-          .from('.team__hint', { autoAlpha: 0, y: 20, duration: 0.3 }, '-=0.2')
-      })
-
-      // Reflection follows the pointer on each card.
-      const move = (e: PointerEvent) => {
-        const card = (e.target as HTMLElement).closest<HTMLElement>('.tcard')
-        if (!card) return
-        const r = card.getBoundingClientRect()
-        card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`)
-        card.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`)
+      const state = { p: 0 }
+      let current = -1
+      let radius = 0
+      const measure = () => {
+        const w = window.innerWidth
+        radius = w < 760 ? Math.max(340, w * 1.1) : gsap.utils.clamp(560, 920, w * 0.52)
       }
-      root.current!.addEventListener('pointermove', move)
-      return () => root.current?.removeEventListener('pointermove', move)
+      const paint = () => {
+        cards.forEach((card, i) => {
+          // angle from the top of the wheel; positive = clockwise (to the right)
+          let th = (state.p - i) * STEP
+          th = ((((th + 180) % 360) + 360) % 360) - 180
+          const rad = (th * Math.PI) / 180
+          const c = Math.cos(rad)
+          const k = Math.max(0, c)
+          const x = radius * Math.sin(rad)
+          const y = radius * (1 - c)
+          const scale = 0.72 + 0.4 * k ** 3
+          card.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(th * 0.6).toFixed(2)}deg) scale(${scale.toFixed(3)})`
+          card.style.zIndex = String(Math.round(100 + c * 100))
+          card.style.opacity = String(gsap.utils.clamp(0, 1, (c + 0.25) * 1.8))
+          card.style.setProperty('--focus', (k ** 6).toFixed(3))
+        })
+        const a = ((Math.round(state.p) % N) + N) % N
+        if (a !== current) {
+          current = a
+          setActive(a)
+        }
+      }
+      measure()
+      paint()
+
+      gsap.to(state, {
+        p: N - 1,
+        ease: 'none',
+        onUpdate: paint,
+        scrollTrigger: {
+          trigger: root.current,
+          start: 'top top',
+          end: () => `+=${window.innerHeight * 0.6 * (N - 1)}`,
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+          onRefresh: () => {
+            measure()
+            paint()
+          },
+        },
+      })
     },
     { scope: root },
   )
 
   return (
     <section className="team" id="team" ref={root} data-header-theme="auto">
-      <div className="team__stage">
-        <div className="team__head">
-          <h2 className="team__h" data-reveal="lines">
-            The people behind <span className="serif">the loop.</span>
-          </h2>
-          <p className="team__p" data-reveal="fade">
-            Writers, artists, animators and sound designers — one crew, from the first word to the final frame.
-          </p>
-        </div>
+      <div className="team__head">
+        <h2 className="team__h" data-reveal="lines">
+          The people behind <span className="serif">the loop.</span>
+        </h2>
+        <p className="team__p" data-reveal="fade">
+          Writers, artists, animators and sound designers — one crew, from the first word to the final frame.
+        </p>
+      </div>
 
-        <div className="team__deck">
-          {team.map((m, i) => (
-            <article
-              key={m.role}
-              className={`tcard${m.photo ? ' tcard--photo' : ''}${TONES[i % TONES.length].ink ? ' tcard--ink' : ''}`}
-              style={{ '--tone': TONES[i % TONES.length].c, zIndex: i < team.length / 2 ? i + 1 : team.length - i } as CSSProperties}
-              tabIndex={0}
-            >
-              <div className="tcard__inner">
-                {m.photo ? (
-                  <img className="tcard__photo" src={m.photo} alt={m.name ?? m.role} loading="lazy" />
-                ) : (
-                  <span className="tcard__mono" aria-hidden>
-                    {m.mono}
-                  </span>
-                )}
-                <div className="tcard__top">
-                  <span className="mono">
-                    {String(i + 1).padStart(2, '0')} / {String(team.length).padStart(2, '0')}
-                  </span>
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    {ICONS[m.mono]}
-                  </svg>
-                </div>
-                <div className="tcard__bottom">
-                  {m.name && <p className="tcard__name">{m.name}</p>}
-                  <h3 className="tcard__role">{m.role}</h3>
-                  <ul className="tcard__skills">
-                    {m.skills.map((s) => (
-                      <li key={s} className="mono">
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <span className="tcard__shine" aria-hidden />
+      <div className="team__wheel">
+        {team.map((m, i) => (
+          <article key={m.role} className={`tcard${i === active ? ' is-active' : ''}`} aria-current={i === active}>
+            <div className="tcard__inner">
+              <div className="tcard__photo">
+                {m.photo ? <img src={m.photo} alt={m.name ?? m.role} loading="lazy" draggable={false} /> : <Placeholder i={i} />}
               </div>
-            </article>
-          ))}
-        </div>
-
-        <p className="team__hint mono">Hover a card to meet the craft</p>
+              <div className="tcard__info">
+                {m.name && <h3 className="tcard__name">{m.name}</h3>}
+                <p className="tcard__role">{m.role}</p>
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
     </section>
   )

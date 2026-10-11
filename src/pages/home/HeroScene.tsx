@@ -1,7 +1,8 @@
-import { useMemo, useRef, useState, type MutableRefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { setCursorLabel } from '../../components/Cursor'
+import { brand } from '../../lib/content'
 import {
   Environment,
   Float,
@@ -173,11 +174,50 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
   )
 }
 
+/**
+ * Loads the general OsLoop logo (SVG) as a white silhouette texture so it can be tinted per theme.
+ * Returns null while loading or if the file isn't there yet — the scene then shows the word instead.
+ */
+function useMarkTexture(url: string) {
+  const [mark, setMark] = useState<{ texture: THREE.CanvasTexture; aspect: number } | null>(null)
+  useEffect(() => {
+    let alive = true
+    const img = new Image()
+    img.onload = () => {
+      if (!alive) return
+      const nw = img.naturalWidth || 1200
+      const nh = img.naturalHeight || 400
+      const w = 2048
+      const h = Math.max(1, Math.round((w * nh) / nw))
+      const c = document.createElement('canvas')
+      c.width = w
+      c.height = h
+      const ctx = c.getContext('2d')!
+      ctx.drawImage(img, 0, 0, w, h)
+      ctx.globalCompositeOperation = 'source-in'
+      ctx.fillStyle = '#fff'
+      ctx.fillRect(0, 0, w, h)
+      const texture = new THREE.CanvasTexture(c)
+      texture.colorSpace = THREE.SRGBColorSpace
+      texture.anisotropy = 8
+      setMark({ texture, aspect: w / h })
+    }
+    img.onerror = () => alive && setMark(null)
+    img.src = url
+    return () => {
+      alive = false
+    }
+  }, [url])
+  return mark
+}
+
 function BackdropWord({ progress, intro, mobile, theme }: Refs & { mobile: boolean; theme: Theme }) {
   const ref = useRef<THREE.Group>(null)
   const { viewport, camera } = useThree()
   const vp = viewport.getCurrentViewport(camera, new THREE.Vector3(0, 0, -2.6))
   const size = Math.min(vp.width / 3.05, 3.2)
+
+  const mark = useMarkTexture(brand.markSvg)
 
   useFrame((state, dt) => {
     if (!ref.current) return
@@ -188,6 +228,19 @@ function BackdropWord({ progress, intro, mobile, theme }: Refs & { mobile: boole
     const mat = (ref.current.children[0] as THREE.Mesh | undefined)?.material as THREE.MeshBasicMaterial | undefined
     if (mat) mat.opacity = i
   })
+
+  if (mark) {
+    // Same footprint as the word: ~88% of the visible width, never taller than ~42% of the height.
+    const w = Math.min(vp.width * 0.86, vp.height * 0.42 * mark.aspect)
+    return (
+      <group ref={ref} position={[0, 0, -2.6]}>
+        <mesh>
+          <planeGeometry args={[w, w / mark.aspect]} />
+          <meshBasicMaterial map={mark.texture} color={PALETTE[theme].word} transparent toneMapped={false} />
+        </mesh>
+      </group>
+    )
+  }
 
   return (
     <group ref={ref} position={[0, 0, -2.6]}>
@@ -247,6 +300,38 @@ function Glow({ theme }: { theme: Theme }) {
   )
 }
 
+const FLIGHT = 2.6 // seconds out-and-back
+const REST = 3 // seconds still at home
+
+/** Orange orb: flies out on a smooth loop and lands exactly where it started, then rests. */
+function LoopingOrb() {
+  const ref = useRef<THREE.Mesh>(null)
+  const home = useMemo(() => new THREE.Vector3(3.7, 0.4, -0.9), [])
+  useFrame((state) => {
+    const m = ref.current
+    if (!m) return
+    const t = state.clock.elapsedTime % (FLIGHT + REST)
+    if (t >= FLIGHT) {
+      m.position.copy(home)
+      m.scale.setScalar(1)
+      return
+    }
+    const x = t / FLIGHT
+    const u = x * x * x * (x * (x * 6 - 15) + 10) // smootherstep — zero velocity at both ends
+    const a = u * Math.PI * 2
+    const R = 0.95
+    m.position.set(home.x - R * Math.sin(a) * 1.25, home.y + R * (1 - Math.cos(a)), home.z + R * 0.9 * Math.sin(a))
+    m.scale.setScalar(1 + 0.35 * Math.sin(u * Math.PI))
+    m.rotation.y = a
+  })
+  return (
+    <mesh ref={ref} position={home}>
+      <sphereGeometry args={[0.2, 48, 48]} />
+      <meshPhysicalMaterial color="#ffb547" roughness={0.2} metalness={0.1} clearcoat={1} emissive="#ff8a00" emissiveIntensity={0.25} />
+    </mesh>
+  )
+}
+
 function Orbs() {
   return (
     <>
@@ -256,12 +341,7 @@ function Orbs() {
           <meshPhysicalMaterial color="#2c5bff" roughness={0.15} metalness={0.2} clearcoat={1} />
         </mesh>
       </Float>
-      <Float speed={0.9} rotationIntensity={0.4} floatIntensity={1.4}>
-        <mesh position={[3.7, 0.4, -0.9]}>
-          <sphereGeometry args={[0.2, 48, 48]} />
-          <meshPhysicalMaterial color="#ffb547" roughness={0.2} metalness={0.1} clearcoat={1} emissive="#ff8a00" emissiveIntensity={0.25} />
-        </mesh>
-      </Float>
+      <LoopingOrb />
       <Float speed={1.3} rotationIntensity={1} floatIntensity={0.8}>
         <mesh position={[2.6, 1.9, -1.6]}>
           <torusGeometry args={[0.22, 0.08, 24, 64]} />

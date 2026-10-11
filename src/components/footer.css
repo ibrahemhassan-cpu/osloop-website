@@ -49,26 +49,16 @@
   color: var(--muted-dark);
 }
 .ftr__mark {
-  display: flex;
-  justify-content: center;
-  font-size: 28.5vw;
-  font-weight: 800;
-  letter-spacing: -0.075em;
-  line-height: 0.8;
-  margin: 3vw 0 2vw;
-  padding-right: 0.075em;
-}
-.ftr__char-wrap {
-  display: block;
+  margin: 4vw 0 3vw;
   overflow: hidden;
-  padding-bottom: 0.04em;
 }
-.ftr__char {
+.ftr__logo {
   display: block;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(180deg, #ffffff 30%, rgba(157, 183, 255, 0.4));
+  width: 100%;
+  height: auto;
+  max-height: 32vw;
+  object-fit: contain;
+  object-position: left center;
 }
 .ftr__bottom {
   display: flex;

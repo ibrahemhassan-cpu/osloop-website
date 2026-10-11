@@ -6,6 +6,7 @@ import { useNavTo } from '../lib/useNavTo'
 import { useSmoothScroll } from '../providers/SmoothScroll'
 import type { NavLink } from './Header'
 import { Arrow, Magnetic, RollText } from './ui'
+import { LogoWhite } from './Logo'
 import './footer.css'
 
 export function Footer({ links }: { links: NavLink[] }) {
@@ -16,12 +17,16 @@ export function Footer({ links }: { links: NavLink[] }) {
 
   useGSAP(
     () => {
-      gsap.from('.ftr__char', {
-        yPercent: 100,
-        ease: 'none',
-        stagger: 0.05,
-        scrollTrigger: { trigger: '.ftr__mark', start: 'top bottom', end: 'bottom bottom', scrub: 1.2 },
-      })
+      gsap.fromTo(
+        '.ftr__logo',
+        { clipPath: 'inset(100% 0% 0% 0%)', yPercent: 18 },
+        {
+          clipPath: 'inset(0% 0% 0% 0%)',
+          yPercent: 0,
+          ease: 'none',
+          scrollTrigger: { trigger: '.ftr__mark', start: 'top bottom', end: 'bottom bottom', scrub: 1.2 },
+        },
+      )
       gsap.from('.ftr__inner', {
         yPercent: -25,
         ease: 'none',
@@ -95,12 +100,8 @@ export function Footer({ links }: { links: NavLink[] }) {
           </div>
         </div>
 
-        <div className="ftr__mark" aria-hidden>
-          {'osloop'.split('').map((c, i) => (
-            <span className="ftr__char-wrap" key={i}>
-              <span className="ftr__char">{c}</span>
-            </span>
-          ))}
+        <div className="ftr__mark">
+          <LogoWhite className="ftr__logo" />
         </div>
 
         <div className="ftr__bottom mono">

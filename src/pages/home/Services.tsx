@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { gsap, useGSAP } from '../../lib/gsap'
 import { services } from '../../lib/content'
+import { ImageLoop } from '../../components/ImageLoop'
 
 export function Services() {
   const root = useRef<HTMLElement>(null)
@@ -26,26 +27,13 @@ export function Services() {
             },
           },
         })
-        gsap.utils.toArray<HTMLElement>('.v1-svc', root.current).forEach((panel) => {
-          const media = panel.querySelector('.v1-svc__media img')
-          const title = panel.querySelector('.v1-svc__title')
-          gsap.fromTo(media, { xPercent: -12, scale: 1.18 }, {
-            xPercent: 12,
-            scale: 1.05,
-            ease: 'none',
-            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left right', end: 'right left', scrub: true },
-          })
-          gsap.from(title, {
-            xPercent: 25,
-            ease: 'none',
-            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left right', end: 'left 30%', scrub: true },
-          })
-          gsap.from(panel.querySelectorAll('.v1-svc__tags li'), {
+        gsap.utils.toArray<HTMLElement>('.v1-svc', root.current).forEach((card) => {
+          gsap.from(card.querySelectorAll('.v1-svc__title, .v1-svc__lead, .v1-svc__body, .v1-svc__tags'), {
             y: 30,
             autoAlpha: 0,
-            stagger: 0.06,
-            duration: 1,
-            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left 60%' },
+            stagger: 0.07,
+            duration: 1.1,
+            scrollTrigger: { trigger: card, containerAnimation: move, start: 'left 78%' },
           })
         })
       })
@@ -58,13 +46,13 @@ export function Services() {
       <div className="v1-services__track">
         <div className="v1-services__intro">
           <h2 className="v1-services__h" data-reveal="lines">
-            Three crafts. <br />
+            Nine services. <br />
             <span className="serif">One obsession:</span> <br />
             your story.
           </h2>
           <p className="v1-services__p" data-reveal="fade" data-delay="0.2">
-            From a two-minute explainer to a full product universe in 3D, every frame is built around the one thing
-            that matters — the message you need people to remember.
+            From explainers and 3D films to brand identities and animated websites — one team, one standard, built around
+            the message you need people to remember.
           </p>
           <div className="v1-services__hint mono" data-reveal="fade" data-delay="0.3">
             <span>Keep scrolling</span>
@@ -72,10 +60,10 @@ export function Services() {
           </div>
         </div>
 
-        {services.map((s) => (
-          <article className="v1-svc" key={s.id} data-cursor="Explore">
+        {services.map((s, i) => (
+          <article className="v1-svc" key={s.id}>
+            <ImageLoop className="v1-svc__media" images={s.images} alt={`${s.title} — OsLoop work`} offset={(i % 3) * 700} />
             <div className="v1-svc__text">
-              <span className="v1-svc__index">{s.index}</span>
               <h3 className="v1-svc__title">{s.title}</h3>
               <p className="v1-svc__lead serif">{s.lead}</p>
               <p className="v1-svc__body">{s.body}</p>
@@ -86,10 +74,6 @@ export function Services() {
                   </li>
                 ))}
               </ul>
-            </div>
-            <div className="v1-svc__media">
-              <img src={s.image} alt={`${s.title} — OsLoop work`} loading="lazy" />
-              <span className="v1-svc__media-tag mono">{s.index} / 03</span>
             </div>
           </article>
         ))}

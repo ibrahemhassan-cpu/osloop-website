@@ -5,7 +5,7 @@ import { TransitionLink, useExperience } from '../../providers/Experience'
 import { ProjectCover } from '../../components/ProjectCover'
 import { Arrow, Magnetic, RollText } from '../../components/ui'
 
-const FEATURED = projects.slice(0, 4)
+const FEATURED = projects
 
 /** Selected work — a big index of projects with a floating preview that trails the cursor. */
 export function Work() {
@@ -48,7 +48,7 @@ export function Work() {
           <li key={p.slug} data-reveal="fade" data-delay={String(i * 0.06)}>
             <TransitionLink
               to={`/projects/${p.slug}`}
-              label={p.title}
+              label={p.name}
               className={`work__row${hover === i ? ' is-hover' : ''}`}
               data-cursor="View story"
               onMouseEnter={() => setHover(i)}
@@ -57,7 +57,10 @@ export function Work() {
               <span className="work__thumb">
                 <ProjectCover project={p} />
               </span>
-              <span className="work__title">{p.title}</span>
+              <span className="work__title">
+                {p.name}
+                <span className="work__sub">{p.title.split(' — ')[1]}</span>
+              </span>
               <span className="work__cat mono">{p.category}</span>
               <span className="work__go">
                 <Arrow size={18} rotate={-45} />

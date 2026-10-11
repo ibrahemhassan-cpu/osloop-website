@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { gsap, ScrollTrigger } from '../lib/gsap'
 import { useSmoothScroll } from './SmoothScroll'
 import { Preloader } from '../components/Preloader'
+import { LogoWhite } from '../components/Logo'
 import { brand } from '../lib/content'
 import './experience.css'
 
@@ -117,7 +118,7 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
         <div className="curtain__layer curtain__layer--blue" />
         <div className="curtain__layer curtain__layer--ink">
           <div className="curtain__content">
-            <img src={brand.logoWhite} alt="" className="curtain__logo" />
+            <LogoWhite className="curtain__logo" hidden />
             <span className="mono curtain__label" ref={label} />
           </div>
         </div>

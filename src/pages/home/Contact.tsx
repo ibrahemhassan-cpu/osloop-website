@@ -1,10 +1,15 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from 'react'
 import { gsap, SplitText, useGSAP, isTouch } from '../../lib/gsap'
 import { brand, contact, socials } from '../../lib/content'
 import { useClock } from '../../lib/useClock'
+import { useTheme } from '../../providers/Theme'
 import { Arrow, Magnetic, RollText } from '../../components/ui'
+import { Turnstile, turnstileKey } from '../../components/Turnstile'
+import type { PhoneValue } from '../../components/PhoneField'
 
-const NEEDS = ['Explainer video', '3D production', 'Animated website', 'Not sure yet']
+// The phone field carries country metadata — load it only when the form is near.
+const PhoneField = lazy(() => import('../../components/PhoneField').then((m) => ({ default: m.PhoneField })))
+
 type Status = 'idle' | 'sending' | 'sent' | 'mailed' | 'error'
 
 export function Contact() {
@@ -12,11 +17,24 @@ export function Contact() {
   const orb = useRef<HTMLDivElement>(null)
   const done = useRef<HTMLDivElement>(null)
   const time = useClock(brand.timeZone)
+  const { theme } = useTheme()
 
-  const [needs, setNeeds] = useState<string[]>(['Explainer video'])
-  const [form, setForm] = useState({ name: '', email: '', company: '', message: '' })
+  const [needs, setNeeds] = useState<string[]>([contact.needs[0]])
+  const [budget, setBudget] = useState('')
+  const [form, setForm] = useState({ name: '', email: '', company: '', message: '', website: '' })
+  const [phone, setPhone] = useState<PhoneValue | null>(null)
+  const [token, setToken] = useState<string | null>(null)
+  const [captchaRun, setCaptchaRun] = useState(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<Status>('idle')
+  const [serverError, setServerError] = useState('')
+  const [near, setNear] = useState(false)
+
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: '900px 0px' })
+    io.observe(root.current!)
+    return () => io.disconnect()
+  }, [])
 
   useGSAP(
     () => {
@@ -31,6 +49,7 @@ export function Contact() {
         ease: 'silk',
         scrollTrigger: { trigger: root.current, start: 'top 75%', end: 'top 15%', scrub: 1.2 },
       })
+      // decorative — keeps turning on its own, never reacts to the pointer
       gsap.to('.v1-badge__ring', { rotate: 360, duration: 22, repeat: -1, ease: 'none' })
     },
     { scope: root },
@@ -50,7 +69,6 @@ export function Contact() {
     return () => el.removeEventListener('pointermove', move)
   }, [])
 
-  // Success panel entrance.
   useEffect(() => {
     if ((status === 'sent' || status === 'mailed') && done.current) {
       gsap
@@ -60,36 +78,49 @@ export function Contact() {
     }
   }, [status])
 
+  const clear = (k: string) => errors[k] && setErrors((x) => ({ ...x, [k]: '' }))
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [k]: e.target.value }))
-    if (errors[k]) setErrors((x) => ({ ...x, [k]: '' }))
+    clear(k)
   }
-  const toggle = (n: string) => setNeeds((cur) => (cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n]))
+  const toggleNeed = (n: string) => setNeeds((cur) => (cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n]))
 
   const validate = () => {
     const e: Record<string, string> = {}
     if (!form.name.trim()) e.name = 'Please tell us your name.'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = 'Please enter a valid email.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = 'Please enter a valid email address.'
+    if (!budget) e.budget = 'Please choose a budget range.'
+    if (phone && phone.national && !phone.valid) e.phone = `This number doesn’t look valid for ${phone.label}.`
     if (form.message.trim().length < 10) e.message = 'A few words about the project, please.'
+    if (turnstileKey && !token) e.captcha = 'Please complete the security check below.'
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
+    setServerError('')
+    // Honeypot: a hidden field only bots fill in — quietly "succeed" without sending.
+    if (form.website) {
+      setStatus('sent')
+      return
+    }
     if (!validate()) return
-    const subject = `Project brief — ${needs.join(', ') || 'New project'}`
-    const lines = [
-      `Name: ${form.name}`,
-      `Email: ${form.email}`,
-      ...(form.company ? [`Company: ${form.company}`] : []),
-      `Needs: ${needs.join(', ') || '—'}`,
-      '',
-      form.message,
-    ]
 
+    const phoneText = phone?.e164 || ''
     if (!contact.formEndpoint) {
-      window.location.href = `mailto:${brand.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`
+      const subject = `Project brief — ${needs.join(', ') || 'New project'}`
+      const body = [
+        `Name: ${form.name}`,
+        `Email: ${form.email}`,
+        ...(phoneText ? [`Phone: ${phoneText}`] : []),
+        ...(form.company ? [`Company: ${form.company}`] : []),
+        `Needs: ${needs.join(', ') || '—'}`,
+        `Budget: ${budget}`,
+        '',
+        form.message,
+      ].join('\n')
+      window.location.href = `mailto:${brand.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
       setStatus('mailed')
       return
     }
@@ -98,11 +129,34 @@ export function Contact() {
       const res = await fetch(contact.formEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ ...form, needs: needs.join(', '), _subject: subject }),
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: phoneText,
+          company: form.company,
+          needs: needs.join(', '),
+          budget,
+          message: form.message,
+          token,
+          website: form.website,
+        }),
       })
-      setStatus(res.ok ? 'sent' : 'error')
-    } catch {
+      if (res.ok) {
+        setStatus('sent')
+        return
+      }
+      const data = (await res.json().catch(() => ({}))) as { error?: string }
+      setServerError(
+        data.error === 'captcha_failed'
+          ? 'The security check failed — please try it again.'
+          : 'We couldn’t send your message right now.',
+      )
       setStatus('error')
+      setCaptchaRun((n) => n + 1)
+    } catch {
+      setServerError('We couldn’t send your message right now.')
+      setStatus('error')
+      setCaptchaRun((n) => n + 1)
     }
   }
 
@@ -147,23 +201,22 @@ export function Contact() {
                 </a>
               ))}
             </div>
-            <Magnetic strength={0.45} className="v1-cta__badge-wrap">
-              <a className="v1-badge" href={`mailto:${brand.email}?subject=Video%20request`} data-cursor="Email us">
-                <svg className="v1-badge__ring" viewBox="0 0 200 200" aria-hidden>
-                  <defs>
-                    <path id="badge-circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" />
-                  </defs>
-                  <text>
-                    <textPath href="#badge-circle" startOffset="0">
-                      REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦
-                    </textPath>
-                  </text>
-                </svg>
-                <span className="v1-badge__core">
-                  <Arrow size={30} rotate={-45} />
-                </span>
-              </a>
-            </Magnetic>
+            {/* Decorative only: no link, no hover, no pointer-follow. */}
+            <div className="v1-badge" aria-hidden>
+              <svg className="v1-badge__ring" viewBox="0 0 200 200">
+                <defs>
+                  <path id="badge-circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" />
+                </defs>
+                <text>
+                  <textPath href="#badge-circle" startOffset="0">
+                    REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦
+                  </textPath>
+                </text>
+              </svg>
+              <span className="v1-badge__core">
+                <Arrow size={30} rotate={-45} />
+              </span>
+            </div>
           </div>
 
           <div className="cform-wrap" data-reveal="fade" data-delay="0.15">
@@ -173,7 +226,7 @@ export function Contact() {
                   <circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.25" />
                   <path d="M15 27l7 7 15-16" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="60" />
                 </svg>
-                <h3>{status === 'sent' ? `Thanks, ${form.name.split(' ')[0]}!` : 'Almost there…'}</h3>
+                <h3>{status === 'sent' ? `Thanks, ${form.name.split(' ')[0] || 'friend'}!` : 'Almost there…'}</h3>
                 <p>
                   {status === 'sent'
                     ? 'Your message is on its way. We’ll get back to you with next steps soon.'
@@ -185,21 +238,43 @@ export function Contact() {
               </div>
             ) : (
               <form className="cform" onSubmit={submit} noValidate>
-                <fieldset className="cform__needs">
+                <fieldset className="cform__group">
                   <legend className="mono">What do you need?</legend>
-                  {NEEDS.map((n) => (
+                  {contact.needs.map((n) => (
                     <button
                       type="button"
                       key={n}
                       className={`cchip${needs.includes(n) ? ' is-on' : ''}`}
                       aria-pressed={needs.includes(n)}
-                      onClick={() => toggle(n)}
+                      onClick={() => toggleNeed(n)}
                     >
                       <span className="cchip__dot" aria-hidden />
                       {n}
                     </button>
                   ))}
                 </fieldset>
+
+                <fieldset className={`cform__group${errors.budget ? ' has-error' : ''}`} role="radiogroup" aria-required>
+                  <legend className="mono">What is your budget? *</legend>
+                  {contact.budgets.map((b) => (
+                    <button
+                      type="button"
+                      key={b}
+                      role="radio"
+                      aria-checked={budget === b}
+                      className={`cchip cchip--radio${budget === b ? ' is-on' : ''}`}
+                      onClick={() => {
+                        setBudget(b)
+                        clear('budget')
+                      }}
+                    >
+                      <span className="cchip__dot" aria-hidden />
+                      {b}
+                    </button>
+                  ))}
+                  {errors.budget && <em className="cform__msg">{errors.budget}</em>}
+                </fieldset>
+
                 <div className="cform__row">
                   <label className={`cfield${errors.name ? ' has-error' : ''}`}>
                     <span className="mono">Name *</span>
@@ -212,10 +287,31 @@ export function Contact() {
                     {errors.email && <em>{errors.email}</em>}
                   </label>
                 </div>
-                <label className="cfield">
-                  <span className="mono">Company</span>
-                  <input value={form.company} onChange={set('company')} autoComplete="organization" placeholder="Optional" />
-                </label>
+
+                <div className="cform__row">
+                  <div className={`cfield${errors.phone ? ' has-error' : ''}`}>
+                    <span className="mono">Phone number — Optional</span>
+                    <Suspense fallback={<div className="cfield__ph" />}>
+                      {near ? (
+                        <PhoneField
+                          error={errors.phone}
+                          onChange={(v) => {
+                            setPhone(v)
+                            clear('phone')
+                          }}
+                        />
+                      ) : (
+                        <div className="cfield__ph" />
+                      )}
+                    </Suspense>
+                    {errors.phone && <em>{errors.phone}</em>}
+                  </div>
+                  <label className="cfield">
+                    <span className="mono">Company</span>
+                    <input value={form.company} onChange={set('company')} autoComplete="organization" placeholder="Optional" />
+                  </label>
+                </div>
+
                 <label className={`cfield${errors.message ? ' has-error' : ''}`}>
                   <span className="mono">Tell us about the project *</span>
                   <textarea
@@ -227,6 +323,25 @@ export function Contact() {
                   />
                   {errors.message && <em>{errors.message}</em>}
                 </label>
+
+                {/* Honeypot — hidden from people and screen readers, irresistible to bots. */}
+                <div className="cform__hp" aria-hidden>
+                  <label>
+                    Website
+                    <input tabIndex={-1} autoComplete="off" value={form.website} onChange={set('website')} />
+                  </label>
+                </div>
+
+                <Turnstile
+                  theme={theme}
+                  resetKey={captchaRun}
+                  onToken={(t) => {
+                    setToken(t)
+                    if (t) clear('captcha')
+                  }}
+                />
+                {errors.captcha && <em className="cform__msg">{errors.captcha}</em>}
+
                 <div className="cform__foot">
                   <Magnetic strength={0.2}>
                     <button type="submit" className="btn btn--blue roll-host" disabled={status === 'sending'}>
@@ -236,9 +351,10 @@ export function Contact() {
                       </span>
                     </button>
                   </Magnetic>
+                  {Object.values(errors).some(Boolean) && <span className="cform__error">Please check the highlighted fields.</span>}
                   {status === 'error' && (
                     <span className="cform__error">
-                      Something went wrong — please email us at <a href={`mailto:${brand.email}`}>{brand.email}</a>.
+                      {serverError} You can also email us at <a href={`mailto:${brand.email}`}>{brand.email}</a>.
                     </span>
                   )}
                 </div>
