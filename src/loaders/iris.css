@@ -1,0 +1,157 @@
+/* ---------- Loader: Iris — "Focus on ∞" ---------- */
+.ld-iris {
+  --ld-iris-body: #e7ebf4;
+  --ld-iris-shadow: #c9d1e3;
+  --ld-iris-blade-0: #d3dbeb;
+  --ld-iris-blade-1: #c7d0e4;
+  --ld-iris-blade-2: #dbe2f0;
+  --ld-iris-blade-line: rgba(255, 255, 255, 0.95);
+  --ld-iris-line: rgba(5, 11, 36, 0.32);
+  --ld-iris-text: rgba(5, 11, 36, 0.62);
+  --ld-iris-stage: #f7f8fc;
+  --ld-iris-sheen: #ffffff;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  overflow: hidden;
+}
+[data-theme='dark'] .ld-iris {
+  --ld-iris-body: #060b22;
+  --ld-iris-shadow: #02040f;
+  --ld-iris-blade-0: #0e1a46;
+  --ld-iris-blade-1: #0a143a;
+  --ld-iris-blade-2: #13225a;
+  --ld-iris-blade-line: rgba(157, 183, 255, 0.28);
+  --ld-iris-line: rgba(255, 255, 255, 0.3);
+  --ld-iris-text: rgba(255, 255, 255, 0.66);
+  --ld-iris-stage: #071033;
+  --ld-iris-sheen: #9db7ff;
+}
+
+/* what's seen through the aperture */
+.ld-iris__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--ld-iris-stage);
+  overflow: hidden;
+}
+.ld-iris__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(34% 34% at 50% 50%, var(--glow), transparent 75%);
+}
+.ld-iris__logo {
+  position: relative;
+  height: auto;
+  will-change: filter, transform;
+}
+.ld-iris__glint {
+  position: absolute;
+  inset: -20% -40%;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.5) 50%, transparent 62%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the lens body, blades and rings */
+.ld-iris__body {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ld-iris__bodybg {
+  fill: var(--ld-iris-body);
+}
+.ld-iris__blade {
+  stroke: var(--ld-iris-blade-line);
+  stroke-width: 1;
+}
+.ld-iris__rim {
+  fill: none;
+  stroke: var(--ld-iris-line);
+  stroke-width: 1.5;
+}
+.ld-iris__pulse {
+  fill: none;
+  stroke: #ffae23;
+  stroke-width: 1.5;
+  opacity: 0;
+}
+.ld-iris__edge {
+  fill: none;
+  stroke: var(--ld-iris-line);
+  stroke-width: 1;
+}
+.ld-iris__grip,
+.ld-iris__tick {
+  stroke: var(--ld-iris-line);
+  stroke-width: 1.2;
+}
+.ld-iris__label {
+  fill: var(--ld-iris-text);
+  font-family: var(--f-mono);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+.ld-iris__label.is-inf {
+  fill: #ffae23;
+  font-family: var(--f-sans);
+  font-weight: 600;
+}
+.ld-iris__index {
+  fill: #ffae23;
+}
+
+/* camera readouts */
+.ld-iris__hud {
+  position: absolute;
+  inset: clamp(18px, 3vw, 40px);
+  color: var(--ld-iris-text);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  pointer-events: none;
+}
+.ld-iris__hud-item {
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ld-iris__hud-item--tl {
+  top: 0;
+  left: 0;
+}
+.ld-iris__hud-item--tr {
+  top: 0;
+  right: 0;
+}
+.ld-iris__hud-item--bl {
+  bottom: 0;
+  left: 0;
+}
+.ld-iris__hud-item--br {
+  bottom: 0;
+  right: 0;
+}
+.ld-iris__hud-in {
+  display: inline-flex;
+  gap: 8px;
+}
+.ld-iris__hud b {
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 560px) {
+  .ld-iris__hud-item--tr {
+    display: none;
+  }
+  .ld-iris__hud {
+    font-size: 10px;
+  }
+}

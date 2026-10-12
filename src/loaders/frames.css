@@ -1,0 +1,121 @@
+/* ---------- Loader: Frame by Frame ---------- */
+.ld-film {
+  --ld-film-bg: #f4f5fa;
+  --ld-film-body: #dbe0ec;
+  --ld-film-frame: #ffffff;
+  --ld-film-hole: #f4f5fa;
+  --ld-film-ink: #0b3cb7;
+  --ld-film-text: rgba(5, 11, 36, 0.6);
+  --ld-film-line: rgba(5, 11, 36, 0.22);
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  overflow: hidden;
+  background: var(--ld-film-bg);
+}
+[data-theme='dark'] .ld-film {
+  --ld-film-bg: #050b24;
+  --ld-film-body: #0c1233;
+  --ld-film-frame: #02040f;
+  --ld-film-hole: #1c2556;
+  --ld-film-ink: #ffffff;
+  --ld-film-text: rgba(255, 255, 255, 0.62);
+  --ld-film-line: rgba(255, 255, 255, 0.2);
+}
+.ld-film__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ld-film__body {
+  fill: var(--ld-film-body);
+}
+.ld-film__hole {
+  fill: var(--ld-film-hole);
+}
+.ld-film__frame {
+  fill: var(--ld-film-frame);
+}
+.ld-film__art {
+  color: var(--ld-film-ink);
+}
+.ld-film__edge {
+  fill: var(--ld-film-text);
+  font-family: var(--f-mono);
+  letter-spacing: 0.1em;
+}
+.ld-film__leader circle,
+.ld-film__leader line {
+  fill: none;
+  stroke: var(--ld-film-line);
+  stroke-width: 1.2;
+}
+.ld-film__sweep {
+  fill: var(--ld-film-ink);
+  opacity: 0.08;
+}
+.ld-film__digit {
+  fill: var(--ld-film-ink);
+  font-family: var(--f-sans);
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.ld-film__lamp {
+  fill: #fff;
+  opacity: 0;
+}
+.ld-film__bracket {
+  fill: none;
+  stroke: #ffae23;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.ld-film__hud {
+  position: absolute;
+  inset: clamp(18px, 3vw, 40px);
+  color: var(--ld-film-text);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  pointer-events: none;
+}
+.ld-film__hud-item {
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ld-film__hud-item--tl {
+  top: 0;
+  left: 0;
+}
+.ld-film__hud-item--tr {
+  top: 0;
+  right: 0;
+}
+.ld-film__hud-item--bl {
+  bottom: 0;
+  left: 0;
+}
+.ld-film__hud-item--br {
+  bottom: 0;
+  right: 0;
+}
+.ld-film__hud-in {
+  display: inline-flex;
+}
+.ld-film__count {
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 560px) {
+  .ld-film__hud-item--tr,
+  .ld-film__hud-item--br {
+    display: none;
+  }
+  .ld-film__hud {
+    font-size: 10px;
+  }
+}

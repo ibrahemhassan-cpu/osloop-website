@@ -1,0 +1,73 @@
+/* ---------- Loader: Loop after Loop ---------- */
+.ld-loop {
+  --ld-loop-bg: #f4f5fa;
+  --ld-loop-edge: #dfe5f3;
+  --ld-loop-ink: #0b3cb7;
+  --ld-loop-alt: #2c5bff;
+  --ld-loop-text: rgba(5, 11, 36, 0.6);
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  overflow: hidden;
+}
+[data-theme='dark'] .ld-loop {
+  --ld-loop-bg: #050b24;
+  --ld-loop-edge: #01030c;
+  --ld-loop-ink: #ffffff;
+  --ld-loop-alt: #9db7ff;
+  --ld-loop-text: rgba(255, 255, 255, 0.62);
+}
+.ld-loop__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ld-loop__bg {
+  fill: var(--ld-loop-bg);
+}
+
+.ld-loop__hud {
+  position: absolute;
+  inset: clamp(18px, 3vw, 40px);
+  color: var(--ld-loop-text);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  pointer-events: none;
+}
+.ld-loop__hud-item {
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ld-loop__hud-item--tl {
+  top: 0;
+  left: 0;
+}
+.ld-loop__hud-item--tr {
+  top: 0;
+  right: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+.ld-loop__hud-item--bl {
+  bottom: 0;
+  left: 0;
+}
+.ld-loop__hud-item--br {
+  bottom: 0;
+  right: 0;
+}
+.ld-loop__hud-in {
+  display: inline-flex;
+}
+.ld-loop__count {
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 560px) {
+  .ld-loop__hud {
+    font-size: 10px;
+  }
+}
