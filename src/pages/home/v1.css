@@ -418,10 +418,13 @@ html.is-grabbing * {
   overflow: hidden;
   min-height: 0;
 }
-/* the crossfading stills sit in one layer so the parallax moves them together */
+/* the crossfading stills sit in one layer (.iloop__track) so the parallax moves them together,
+   while the dots stay still */
 .v1-svc__loop {
   position: absolute;
   inset: 0;
+}
+.v1-svc__loop .iloop__track {
   will-change: transform;
 }
 .v1-svc__media::after {

@@ -28,7 +28,7 @@ export function Services() {
           },
         })
         gsap.utils.toArray<HTMLElement>('.v1-svc', root.current).forEach((panel) => {
-          const media = panel.querySelector('.v1-svc__loop')
+          const media = panel.querySelector('.v1-svc__loop .iloop__track')
           const title = panel.querySelector('.v1-svc__title')
           gsap.fromTo(media, { xPercent: -12, scale: 1.18 }, {
             xPercent: 12,
@@ -88,7 +88,7 @@ export function Services() {
               </ul>
             </div>
             <div className="v1-svc__media">
-              <ImageLoop className="v1-svc__loop" images={s.images} alt={`${s.title} — OsLoop work`} offset={(i % 3) * 700} />
+              <ImageLoop className="v1-svc__loop" images={s.images} alt={`${s.title} — OsLoop work`} offset={(i % 3) * 700} dots />
             </div>
           </article>
         ))}

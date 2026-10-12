@@ -3,6 +3,10 @@
   overflow: hidden;
   background: var(--bg-3);
 }
+.iloop__track {
+  position: absolute;
+  inset: 0;
+}
 .iloop img {
   position: absolute;
   inset: 0;
@@ -15,8 +19,39 @@
 .iloop img.is-on {
   opacity: 1;
 }
+
+/* Swiper-style indicators: the current image's dot stretches into a pill */
+.iloop__dots {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: rgba(5, 11, 36, 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+.iloop__dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  transition: width 0.6s var(--ease-out), background-color 0.6s;
+}
+.iloop__dots span.is-on {
+  width: 20px;
+  background: #fff;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .iloop img {
+  .iloop img,
+  .iloop__dots span {
     transition: none;
   }
 }
