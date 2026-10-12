@@ -41,11 +41,7 @@ export function Footer({ links }: { links: NavLink[] }) {
         stagger: 0.05,
         scrollTrigger: { trigger: '.ftr__mark', start: 'top bottom', end: 'bottom bottom', scrub: 1.2 },
       })
-      gsap.from('.ftr__inner', {
-        yPercent: -25,
-        ease: 'none',
-        scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom bottom', scrub: true },
-      })
+      // No parallax on the footer content: shifting it up hid the top text behind the contact section.
     },
     { scope: root },
   )
