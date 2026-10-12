@@ -3,6 +3,7 @@ import { PressPlay } from './PressPlay'
 import { Iris } from './Iris'
 import { FrameByFrame } from './FrameByFrame'
 import { LoopAfterLoop } from './LoopAfterLoop'
+import { Word3D } from './Word3D'
 import type { LoaderProps } from './types'
 
 export type LoaderEntry = {
@@ -44,6 +45,17 @@ export const LOADERS: LoaderEntry[] = [
     idea: 'An endless zoom: every ∞ holds the next one inside its lobe, turning as you dive in.',
     beats: ['Dive through three loops', 'Land on the logo with OSLOOP MEDIA', 'Fly through the lobe — it becomes the window onto the site'],
     Component: LoopAfterLoop,
+  },
+  {
+    id: 'word',
+    name: 'Take Shape — the word in 3D',
+    idea: 'The word "osloop" builds itself: from the construction lines of its letters to the flat logo, then into real 3D.',
+    beats: [
+      'Construction lines draw the geometry of the letters',
+      'The flat logo extrudes into 3D and turns in the light',
+      'The arrow rides the ∞ — then the word bursts towards you onto the site',
+    ],
+    Component: Word3D,
   },
 ]
 

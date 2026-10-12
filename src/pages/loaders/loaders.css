@@ -170,6 +170,15 @@
 [data-theme='dark'] .lab-poster__hole {
   fill: #1c2556;
 }
+.lab-poster__depth {
+  color: #072679;
+}
+[data-theme='dark'] .lab-poster__depth {
+  color: #7d90c4;
+}
+.lab-poster__adepth {
+  fill: #c47806;
+}
 .lab-poster__bracket {
   fill: none;
   stroke: #ffae23;

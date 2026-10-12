@@ -1,0 +1,104 @@
+/* ---------- Loader: Take Shape — the word in 3D ---------- */
+.ld-word {
+  --ld-word-bg: #f4f5fa;
+  --ld-word-ink: #0b3cb7;
+  --ld-word-guide: rgba(11, 60, 183, 0.3);
+  --ld-word-text: rgba(5, 11, 36, 0.6);
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  overflow: hidden;
+}
+[data-theme='dark'] .ld-word {
+  --ld-word-bg: #050b24;
+  --ld-word-ink: #ffffff;
+  --ld-word-guide: rgba(157, 183, 255, 0.32);
+  --ld-word-text: rgba(255, 255, 255, 0.62);
+}
+.ld-word__bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(55% 45% at 50% 50%, var(--glow), transparent 75%), var(--ld-word-bg);
+}
+.ld-word__gl {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.ld-word__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* the construction lines */
+.ld-word__guide {
+  fill: none;
+  stroke: var(--ld-word-guide);
+  stroke-width: calc(var(--px) * 1);
+  stroke-dasharray: 1;
+}
+.ld-word__dot {
+  fill: #ffae23;
+}
+
+/* the flat logo */
+.ld-word__letters {
+  color: var(--ld-word-ink);
+}
+.ld-word__ink {
+  fill: currentColor;
+  fill-rule: evenodd;
+}
+.ld-word__tag {
+  fill: var(--ld-word-ink);
+}
+
+/* readouts */
+.ld-word__hud {
+  position: absolute;
+  inset: clamp(18px, 3vw, 40px);
+  color: var(--ld-word-text);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  pointer-events: none;
+}
+.ld-word__hud-item {
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ld-word__hud-item--tl {
+  top: 0;
+  left: 0;
+}
+.ld-word__hud-item--tr {
+  top: 0;
+  right: 0;
+}
+.ld-word__hud-item--bl {
+  bottom: 0;
+  left: 0;
+}
+.ld-word__hud-item--br {
+  bottom: 0;
+  right: 0;
+}
+.ld-word__hud-in {
+  display: inline-flex;
+  gap: 8px;
+}
+.ld-word__hud b {
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 560px) {
+  .ld-word__hud-item--tr {
+    display: none;
+  }
+  .ld-word__hud {
+    font-size: 10px;
+  }
+}

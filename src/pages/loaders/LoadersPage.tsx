@@ -5,7 +5,8 @@ import { Button } from '../../components/ui'
 import { NAV } from '../../lib/nav'
 import { LOADERS, type LoaderEntry } from '../../loaders'
 import { ICON_CENTRE, IconArrow, IconBand, IconDefs } from '../../loaders/art'
-import { A, ARROW_HOME_SVG, iconMotion } from '../../lib/loopShape'
+import { WORD, WORD_BOX } from '../../loaders/wordmark'
+import { A, ARROW_HOME_SVG, ARROW_SCALE, RHO, RT, iconMotion } from '../../lib/loopShape'
 import './loaders.css'
 
 const HOME = `translate(${ARROW_HOME_SVG.x} ${ARROW_HOME_SVG.y})`
@@ -190,11 +191,49 @@ function LoopsPoster() {
   )
 }
 
+function WordPoster() {
+  const k = 0.72
+  const cx = WORD_BOX.x + WORD_BOX.w / 2
+  const cy = WORD_BOX.y + WORD_BOX.h / 2
+  const arrow = `translate(${ARROW_HOME_SVG.x} ${ARROW_HOME_SVG.y}) scale(${1 / ARROW_SCALE})`
+  const letters = [...WORD.o, ...WORD.s, ...WORD.L, ...WORD.p].map((d) => <path key={d} d={d} fill="currentColor" fillRule="evenodd" />)
+  // the word, extruded: its depth is stacked behind the front face
+  const depth = Array.from({ length: 12 }, (_, i) => 12 - i)
+  return (
+    <svg viewBox="-200 -125 400 250">
+      <defs>
+        <IconDefs id="pw" />
+      </defs>
+      <g transform={`scale(${k}) translate(${-cx} ${-cy})`}>
+        {[-41.5, 41.14].map((y) => (
+          <line key={y} className="lab-poster__line" x1={WORD_BOX.x - 20} x2={WORD_BOX.x + WORD_BOX.w + 20} y1={y} y2={y} />
+        ))}
+        {[-A, A].map((x) => (
+          <circle key={x} className="lab-poster__line" cx={x} cy={0} r={RHO + RT + 6} />
+        ))}
+        {depth.map((n) => (
+          <g key={n} className="lab-poster__depth" transform={`translate(${n * 0.7} ${n * 0.6})`}>
+            {letters}
+            <IconBand id="pw" finished={false} />
+            <IconArrow className="lab-poster__adepth" transform={arrow} />
+          </g>
+        ))}
+        <g className="lab-poster__ink">
+          {letters}
+          <IconBand id="pw" />
+          <IconArrow transform={arrow} />
+        </g>
+      </g>
+    </svg>
+  )
+}
+
 const POSTERS: Record<string, () => ReactElement> = {
   press: PressPlayPoster,
   iris: IrisPoster,
   frames: FramesPoster,
   loops: LoopsPoster,
+  word: WordPoster,
 }
 
 /** Lab page: preview the loading screens and pick one. Not linked from the navigation. */
@@ -211,7 +250,7 @@ export default function LoadersPage() {
             Pick the first <span className="serif">impression.</span>
           </h1>
           <p className="lab__p">
-            Three new loading screens, plus the current one. Play each one right here, or open the site with it to see
+            Four new loading screens, plus the current one. Play each one right here, or open the site with it to see
             how it hands over to the hero. Every loader follows the theme — switch light / dark from the header.
           </p>
         </section>
