@@ -12,6 +12,7 @@ import type { PhoneValue } from '../../components/PhoneField'
 const PhoneField = lazy(() => import('../../components/PhoneField').then((m) => ({ default: m.PhoneField })))
 
 type Status = 'idle' | 'sending' | 'sent' | 'mailed' | 'error'
+const EMPTY_FORM = { name: '', email: '', company: '', message: '', website: '' }
 
 export function Contact() {
   const root = useRef<HTMLElement>(null)
@@ -22,7 +23,7 @@ export function Contact() {
 
   const [needs, setNeeds] = useState<string[]>([contact.needs[0]])
   const [budget, setBudget] = useState('')
-  const [form, setForm] = useState({ name: '', email: '', company: '', message: '', website: '' })
+  const [form, setForm] = useState(EMPTY_FORM)
   const [phone, setPhone] = useState<PhoneValue | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [math, setMath] = useState<MathState>('empty')
@@ -86,6 +87,20 @@ export function Contact() {
     clear(k)
   }
   const toggleNeed = (n: string) => setNeeds((cur) => (cur.includes(n) ? cur.filter((x) => x !== n) : [...cur, n]))
+
+  /** "Send another message": back to a clean, untouched form. */
+  const resetForm = () => {
+    setForm(EMPTY_FORM)
+    setNeeds([contact.needs[0]])
+    setBudget('')
+    setPhone(null) // the phone field remounts empty, so its value has to go too
+    setToken(null)
+    setMath('empty')
+    setCaptchaRun((n) => n + 1) // fresh quick-check question / security check
+    setErrors({})
+    setServerError('')
+    setStatus('idle')
+  }
 
   const validate = () => {
     const e: Record<string, string> = {}
@@ -244,7 +259,7 @@ export function Contact() {
                     ? 'Your message is on its way. We’ll get back to you with next steps soon.'
                     : `Your email app should have opened with your brief ready — just hit send. If it didn’t, write to us at ${brand.email}.`}
                 </p>
-                <button type="button" className="cform__again mono" onClick={() => setStatus('idle')}>
+                <button type="button" className="cform__again mono" onClick={resetForm}>
                   Send another message
                 </button>
               </div>
