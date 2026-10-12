@@ -21,6 +21,7 @@ export function Process() {
   useGSAP(
     () => {
       const ring = root.current!.querySelector<HTMLElement>('.v1-ring')!
+      const rays = root.current!.querySelector<HTMLElement>('.v1-process__rays')!
       const cards = gsap.utils.toArray<HTMLElement>('.v1-ring__card', root.current)
       const title = root.current!.querySelector('.v1-process__step-t')!
       let current = -1
@@ -28,6 +29,8 @@ export function Process() {
 
       const paint = () => {
         ring.style.transform = `rotateX(-8deg) rotateY(${state.ry}deg)`
+        // the light lines turn in the floor's own plane, together with the cards (like a turntable)
+        rays.style.transform = `rotate(${-state.ry}deg)`
         let best = 0
         let bestCos = -2
         cards.forEach((card, i) => {
@@ -61,12 +64,6 @@ export function Process() {
           snap: { snapTo: 1 / (pipeline.length - 1), duration: { min: 0.3, max: 0.9 }, ease: 'power2.inOut', delay: 0.1 },
         },
       })
-
-      gsap.to('.v1-process__floor', {
-        rotate: 180,
-        ease: 'none',
-        scrollTrigger: { trigger: root.current, start: 'top top', end: () => `+=${window.innerHeight * 3.2}`, scrub: true },
-      })
     },
     { scope: root },
   )
@@ -80,7 +77,9 @@ export function Process() {
       </div>
 
       <div className="v1-process__scene">
-        <div className="v1-process__floor" aria-hidden />
+        <div className="v1-process__floor" aria-hidden>
+          <span className="v1-process__rays" />
+        </div>
         <div className="v1-ring-wrap">
           <div className="v1-ring">
             {pipeline.map((s, i) => (

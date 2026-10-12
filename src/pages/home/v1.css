@@ -498,12 +498,19 @@ html.is-grabbing * {
   height: 1300px;
   margin: -650px 0 0 -650px;
   border-radius: 50%;
+  /* the floor itself stays still; only its light lines turn (see .v1-process__rays) */
   transform: rotateX(78deg);
-  background: repeating-conic-gradient(from 0deg, rgba(157, 183, 255, 0.16) 0deg 0.6deg, transparent 0.6deg 10deg),
-    radial-gradient(closest-side, rgba(44, 91, 255, 0.35), transparent 75%);
+  background: radial-gradient(closest-side, rgba(44, 91, 255, 0.35), transparent 75%);
   -webkit-mask: radial-gradient(closest-side, #000 40%, transparent);
   mask: radial-gradient(closest-side, #000 40%, transparent);
   pointer-events: none;
+}
+.v1-process__rays {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(157, 183, 255, 0.16) 0deg 0.6deg, transparent 0.6deg 10deg);
+  will-change: transform;
 }
 .v1-ring {
   position: relative;
