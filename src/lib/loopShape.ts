@@ -48,6 +48,90 @@ export const ARROW_HOME_SVG = { x: ARROW_CENTRE_PDF.x - ARTWORK_CROSSING.x, y: A
 /** direction the arrow points at rest, degrees on screen (y down) */
 export const ARROW_POINTING_SVG = (Math.atan2(5.3, 29.3) * 180) / Math.PI
 
+/* -------------------------------------------- motion along the loop (no DOM) */
+
+type Pt = { x: number; y: number }
+const arcSeg = (cx: number, from: number, to: number) => (t: number): Pt => {
+  const a = rad(from + (to - from) * t)
+  return { x: cx + RHO * Math.cos(a), y: -RHO * Math.sin(a) }
+}
+const cubicSeg = (p0: number[], p1: number[], p2: number[], p3: number[]) => (t: number): Pt => {
+  const u = 1 - t
+  const a = u * u * u
+  const b = 3 * u * u * t
+  const c = 3 * u * t * t
+  const d = t * t * t
+  return { x: a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0], y: a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1] }
+}
+const S1_SEG = cubicSeg([-A, -RHO], [-A + K, -RHO], [A - K, RHO], [A, RHO])
+const S2_SEG = cubicSeg([A, -RHO], [A - K, -RHO], [-A + K, RHO], [-A, RHO])
+
+/** samples a chain of segments by arc length; headings are unwrapped (degrees, screen) */
+function sampler(segs: ((t: number) => Pt)[], per = 220) {
+  const pts: Pt[] = []
+  segs.forEach((seg, i) => {
+    for (let j = i ? 1 : 0; j <= per; j++) pts.push(seg(j / per))
+  })
+  const len = [0]
+  for (let i = 1; i < pts.length; i++) len.push(len[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y))
+  const head: number[] = []
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[Math.max(0, i - 1)]
+    const b = pts[Math.min(pts.length - 1, i + 1)]
+    let h = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI
+    if (i) {
+      while (h - head[i - 1] > 180) h -= 360
+      while (h - head[i - 1] < -180) h += 360
+    }
+    head.push(h)
+  }
+  const total = len[len.length - 1]
+  const at = (s: number) => {
+    const d = Math.min(total, Math.max(0, s))
+    let lo = 0
+    let hi = len.length - 1
+    while (hi - lo > 1) {
+      const mid = (lo + hi) >> 1
+      if (len[mid] < d) lo = mid
+      else hi = mid
+    }
+    const f = (d - len[lo]) / (len[hi] - len[lo] || 1)
+    return {
+      x: pts[lo].x + (pts[hi].x - pts[lo].x) * f,
+      y: pts[lo].y + (pts[hi].y - pts[lo].y) * f,
+      heading: head[lo] + (head[hi] - head[lo]) * f,
+    }
+  }
+  return { total, at }
+}
+
+/**
+ * The arrow's flight and the band's length, computed without the DOM (for loaders that draw many
+ * frames at once). Matches `iconSvg()` for the same overrun.
+ */
+export function iconMotion(overrunDeg = 22) {
+  const start = CUT_START_DEG + overrunDeg
+  const band = sampler([arcSeg(-A, start, 90), S1_SEG, arcSeg(A, -90, 90), S2_SEG, arcSeg(-A, 270, CUT_END_DEG)])
+  const flight = sampler([arcSeg(-A, SLOT_DEG, 90), S1_SEG, arcSeg(A, -90, 90), S2_SEG, arcSeg(-A, 270, SLOT_DEG)])
+  const p0 = flight.at(0)
+  const flightToBand = RHO * rad(SLOT_DEG - start)
+  return {
+    bandLen: band.total,
+    flightLen: flight.total,
+    /** arrow transform at distance s along its flight; w blends rest pose (0) → flying (1) */
+    arrowAt(s: number, w: number, scale = 1) {
+      const p = flight.at(s)
+      const x = p.x + ARROW_HOME_SVG.x - p0.x
+      const y = p.y + ARROW_HOME_SVG.y - p0.y
+      return `translate(${f(x)} ${f(y)}) rotate(${f((p.heading - ARROW_POINTING_SVG) * w)}) scale(${f(scale)})`
+    },
+    /** dashoffset of the band when the arrow has flown `s` (the band trails `lag` behind it) */
+    bandOffset(s: number, lag = 6) {
+      return band.total - Math.min(band.total, Math.max(0, s - flightToBand - lag))
+    },
+  }
+}
+
 /**
  * SVG paths of the icon (screen coordinates, y down, origin at the crossing).
  * `overrunDeg` starts the band a little before its upper cut, so a mask can cut it at the artwork's angle.
