@@ -4,7 +4,7 @@ import './image-loop.css'
 /**
  * Crossfading still loop. One image stays static; 2+ images advance every `interval` ms
  * with a ~600ms crossfade — only while the element is on screen. `dots` adds Swiper-style
- * indicators (which image is showing); they're not controls.
+ * pagination: it shows which image is on, and clicking a dot jumps to that image.
  */
 export function ImageLoop({
   images,
@@ -25,6 +25,8 @@ export function ImageLoop({
   const root = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [visible, setVisible] = useState(false)
+  // bumps when a dot is clicked, so autoplay waits a full interval before moving on (like Swiper)
+  const [kick, setKick] = useState(0)
 
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.15 })
@@ -35,15 +37,23 @@ export function ImageLoop({
   useEffect(() => {
     if (!visible || images.length < 2) return
     let id = 0
-    const first = window.setTimeout(() => {
-      setActive((a) => (a + 1) % images.length)
-      id = window.setInterval(() => setActive((a) => (a + 1) % images.length), interval)
-    }, interval + offset)
+    const first = window.setTimeout(
+      () => {
+        setActive((a) => (a + 1) % images.length)
+        id = window.setInterval(() => setActive((a) => (a + 1) % images.length), interval)
+      },
+      kick ? interval : interval + offset,
+    )
     return () => {
       window.clearTimeout(first)
       window.clearInterval(id)
     }
-  }, [visible, images.length, interval, offset])
+  }, [visible, images.length, interval, offset, kick])
+
+  const go = (i: number) => {
+    setActive(i)
+    setKick((k) => k + 1)
+  }
 
   return (
     <div className={`iloop ${className}`} ref={root}>
@@ -64,9 +74,18 @@ export function ImageLoop({
         ))}
       </div>
       {dots && images.length > 1 && (
-        <div className="iloop__dots" aria-hidden>
+        <div className="iloop__dots" role="group" aria-label="Images">
           {images.map((src, i) => (
-            <span key={src + i} className={i === active ? 'is-on' : ''} />
+            <button
+              type="button"
+              key={src + i}
+              className={i === active ? 'is-on' : ''}
+              aria-label={`Show image ${i + 1} of ${images.length}`}
+              aria-current={i === active}
+              onClick={() => go(i)}
+            >
+              <span />
+            </button>
           ))}
         </div>
       )}
