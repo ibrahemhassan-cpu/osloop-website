@@ -27,6 +27,9 @@ export const brand = {
   mediaLogoWhiteNav: '/brand/osloop-media-logo-white-nav.webp',
   logoWhite: '/brand/osloop-logo-white.webp',
   logoBlue: '/brand/osloop-logo-blue.webp',
+  /** "OsLoop Media logo light / dark small" — icon over OSLOOP MEDIA, used by the loading screen */
+  stackedLogo: '/brand/osloop-media-logo-stacked.webp',
+  stackedLogoWhite: '/brand/osloop-media-logo-stacked-white.webp',
 }
 
 export const reel = {

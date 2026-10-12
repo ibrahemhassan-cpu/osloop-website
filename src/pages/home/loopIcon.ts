@@ -1,27 +1,36 @@
 import * as THREE from 'three'
+import {
+  A,
+  ARROW_CENTRE_PDF,
+  ARROW_D,
+  ARROW_SCALE,
+  ARTWORK_CROSSING,
+  CUT_END_DEG,
+  CUT_START_DEG,
+  K,
+  RHO,
+  RT,
+  SLOT_DEG,
+} from '../../lib/loopShape'
 
 /*
  * The OsLoop "Media logo icon" in 3D: the glass ∞ and its orange play arrow.
  *
- * Everything is measured from the official artwork and kept in its own units (y up, origin at the
- * crossing of the ∞). Two round lobes joined by S-shaped strands; the "/" strand passes over the "\"
- * one. The band is open on the upper-left of the left lobe — that gap is where the arrow sits — and
- * both ends are cut straight, exactly like the logo.
+ * Everything is measured from the official artwork (see lib/loopShape.ts) and kept in its own units
+ * (y up, origin at the crossing of the ∞). Two round lobes joined by S-shaped strands; the "/" strand
+ * passes over the "\" one. The band is open on the upper-left of the left lobe — that gap is where the
+ * arrow sits — and both ends are cut straight, exactly like the logo.
  */
 
-const A = 37.145 // half the distance between the lobe centres
-const RHO = 28.825 // radius of the band's centre line
-const RT = 12.075 // half the band width (tube radius in the logo plane)
 const RZ = RT * 0.82 // half the tube thickness in depth — a slightly flattened, pebble-like section
-const K = 29.6 // Bézier handle of the S strands (matches the 52° crossing of the artwork)
 const LIFT = 12 // how far the strands part in depth where they cross
 const DEG = Math.PI / 180
 
 /** where the band starts (upper cut) and ends (lower cut) on the left lobe */
-const CUT_START = 100.5 * DEG
-const CUT_END = 203.5 * DEG
+const CUT_START = CUT_START_DEG * DEG
+const CUT_END = CUT_END_DEG * DEG
 /** the arrow sits on the band's circle, in the gap */
-const SLOT = 143.9 * DEG
+const SLOT = SLOT_DEG * DEG
 
 /** the whole icon (arrow + ∞) is centred on the origin */
 export const ICON_OFFSET = new THREE.Vector2(3.8, -1.4)
@@ -250,13 +259,6 @@ export function createLoopGeometry(tubular = 600, radial = 64) {
 
 /* ------------------------------------------------------------------ orange arrow */
 
-/** the arrow outline from the artwork (PDF space, y down) */
-const ARROW_D =
-  'M652.74 664.98L626.25 638.82C621.97 634.94 615.09 637.16 613.88 642.8L605.58 681.43C604.37 687.08 609.72 691.92 615.22 690.15L650.01 677.68C655.51 675.91 657.02 668.85 652.74 664.98Z'
-const ARTWORK_CROSSING = new THREE.Vector2(691.325, 680.55)
-const ARROW_CENTRE_PDF = new THREE.Vector2(630.695, 663.43)
-/** the icon's arrow is drawn a touch smaller than the one in the wordmark */
-const ARROW_SCALE = 0.942
 /** rest position of the arrow centre, logo units */
 export const ARROW_HOME = new THREE.Vector2(ARROW_CENTRE_PDF.x - ARTWORK_CROSSING.x, -(ARROW_CENTRE_PDF.y - ARTWORK_CROSSING.y))
 /** direction the play arrow points at rest (radians, logo plane) */
