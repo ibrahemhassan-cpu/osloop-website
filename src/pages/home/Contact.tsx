@@ -201,21 +201,23 @@ export function Contact() {
                 </a>
               ))}
             </div>
-            {/* Decorative only: no link, no hover, no pointer-follow. */}
-            <div className="v1-badge" aria-hidden>
-              <svg className="v1-badge__ring" viewBox="0 0 200 200">
-                <defs>
-                  <path id="badge-circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" />
-                </defs>
-                <text>
-                  <textPath href="#badge-circle" startOffset="0">
-                    REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦
-                  </textPath>
-                </text>
-              </svg>
-              <span className="v1-badge__core">
-                <Arrow size={30} rotate={-45} />
-              </span>
+            {/* Decorative only: no link, no hover, no pointer-follow — same spot as before. */}
+            <div className="v1-cta__badge-wrap" style={{ display: 'inline-flex' }}>
+              <div className="v1-badge" aria-hidden>
+                <svg className="v1-badge__ring" viewBox="0 0 200 200">
+                  <defs>
+                    <path id="badge-circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" />
+                  </defs>
+                  <text>
+                    <textPath href="#badge-circle" startOffset="0">
+                      REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦
+                    </textPath>
+                  </text>
+                </svg>
+                <span className="v1-badge__core">
+                  <Arrow size={30} rotate={-45} />
+                </span>
+              </div>
             </div>
           </div>
 

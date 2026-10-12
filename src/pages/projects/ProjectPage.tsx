@@ -28,7 +28,8 @@ function ProjectPage({ project: p }: { project: Project }) {
   const [stage, setStage] = useState(0)
   const index = projects.indexOf(p)
   const next = projects[(index + 1) % projects.length]
-  const stills = [p.cover, ...p.gallery].filter((x): x is string => !!x)
+  // a gallery with one image per stage follows the story; otherwise the cover leads the stills
+  const stills = p.gallery.length >= p.journey.length ? p.gallery : [p.cover, ...p.gallery].filter((x): x is string => !!x)
   useAutoReveal(main, ready)
 
   useGSAP(

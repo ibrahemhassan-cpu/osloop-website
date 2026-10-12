@@ -9,7 +9,7 @@ import { useScrollListener, useSmoothScroll } from '../providers/SmoothScroll'
 import { useTheme } from '../providers/Theme'
 import { Magnetic, RollText } from './ui'
 import { MenuOverlay } from './MenuOverlay'
-import { LogoColor, LogoWhite } from './Logo'
+import { MediaLogo, MediaLogoWhite } from './Logo'
 import './header.css'
 
 export type NavLink = { label: string; target: string; image?: string }
@@ -139,8 +139,8 @@ export function Header({ links }: { links: NavLink[] }) {
               else navTo('/')
             }}
           >
-            <LogoWhite className="hdr__logo-img hdr__logo-img--white" />
-            <LogoColor className="hdr__logo-img hdr__logo-img--color" hidden />
+            <MediaLogoWhite small className="hdr__logo-img hdr__logo-img--white" />
+            <MediaLogo small className="hdr__logo-img hdr__logo-img--color" hidden />
           </a>
 
           <nav className="hdr__nav" aria-label="Primary" onMouseLeave={() => setHovered(null)}>

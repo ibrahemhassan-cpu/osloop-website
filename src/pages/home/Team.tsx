@@ -55,7 +55,6 @@ export function Team() {
           card.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${(th * 0.6).toFixed(2)}deg) scale(${scale.toFixed(3)})`
           card.style.zIndex = String(Math.round(100 + c * 100))
           card.style.opacity = String(gsap.utils.clamp(0, 1, (c + 0.25) * 1.8))
-          card.style.setProperty('--focus', (k ** 6).toFixed(3))
         })
         const a = ((Math.round(state.p) % N) + N) % N
         if (a !== current) {
@@ -65,6 +64,17 @@ export function Team() {
       }
       measure()
       paint()
+
+      // Reflection follows the pointer on each card.
+      const move = (e: PointerEvent) => {
+        const card = (e.target as HTMLElement).closest<HTMLElement>('.tcard')
+        if (!card) return
+        const r = card.getBoundingClientRect()
+        card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`)
+        card.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`)
+      }
+      const el = root.current!
+      el.addEventListener('pointermove', move)
 
       gsap.to(state, {
         p: N - 1,
@@ -83,6 +93,7 @@ export function Team() {
           },
         },
       })
+      return () => el.removeEventListener('pointermove', move)
     },
     { scope: root },
   )
@@ -109,6 +120,7 @@ export function Team() {
                 {m.name && <h3 className="tcard__name">{m.name}</h3>}
                 <p className="tcard__role">{m.role}</p>
               </div>
+              <span className="tcard__shine" aria-hidden />
             </div>
           </article>
         ))}

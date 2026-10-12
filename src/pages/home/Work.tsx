@@ -57,6 +57,7 @@ export function Work() {
               <span className="work__thumb">
                 <ProjectCover project={p} />
               </span>
+              {/* the official title, split so every row keeps the one-line rhythm of the list */}
               <span className="work__title">
                 {p.name}
                 <span className="work__sub">{p.title.split(' — ')[1]}</span>

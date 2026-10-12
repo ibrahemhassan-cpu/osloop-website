@@ -1,36 +1,45 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../lib/gsap'
 import { testimonials } from '../../lib/content'
-import { Arrow } from '../../components/ui'
+import { Arrow, Magnetic } from '../../components/ui'
 
 const DURATION = 9
 const N = testimonials.length
 
 export function Testimonials() {
   const root = useRef<HTMLElement>(null)
-  const [idx, setIdx] = useState(0)
+  // `n` bumps on every change so the entrance replays even when landing back on the same review
+  const [view, setView] = useState({ idx: 0, n: 0 })
+  const idx = view.idx
   const idxRef = useRef(0)
-  const leaving = useRef<gsap.core.Tween | null>(null)
+  const leaving = useRef<gsap.core.Timeline | null>(null)
   const timer = useRef<gsap.core.Tween | null>(null)
   const inView = useRef(false)
   const hovering = useRef(false)
 
-  /** Go to a review. Rapid clicks never get stuck: an in-flight exit is cut short. */
+  const go = (next: number) => setView((v) => ({ idx: next, n: v.n + 1 }))
+
+  /** Go to a review. Rapid clicks never get stuck: a second click during the exit jumps straight there. */
   const show = (next: number) => {
     next = ((next % N) + N) % N
     if (next === idxRef.current && !leaving.current) return
     idxRef.current = next
-    leaving.current?.kill()
-    leaving.current = gsap.to(root.current!.querySelectorAll('.v1-testi__quote, .v1-testi__project'), {
-      autoAlpha: 0,
-      y: -14,
-      duration: 0.35,
-      ease: 'power2.in',
-      onComplete: () => {
-        leaving.current = null
-        setIdx(next)
-      },
-    })
+    if (leaving.current) {
+      leaving.current.kill()
+      leaving.current = null
+      go(next)
+      return
+    }
+    const lines = root.current!.querySelectorAll('.v1-testi__quote .split-line')
+    leaving.current = gsap
+      .timeline({
+        onComplete: () => {
+          leaving.current = null
+          go(next)
+        },
+      })
+      .to(lines, { yPercent: -110, duration: 0.6, stagger: 0.03, ease: 'power3.in', overwrite: 'auto' })
+      .to('.v1-testi__project', { autoAlpha: 0, y: -10, duration: 0.4, overwrite: 'auto' }, 0)
   }
   const showRef = useRef(show)
   showRef.current = show
@@ -40,9 +49,11 @@ export function Testimonials() {
     () => {
       const q = root.current!.querySelector('.v1-testi__quote')!
       const split = SplitText.create(q, { type: 'lines', mask: 'lines', linesClass: 'split-line' })
-      gsap.set('.v1-testi__quote, .v1-testi__project', { autoAlpha: 1, y: 0, visibility: 'visible' })
-      gsap.from(split.lines, { yPercent: 110, duration: 1, stagger: 0.06, ease: 'silk' })
-      gsap.from('.v1-testi__project', { autoAlpha: 0, y: 10, duration: 0.8, delay: 0.2 })
+      gsap.set(q, { visibility: 'visible' })
+      gsap
+        .timeline()
+        .from(split.lines, { yPercent: 110, duration: 1.1, stagger: 0.07, ease: 'silk' })
+        .fromTo('.v1-testi__project', { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.3)
       timer.current?.kill()
       timer.current = gsap.fromTo(
         '.v1-testi__timer-fill',
@@ -57,7 +68,7 @@ export function Testimonials() {
       )
       return () => split.revert()
     },
-    { scope: root, dependencies: [idx] },
+    { scope: root, dependencies: [view.n] },
   )
 
   // Autoplay only while the section is on screen.
@@ -122,7 +133,7 @@ export function Testimonials() {
         <div className="v1-testi__mark serif" aria-hidden>
           “
         </div>
-        <blockquote className="v1-testi__quote" key={idx} aria-live="polite">
+        <blockquote className="v1-testi__quote" key={view.n} aria-live="polite">
           {t.quote}
         </blockquote>
         <div className="v1-testi__meta">
@@ -137,12 +148,16 @@ export function Testimonials() {
             <div className="v1-testi__timer" aria-hidden>
               <div className="v1-testi__timer-fill" />
             </div>
-            <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current - 1)} aria-label="Previous review">
-              <Arrow rotate={180} />
-            </button>
-            <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current + 1)} aria-label="Next review">
-              <Arrow />
-            </button>
+            <Magnetic>
+              <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current - 1)} aria-label="Previous review">
+                <Arrow rotate={180} />
+              </button>
+            </Magnetic>
+            <Magnetic>
+              <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current + 1)} aria-label="Next review">
+                <Arrow />
+              </button>
+            </Magnetic>
           </div>
         </div>
       </div>

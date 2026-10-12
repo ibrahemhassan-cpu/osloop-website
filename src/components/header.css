@@ -55,11 +55,12 @@
 }
 
 /* Logo */
+/* sized for the OsLoop Media Production lockup so its tagline stays legible */
 .hdr__logo {
   position: relative;
   justify-self: start;
-  width: 128px;
-  height: 39px;
+  width: 150px;
+  height: 46px;
   display: block;
 }
 .hdr__logo-img {
@@ -313,8 +314,8 @@
     padding: 8px 8px 8px 16px;
   }
   .hdr__logo {
-    width: 108px;
-    height: 33px;
+    width: 124px;
+    height: 38px;
   }
 }
 

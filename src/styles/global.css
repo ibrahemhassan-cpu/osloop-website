@@ -155,11 +155,6 @@ button {
   color: var(--white);
 }
 
-/* colour logo turned white for dark backgrounds (until a white SVG is supplied) */
-img.is-inverted {
-  filter: brightness(0) invert(1);
-}
-
 .mono {
   font-family: var(--f-mono);
   font-size: 12px;

@@ -317,7 +317,7 @@ html.is-grabbing * {
 .v1-services__track {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 3vw;
   height: 100vh;
   height: 100svh;
@@ -366,56 +366,69 @@ html.is-grabbing * {
 }
 .v1-svc {
   flex: none;
-  align-self: center;
-  width: clamp(340px, 31vw, 500px);
-  display: flex;
-  flex-direction: column;
-  padding: 12px 12px 26px;
-  border-radius: 30px;
+  width: min(76vw, 1240px);
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 3vw;
+  padding: clamp(26px, 3vw, 48px);
+  border-radius: 32px;
   background: var(--card);
   border: 1px solid var(--card-line);
   box-shadow: var(--shadow);
   overflow: hidden;
-  cursor: default;
-}
-.v1-svc__media {
-  aspect-ratio: 16 / 10;
-  border-radius: 20px;
 }
 .v1-svc__text {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 22px 14px 0;
 }
 .v1-svc__title {
-  font-size: clamp(28px, 2.4vw, 42px);
+  margin-top: auto;
+  font-size: clamp(44px, 5.2vw, 96px);
   font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.045em;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
 }
 .v1-svc__lead {
-  font-size: clamp(19px, 1.5vw, 24px);
+  font-size: clamp(22px, 2vw, 32px);
   color: var(--hl);
-  margin: 8px 0 10px;
+  margin: 18px 0 14px;
 }
 .v1-svc__body {
   color: var(--fg-2);
-  font-size: 15px;
   line-height: 1.6;
+  max-width: 440px;
 }
 .v1-svc__tags {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 18px;
+  gap: 8px;
+  margin-top: 26px;
 }
 .v1-svc__tags li {
-  font-size: 10px;
-  padding: 7px 11px;
+  font-size: 10.5px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--line-2);
+}
+.v1-svc__media {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  min-height: 0;
+}
+/* the crossfading stills sit in one layer so the parallax moves them together */
+.v1-svc__loop {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.v1-svc__media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(200deg, transparent 50%, rgba(5, 11, 36, 0.6));
 }
 .v1-services__bar {
   position: absolute;
@@ -505,54 +518,50 @@ html.is-grabbing * {
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 14px;
-  padding: 24px;
+  justify-content: space-between;
+  padding: 26px;
   border-radius: 24px;
-  overflow: hidden;
   backface-visibility: hidden;
   transform: rotateY(var(--a)) translateZ(var(--r));
-  /* Stage illustration as the card background; a gradient keeps the copy readable. */
-  background-color: #050b24;
-  background-image: linear-gradient(180deg, rgba(5, 11, 36, 0) 34%, rgba(5, 11, 36, 0.78) 62%, rgba(5, 11, 36, 0.96) 100%),
+  /* the stage illustration is the card background; the original blue wash sits on top and
+     deepens towards the copy so the text always reads */
+  background-color: #0a1438;
+  background-image: linear-gradient(
+      165deg,
+      rgba(44, 91, 255, calc(0.06 + var(--glow) * 0.26)),
+      rgba(10, 20, 56, calc(0.5 - var(--glow) * 0.22)) 42%,
+      rgba(10, 20, 56, 0.94) 78%
+    ),
     var(--bg);
   background-size: 100% 100%, cover;
   background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid rgba(157, 183, 255, calc(0.15 + var(--glow) * 0.5));
   box-shadow: 0 30px 80px -30px rgba(44, 91, 255, calc(var(--glow) * 0.9));
 }
-/* cards turned away from the viewer sit a little darker */
-.v1-ring__card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #050b24;
-  opacity: calc((1 - var(--glow)) * 0.45);
-  pointer-events: none;
-}
-.v1-ring__n,
-.v1-ring__copy {
-  position: relative;
+.v1-ring__top {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  color: var(--sky);
 }
 .v1-ring__n {
-  font-size: 96px;
+  font-size: 120px;
   font-weight: 300;
   line-height: 0.8;
   letter-spacing: -0.07em;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(255, 255, 255, calc(0.4 + var(--glow) * 0.6));
+  color: rgba(255, 255, 255, calc(0.18 + var(--glow) * 0.82));
 }
 .v1-ring__card h3 {
-  font-size: 28px;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1;
-  color: #fff;
 }
 .v1-ring__card p {
-  margin-top: 8px;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 14px;
+  margin-top: 10px;
+  color: var(--muted-dark);
+  font-size: 14.5px;
   line-height: 1.5;
 }
 .v1-process__hud {
@@ -561,7 +570,7 @@ html.is-grabbing * {
   right: var(--gutter);
   bottom: 5vh;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: flex-end;
 }
 .v1-process__step {
@@ -960,7 +969,6 @@ html.is-grabbing * {
   box-shadow: 0 20px 60px -15px rgba(44, 91, 255, 0.9);
 }
 
-
 /* =============== RESPONSIVE =============== */
 @media (max-width: 980px) {
   .v1-hero__bottom {
@@ -986,7 +994,13 @@ html.is-grabbing * {
   }
   .v1-svc {
     width: 100%;
-    align-self: stretch;
+    grid-template-columns: 1fr;
+  }
+  .v1-svc__title {
+    margin-top: 20px;
+  }
+  .v1-svc__media {
+    aspect-ratio: 4 / 3;
   }
   .v1-values__head {
     grid-template-columns: 1fr;
@@ -1006,14 +1020,6 @@ html.is-grabbing * {
   }
 }
 @media (max-width: 760px) {
-  .v1-testi__controls {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .v1-testi__btn {
-    width: 60px;
-    height: 60px;
-  }
   .v1-hero__lede {
     display: none;
   }
@@ -1031,7 +1037,7 @@ html.is-grabbing * {
     height: 320px;
   }
   .v1-ring__n {
-    font-size: 72px;
+    font-size: 80px;
   }
   .v1-ring__card {
     padding: 20px;

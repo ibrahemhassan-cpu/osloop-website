@@ -3,21 +3,15 @@ import * as THREE from 'three'
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber'
 import { setCursorLabel } from '../../components/Cursor'
 import { brand } from '../../lib/content'
-import {
-  Environment,
-  Float,
-  Lightformer,
-  MeshTransmissionMaterial,
-  PerformanceMonitor,
-  Sparkles,
-  Text,
-} from '@react-three/drei'
+import { prefersReducedMotion } from '../../lib/gsap'
+import { Environment, Float, Lightformer, MeshTransmissionMaterial, PerformanceMonitor, Sparkles } from '@react-three/drei'
+import { ARROW_HOME, ARROW_POINTING, createArrowGeometry, createFlightPath, createLoopGeometry, toScene } from './loopIcon'
 
 type Theme = 'light' | 'dark'
 
 const PALETTE = {
   dark: { bg: '#050b24', word: '#e9eeff', attenuation: '#b9c9ff', glass: '#f2f5ff', sparkle: '#9db7ff' },
-  light: { bg: '#f4f5fa', word: '#1940b4', attenuation: '#c9d6ff', glass: '#ffffff', sparkle: '#2c5bff' },
+  light: { bg: '#f4f5fa', word: '#ffffff', attenuation: '#c9d6ff', glass: '#ffffff', sparkle: '#2c5bff' },
 }
 
 type Refs = {
@@ -30,32 +24,105 @@ type Refs = {
 const damp = THREE.MathUtils.damp
 const TAU = Math.PI * 2
 const clamp = THREE.MathUtils.clamp
+const smoothstep = THREE.MathUtils.smoothstep
+const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10)
 
-/** Infinity curve (lemniscate of Bernoulli) lifted in Z so the tube never self-intersects. */
-class Lemniscate extends THREE.Curve<THREE.Vector3> {
-  constructor() {
-    super()
-  }
-  getPoint(t: number, target = new THREE.Vector3()) {
-    const a = t * Math.PI * 2
-    const s = Math.sin(a)
-    const c = Math.cos(a)
-    const d = 1 + s * s
-    return target.set((2.25 * c) / d, (2.25 * s * c) / d, 0.55 * s)
-  }
-}
+/* ------------------------------------------------------------------ orange arrow */
+
+const REST = 3 // seconds the arrow sits still in its slot
+const FLIGHT = 4.2 // seconds for the round trip
+const HEADINGS = 720
 
 /**
- * The glass ∞. Grab it and spin it: it keeps the momentum, then springs back to rest
- * (settling on the nearest full turn so it always lands in its original pose).
+ * The orange play arrow of the logo. It rests in its slot, then lifts off, rides the ∞ once over the
+ * glass — always pointing where it's going — and settles back exactly where it started. Repeat.
+ */
+function LoopArrow({ intro, mobile }: Pick<Refs, 'intro'> & { mobile: boolean }) {
+  const ref = useRef<THREE.Mesh>(null)
+  const geometry = useMemo(() => createArrowGeometry(), [])
+  const path = useMemo(() => createFlightPath(), [])
+  const start = useMemo(() => path.at(0), [path])
+  const home = useMemo(() => toScene(ARROW_HOME.x, ARROW_HOME.y, 0), [])
+  // heading along the path, unwrapped — the ∞ turns both ways, so it ends where it began
+  const headings = useMemo(() => {
+    const out = new Float32Array(HEADINGS + 1)
+    const t = new THREE.Vector3()
+    let prev = 0
+    for (let i = 0; i <= HEADINGS; i++) {
+      path.tangent(i / HEADINGS, t)
+      let a = Math.atan2(t.y, t.x)
+      if (i) {
+        while (a - prev > Math.PI) a -= TAU
+        while (a - prev < -Math.PI) a += TAU
+      }
+      out[i] = a
+      prev = a
+    }
+    return out
+  }, [path])
+  const clock = useRef(-1)
+  const still = useMemo(() => prefersReducedMotion(), [])
+  const p = useMemo(() => new THREE.Vector3(), [])
+
+  useFrame((state) => {
+    const m = ref.current
+    if (!m) return
+    // the cycle starts (with a rest) once the intro has landed
+    if (clock.current < 0) {
+      if (intro.current < 0.97) return
+      clock.current = state.clock.elapsedTime
+    }
+    const t = (state.clock.elapsedTime - clock.current) % (REST + FLIGHT)
+    if (still || t < REST) {
+      m.position.copy(home)
+      m.rotation.set(0, 0, 0)
+      m.scale.setScalar(1)
+      return
+    }
+    const x = (t - REST) / FLIGHT
+    const u = smootherstep(x) // eases out of the slot and back into it — no jumps
+    const w = smoothstep(x, 0, 0.16) * smoothstep(1 - x, 0, 0.16) // lift-off / landing
+    path.at(u, p)
+    // it rides in front of the glass; a lower arc on phones keeps the whole trip on screen
+    toScene(ARROW_HOME.x + p.x - start.x, ARROW_HOME.y + p.y - start.y, (mobile ? 14 : 34) * w, m.position)
+    const f = u * HEADINGS
+    const i0 = Math.min(HEADINGS - 1, Math.floor(f))
+    const heading = THREE.MathUtils.lerp(headings[i0], headings[i0 + 1], f - i0)
+    m.rotation.set(0.35 * Math.sin(Math.PI * x) * w, 0, (heading - ARROW_POINTING) * w)
+    m.scale.setScalar(1 + (mobile ? 0.03 : 0.16) * w)
+  })
+
+  return (
+    <mesh ref={ref} geometry={geometry} position={home}>
+      {/* not tone-mapped, so it stays the logo's own orange (#FFAE23) */}
+      <meshPhysicalMaterial
+        color="#ffae23"
+        roughness={0.24}
+        metalness={0}
+        clearcoat={1}
+        clearcoatRoughness={0.05}
+        emissive="#ffa21a"
+        emissiveIntensity={0.62}
+        envMapIntensity={0.7}
+        toneMapped={false}
+      />
+    </mesh>
+  )
+}
+
+/* ------------------------------------------------------------------ glass ∞ */
+
+/**
+ * The glass ∞ of the OsLoop icon, with its orange arrow. Grab it and spin it: it keeps the momentum,
+ * then springs back to rest (settling on the nearest full turn so it always lands in its original pose).
  */
 function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean; theme: Theme }) {
   const c = PALETTE[theme]
   const group = useRef<THREE.Group>(null)
   const spin = useRef<THREE.Group>(null)
-  const geometry = useMemo(() => new THREE.TubeGeometry(new Lemniscate(), mobile ? 260 : 520, 0.4, mobile ? 32 : 64, true), [mobile])
+  const geometry = useMemo(() => createLoopGeometry(mobile ? 320 : 640, mobile ? 32 : 64), [mobile])
   const { viewport } = useThree()
-  const fit = mobile ? (viewport.width / 5.6) * 0.92 : Math.min(1, viewport.width / 7.2) * 0.8
+  const fit = mobile ? (viewport.width / 5.6) * 0.8 : Math.min(1, viewport.width / 7.2) * 0.8
   const baseY = mobile ? 0.55 : 0
   const drag = useRef({ active: false, hover: false, ry: 0, rx: 0, vy: 0, vx: 0, lx: 0, ly: 0, lt: 0, lift: 0 })
 
@@ -134,19 +201,19 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
 
   return (
     <group ref={group} scale={0.4}>
-      <group ref={spin}>
-        <mesh
-          geometry={geometry}
-          onPointerDown={onDown}
-          onPointerOver={() => {
-            drag.current.hover = true
-            if (!drag.current.active) setCursorLabel('Drag')
-          }}
-          onPointerOut={() => {
-            drag.current.hover = false
-            if (!drag.current.active) setCursorLabel(null)
-          }}
-        >
+      <group
+        ref={spin}
+        onPointerDown={onDown}
+        onPointerOver={() => {
+          drag.current.hover = true
+          if (!drag.current.active) setCursorLabel('Drag')
+        }}
+        onPointerOut={() => {
+          drag.current.hover = false
+          if (!drag.current.active) setCursorLabel(null)
+        }}
+      >
+        <mesh geometry={geometry}>
           <MeshTransmissionMaterial
             backside={!mobile}
             backsideThickness={0.35}
@@ -169,55 +236,47 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
             background={new THREE.Color(c.bg)}
           />
         </mesh>
+        <LoopArrow intro={intro} mobile={mobile} />
       </group>
     </group>
   )
 }
 
-/**
- * Loads the general OsLoop logo (SVG) as a white silhouette texture so it can be tinted per theme.
- * Returns null while loading or if the file isn't there yet — the scene then shows the word instead.
- */
-function useMarkTexture(url: string) {
-  const [mark, setMark] = useState<{ texture: THREE.CanvasTexture; aspect: number } | null>(null)
+/* ------------------------------------------------------------------ logo behind the glass */
+
+/** The general OsLoop logo files (white for the dark theme, blue for the light one). */
+function useLogoTextures() {
+  const [tex, setTex] = useState<Record<Theme, THREE.Texture> | null>(null)
   useEffect(() => {
     let alive = true
-    const img = new Image()
-    img.onload = () => {
-      if (!alive) return
-      const nw = img.naturalWidth || 1200
-      const nh = img.naturalHeight || 400
-      const w = 2048
-      const h = Math.max(1, Math.round((w * nh) / nw))
-      const c = document.createElement('canvas')
-      c.width = w
-      c.height = h
-      const ctx = c.getContext('2d')!
-      ctx.drawImage(img, 0, 0, w, h)
-      ctx.globalCompositeOperation = 'source-in'
-      ctx.fillStyle = '#fff'
-      ctx.fillRect(0, 0, w, h)
-      const texture = new THREE.CanvasTexture(c)
-      texture.colorSpace = THREE.SRGBColorSpace
-      texture.anisotropy = 8
-      setMark({ texture, aspect: w / h })
-    }
-    img.onerror = () => alive && setMark(null)
-    img.src = url
+    const loader = new THREE.TextureLoader()
+    Promise.all([loader.loadAsync(brand.logoWhite), loader.loadAsync(brand.logoBlue)])
+      .then(([white, blue]) => {
+        for (const t of [white, blue]) {
+          t.colorSpace = THREE.SRGBColorSpace
+          t.anisotropy = 8
+        }
+        if (alive) setTex({ dark: white, light: blue })
+      })
+      .catch(() => {})
     return () => {
       alive = false
     }
-  }, [url])
-  return mark
+  }, [])
+  return tex
 }
 
-function BackdropWord({ progress, intro, mobile, theme }: Refs & { mobile: boolean; theme: Theme }) {
+function BackdropLogo({ progress, intro, mobile, theme }: Refs & { mobile: boolean; theme: Theme }) {
   const ref = useRef<THREE.Group>(null)
+  const mat = useRef<THREE.MeshBasicMaterial>(null)
   const { viewport, camera } = useThree()
   const vp = viewport.getCurrentViewport(camera, new THREE.Vector3(0, 0, -2.6))
-  const size = Math.min(vp.width / 3.05, 3.2)
-
-  const mark = useMarkTexture(brand.markSvg)
+  const textures = useLogoTextures()
+  const map = textures?.[theme]
+  const image = map?.image as { width: number; height: number } | undefined
+  const aspect = image ? image.width / image.height : 3.25
+  // same footprint as the old word: ~86% of the visible width, never taller than ~42% of the height
+  const w = Math.min(vp.width * 0.86, vp.height * 0.42 * aspect)
 
   useFrame((state, dt) => {
     if (!ref.current) return
@@ -225,39 +284,22 @@ function BackdropWord({ progress, intro, mobile, theme }: Refs & { mobile: boole
     const i = intro.current
     ref.current.position.y = damp(ref.current.position.y, (mobile ? 0.75 : 0) - p * 1.2 + (1 - i) * -0.6, 3, dt)
     ref.current.position.x = damp(ref.current.position.x, -state.pointer.x * 0.25, 2, dt)
-    const mat = (ref.current.children[0] as THREE.Mesh | undefined)?.material as THREE.MeshBasicMaterial | undefined
-    if (mat) mat.opacity = i
+    if (mat.current) mat.current.opacity = i
   })
-
-  if (mark) {
-    // Same footprint as the word: ~88% of the visible width, never taller than ~42% of the height.
-    const w = Math.min(vp.width * 0.86, vp.height * 0.42 * mark.aspect)
-    return (
-      <group ref={ref} position={[0, 0, -2.6]}>
-        <mesh>
-          <planeGeometry args={[w, w / mark.aspect]} />
-          <meshBasicMaterial map={mark.texture} color={PALETTE[theme].word} transparent toneMapped={false} />
-        </mesh>
-      </group>
-    )
-  }
 
   return (
     <group ref={ref} position={[0, 0, -2.6]}>
-      <Text
-        font="/fonts/InterTight-ExtraBold.woff"
-        fontSize={size}
-        letterSpacing={-0.065}
-        anchorX="center"
-        anchorY="middle"
-        position={[0, size * 0.04, 0]}
-      >
-        osloop
-        <meshBasicMaterial color={PALETTE[theme].word} transparent toneMapped={false} />
-      </Text>
+      {map && (
+        <mesh>
+          <planeGeometry args={[w, w / aspect]} />
+          <meshBasicMaterial ref={mat} map={map} color={PALETTE[theme].word} transparent opacity={0} depthWrite={false} toneMapped={false} />
+        </mesh>
+      )}
     </group>
   )
 }
+
+/* ------------------------------------------------------------------ atmosphere */
 
 /** Soft radial glow behind everything — gives the glass something rich to refract. */
 function Glow({ theme }: { theme: Theme }) {
@@ -300,38 +342,6 @@ function Glow({ theme }: { theme: Theme }) {
   )
 }
 
-const FLIGHT = 2.6 // seconds out-and-back
-const REST = 3 // seconds still at home
-
-/** Orange orb: flies out on a smooth loop and lands exactly where it started, then rests. */
-function LoopingOrb() {
-  const ref = useRef<THREE.Mesh>(null)
-  const home = useMemo(() => new THREE.Vector3(3.7, 0.4, -0.9), [])
-  useFrame((state) => {
-    const m = ref.current
-    if (!m) return
-    const t = state.clock.elapsedTime % (FLIGHT + REST)
-    if (t >= FLIGHT) {
-      m.position.copy(home)
-      m.scale.setScalar(1)
-      return
-    }
-    const x = t / FLIGHT
-    const u = x * x * x * (x * (x * 6 - 15) + 10) // smootherstep — zero velocity at both ends
-    const a = u * Math.PI * 2
-    const R = 0.95
-    m.position.set(home.x - R * Math.sin(a) * 1.25, home.y + R * (1 - Math.cos(a)), home.z + R * 0.9 * Math.sin(a))
-    m.scale.setScalar(1 + 0.35 * Math.sin(u * Math.PI))
-    m.rotation.y = a
-  })
-  return (
-    <mesh ref={ref} position={home}>
-      <sphereGeometry args={[0.2, 48, 48]} />
-      <meshPhysicalMaterial color="#ffb547" roughness={0.2} metalness={0.1} clearcoat={1} emissive="#ff8a00" emissiveIntensity={0.25} />
-    </mesh>
-  )
-}
-
 function Orbs() {
   return (
     <>
@@ -341,7 +351,12 @@ function Orbs() {
           <meshPhysicalMaterial color="#2c5bff" roughness={0.15} metalness={0.2} clearcoat={1} />
         </mesh>
       </Float>
-      <LoopingOrb />
+      <Float speed={0.9} rotationIntensity={0.4} floatIntensity={1.4}>
+        <mesh position={[3.7, 0.4, -0.9]}>
+          <sphereGeometry args={[0.2, 48, 48]} />
+          <meshPhysicalMaterial color="#ffb547" roughness={0.2} metalness={0.1} clearcoat={1} emissive="#ff8a00" emissiveIntensity={0.25} />
+        </mesh>
+      </Float>
       <Float speed={1.3} rotationIntensity={1} floatIntensity={0.8}>
         <mesh position={[2.6, 1.9, -1.6]}>
           <torusGeometry args={[0.22, 0.08, 24, 64]} />
@@ -381,7 +396,7 @@ export default function HeroScene({
       <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(mobile ? 1.25 : 1.6)} />
       <color attach="background" args={[c.bg]} key={c.bg} />
       <Glow theme={theme} />
-      <BackdropWord progress={progress} intro={intro} mobile={mobile} theme={theme} />
+      <BackdropLogo progress={progress} intro={intro} mobile={mobile} theme={theme} />
       <GlassLoop progress={progress} intro={intro} mobile={mobile} theme={theme} />
       <Orbs />
       <Sparkles count={mobile ? 40 : 90} scale={[12, 7, 5]} size={2.2} speed={0.25} color={c.sparkle} opacity={0.6} />

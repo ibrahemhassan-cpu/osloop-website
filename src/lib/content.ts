@@ -13,17 +13,20 @@ export const brand = {
   timeZone: 'Africa/Cairo',
   mapUrl: 'https://goo.gl/maps/ou6TEmMqB5Xh9jE1A',
   /*
-   * TODO(client): drop the official SVGs into public/brand/ with these exact names —
-   * the site switches to them automatically (the PNGs below are only a fallback).
-   *   osloop-media-production.svg        → navbar + footer (full logo)
-   *   osloop-media-production-white.svg  → optional white version for dark backgrounds
-   *   osloop.svg                         → general logo shown behind the glass loop
+   * Official logo files supplied by OsLoop (public/brand/, originals in public/brand/raw/).
+   *   mediaLogo / mediaLogoWhite → navbar, loader and page transitions ("OsLoop Media Production")
+   *   logoWhite                 → footer ("OsLoop Main logo white")
+   *   logoWhite / logoBlue      → the general logo behind the hero glass (dark / light theme)
+   * The tab icon (public/favicon*.png) is made from "main logo icon light"; the hero glass ∞ and its
+   * orange arrow are modelled on "Media logo icon".
    */
-  logoSvg: '/brand/osloop-media-production.svg',
-  logoWhiteSvg: '/brand/osloop-media-production-white.svg',
-  markSvg: '/brand/osloop.svg',
-  logo: 'https://agency.osloop.com/images/Osloop---LOGO-01-01-1.png',
-  logoWhite: 'https://agency.osloop.com/images/Osloop---LOGO-WHITE.png',
+  mediaLogo: '/brand/osloop-media-logo.webp',
+  mediaLogoWhite: '/brand/osloop-media-logo-white.webp',
+  /** the same two files at 600px wide — crisp in the navbar without loading the full-size art */
+  mediaLogoNav: '/brand/osloop-media-logo-nav.webp',
+  mediaLogoWhiteNav: '/brand/osloop-media-logo-white-nav.webp',
+  logoWhite: '/brand/osloop-logo-white.webp',
+  logoBlue: '/brand/osloop-logo-blue.webp',
 }
 
 export const reel = {
@@ -141,8 +144,8 @@ export const pipeline = [
   { n: '07', title: 'Final Result', body: 'A polished master, delivered in every format you need.', bg: '/process/final.svg' },
 ]
 
-export const marqueeA = ['Explainer Videos', 'Motion Graphics', 'Video Editing', '3D Videos', 'Whiteboard Animation', 'Graphic Design']
-export const marqueeB = ['Real Hand Drawing', 'Website & Mobile Design', 'Animated Websites', 'VFX & SFX', 'Voice Over']
+export const marqueeA = ['Script Writing', 'Storyboard', 'Illustrations', 'Voice Over', 'Animation', 'VFX', 'SFX']
+export const marqueeB = ['2D Animation', 'Whiteboard', '3D Animation', 'Cartoon Animation', 'Real Hand Drawing']
 
 export const values = [
   {
@@ -225,7 +228,7 @@ export const contact = {
   turnstileSiteKey: '' as string,
   /** TODO(client): e.g. '+20 100 000 0000' — shows a WhatsApp link when set */
   whatsapp: '' as string,
-  needs: ['Explainer video', 'Motion graphics', '3D video', 'Video editing', 'Branding', 'Website', 'Not sure yet'],
+  needs: ['Explainer video', '3D production', 'Animated website', 'Not sure yet'],
   budgets: ['Less than $2,800', '$2,800 to $5,600', 'More than $5,600'],
 }
 
@@ -320,8 +323,9 @@ export const projects: Project[] = [
     year: '2023',
     services: ['Script', 'Character design', '2D animation', 'Voice-over'],
     deliverable: 'Animated explainer video',
-    cover: yt(videos.aiden),
-    gallery: [yt(videos.aiden, 'maxres1'), yt(videos.aiden, 'maxres2'), yt(videos.aiden, 'maxres3')],
+    // cover: Aiden's own AI interface (H-26)
+    cover: yt(videos.aiden, 'maxres3'),
+    gallery: [yt(videos.aiden), yt(videos.aiden, 'maxres2'), yt(videos.aiden, 'maxres1')],
     accent: '#2c5bff',
     link: { kind: 'youtube', id: videos.aiden, label: 'Watch the explainer' },
     summary: 'Meet Aiden — an AI assistant introduced through a friendly character and a clean, technology-led visual world.',
@@ -344,8 +348,9 @@ export const projects: Project[] = [
     year: '2022',
     services: ['Motion graphics', '3D product visuals', 'Kinetic typography', 'Sound design'],
     deliverable: 'Animated product explainer',
-    cover: yt(videos.headtech),
-    gallery: [yt(videos.headtech, 'maxres1'), yt(videos.headtech, 'maxres2'), yt(videos.headtech, 'maxres3')],
+    // cover: the clean product frame, without captions
+    cover: yt(videos.headtech, 'maxres3'),
+    gallery: [yt(videos.headtech), yt(videos.headtech, 'maxres1'), yt(videos.headtech, 'maxres2')],
     accent: '#3ddc84',
     link: { kind: 'youtube', id: videos.headtech, label: 'Watch the explainer' },
     summary: 'A high-tech headset explained through bold motion graphics, 3D product visuals and kinetic type.',
@@ -367,8 +372,9 @@ export const projects: Project[] = [
     year: '2022',
     services: ['Compositing', 'Color grading', 'Clean-up', 'Editing'],
     deliverable: 'Before & after VFX edit',
-    cover: yt(videos.mark),
-    gallery: [yt(videos.mark, 'maxres1'), yt(videos.mark, 'maxres2'), yt(videos.mark, 'maxres3')],
+    // cover: the frame where original vs edited reads clearest
+    cover: yt(videos.mark, 'maxres1'),
+    gallery: [yt(videos.mark), yt(videos.mark, 'maxres2'), yt(videos.mark, 'maxres3')],
     accent: '#7d9bff',
     link: { kind: 'youtube', id: videos.mark, label: 'Watch the before & after' },
     summary: 'Raw footage transformed through compositing, grading and clean-up — shown side by side, original against edited.',
@@ -388,25 +394,45 @@ export const projects: Project[] = [
     category: 'Brand Identity',
     group: 'Branding',
     year: '2025',
-    services: ['Brand strategy', 'Logo', 'Color & typography', 'Brand manual'],
-    deliverable: 'Brand identity & manual',
-    cover: null,
-    gallery: [],
-    accent: '#46c2ff',
+    services: ['Logo design', 'Color system', 'Typography', 'Brand manual'],
+    deliverable: 'Brand identity & brand manual',
+    // cover: the identity applied (signage, packaging, web, merch, cards) — from the brand manual
+    cover: '/projects/river-city/cover.webp',
+    // one page of the manual per journey stage
+    gallery: [
+      '/projects/river-city/manual-p3.webp',
+      '/projects/river-city/manual-p9.webp',
+      '/projects/river-city/manual-p11.webp',
+      '/projects/river-city/manual-p16.webp',
+      '/projects/river-city/manual-p17.webp',
+    ],
+    accent: '#29af5f',
     link: {
       kind: 'pdf',
       url: 'https://www.dropbox.com/scl/fi/ncged49ssl2v681u2kabd/River-City-Recovery-Brand-Manual-V01-14th-Oct-2025.pdf?rlkey=rj1a09sckxt7p6jn7eno6qdne&st=ejj07snm&e=1&dl=0',
       label: 'View the brand manual',
     },
-    summary: 'A complete identity system for River City Recovery — logo, color, typography and the rules that hold it together.',
-    start: 'River City Recovery needed a brand that feels trustworthy, calm and hopeful — and that stays consistent everywhere it appears.',
+    summary:
+      'A complete identity for River City Recovery — a mark where a flowing river becomes growth, a calm green color system, and a brand manual that keeps every touchpoint consistent.',
+    start:
+      'River City Recovery needed a brand that feels trustworthy, calm and hopeful — one that speaks with compassion and without judgment, and looks the same on every sign, screen and document.',
     journey: [
-      { stage: 'Discovery', text: 'We learned the audience, the tone and the values the brand needed to carry.' },
-      { stage: 'Logo & mark', text: 'Concepts were explored and refined into one clear, memorable mark.' },
-      { stage: 'Color & type', text: 'A palette and type system built for warmth, clarity and accessibility.' },
-      { stage: 'Brand manual', text: 'Everything documented in a brand manual so every touchpoint stays on brand.' },
+      {
+        stage: 'Logo & mark',
+        text: 'A circular mark with a flowing “river” path that stands for healing, renewal and forward motion — with RECOVERY set in bold to keep the focus on purpose.',
+      },
+      {
+        stage: 'Color system',
+        text: 'An RCR primary green, a dark green and a green-to-teal gradient, with supporting neutrals, a 60/30/10 usage ratio and contrast checked for accessibility.',
+      },
+      {
+        stage: 'Typography & voice',
+        text: 'Franklin Gothic in a clear type hierarchy, and a plain-language, compassionate tone of voice: “We’re here to help — no judgment.”',
+      },
+      { stage: 'Pattern & imagery', text: 'A quiet roundel pattern for backgrounds, and an imagery style that is authentic, diverse and hopeful.' },
+      { stage: 'Applications', text: 'Signage, stationery, merchandise, web and mobile — every touchpoint designed and documented in the brand manual.' },
     ],
-    end: 'A full identity system and brand manual — ready for every sign, screen and document.',
+    end: 'A complete identity system and brand manual — logo, color, type, imagery, iconography, voice and applications — ready for every sign, screen and document. Second chances start here.',
   },
   {
     slug: 'arvamethod',

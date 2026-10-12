@@ -34,13 +34,17 @@ Navigation links are in `src/lib/nav.ts`.
 
 ### Logo files
 
-Drop the official SVGs into `public/brand/` using these names, and the site switches to them on its own:
+The official logo files supplied by OsLoop live in `public/brand/`:
 
-| File | Used for |
-| --- | --- |
-| `osloop-media-production.svg` | navbar, footer, preloader |
-| `osloop-media-production-white.svg` | optional white version for dark backgrounds (otherwise the colour logo is inverted) |
-| `osloop.svg` | the general logo behind the glass loop in the hero |
+| File | Source file | Used for |
+| --- | --- | --- |
+| `osloop-media-logo.webp` | OsLoop Media logo light | navbar on light pages (`-nav` = 600px copy for the navbar) |
+| `osloop-media-logo-white.webp` | OsLoop Main logo white copy | navbar on dark pages, loader, page transitions |
+| `osloop-logo-white.webp` | OsLoop Main logo white | footer, and behind the hero glass in dark mode |
+| `osloop-logo-blue.webp` | OsLoop Main logo blue | behind the hero glass in light mode |
+| `/favicon*.png`, `/apple-touch-icon.png` | main logo icon light | browser tab icon |
+
+The hero's glass ∞ and its orange play arrow are built in 3D from the **Media logo icon** (`src/pages/home/loopIcon.ts`).
 
 ### Contact form + spam protection
 
@@ -56,7 +60,7 @@ Until those steps are done, the form opens the visitor's email app with the brie
 ## Where things live
 
 ```
-src/pages/home/          ← home sections (HeroScene.tsx = 3D glass loop, drag + spring-back)
+src/pages/home/          ← home sections (HeroScene.tsx = 3D glass ∞ + flying arrow, drag + spring-back; loopIcon.ts = its geometry)
 src/pages/projects/      ← projects list + project story page
 src/components/          ← header, mobile menu, footer, cursor, project cover, reel modal
 src/providers/           ← smooth scroll (Lenis), page transitions + preloader, theme

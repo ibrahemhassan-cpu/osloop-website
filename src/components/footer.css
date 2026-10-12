@@ -48,17 +48,20 @@
 .ftr__muted {
   color: var(--muted-dark);
 }
+/* the large logo: full width, never cropped (the box keeps the file's own proportions) */
 .ftr__mark {
-  margin: 4vw 0 3vw;
+  position: relative;
+  margin: 3vw 0 2vw;
+  aspect-ratio: 3615 / 1113;
   overflow: hidden;
 }
-.ftr__logo {
+.ftr__letter {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
-  max-height: 32vw;
-  object-fit: contain;
-  object-position: left center;
+  height: 100%;
+  will-change: transform;
 }
 .ftr__bottom {
   display: flex;
