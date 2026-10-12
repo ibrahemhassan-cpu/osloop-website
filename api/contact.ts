@@ -3,12 +3,13 @@
  *
  *  1. Drops honeypot submissions silently.
  *  2. Validates the required fields.
- *  3. Verifies the Cloudflare Turnstile token server-side.
+ *  3. Verifies the Cloudflare Turnstile token server-side — once TURNSTILE_SECRET_KEY is set.
+ *     Until then the form's own quick check (a small sum) is the human check.
  *  4. Forwards the message to Formspree, which emails it to the team.
  *
- * Required environment variables (Vercel → Project → Settings → Environment Variables):
- *   TURNSTILE_SECRET_KEY   Cloudflare Turnstile secret key
- *   FORMSPREE_ENDPOINT     e.g. https://formspree.io/f/xxxxxxx
+ * Environment variables (Vercel → Project → Settings → Environment Variables):
+ *   FORMSPREE_ENDPOINT     required, e.g. https://formspree.io/f/xxxxxxx
+ *   TURNSTILE_SECRET_KEY   Cloudflare Turnstile secret key (set it together with the site key)
  */
 
 type Body = {
@@ -43,18 +44,20 @@ export async function POST(request: Request): Promise<Response> {
 
   const secret = process.env.TURNSTILE_SECRET_KEY
   const endpoint = process.env.FORMSPREE_ENDPOINT
-  if (!secret || !endpoint) return json(500, { error: 'not_configured' })
+  if (!endpoint) return json(500, { error: 'not_configured' })
 
-  const verify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      secret,
-      response: body.token ?? '',
-      remoteip: request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0] ?? undefined,
-    }),
-  }).then((r) => r.json() as Promise<{ success: boolean }>)
-  if (!verify.success) return json(403, { error: 'captcha_failed' })
+  if (secret) {
+    const verify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret,
+        response: body.token ?? '',
+        remoteip: request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0] ?? undefined,
+      }),
+    }).then((r) => r.json() as Promise<{ success: boolean }>)
+    if (!verify.success) return json(403, { error: 'captcha_failed' })
+  }
 
   const forward = await fetch(endpoint, {
     method: 'POST',

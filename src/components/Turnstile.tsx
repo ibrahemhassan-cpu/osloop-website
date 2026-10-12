@@ -12,12 +12,11 @@ declare global {
   }
 }
 
-/** Cloudflare's always-pass test key — only used in local development. */
-const TEST_KEY = '1x00000000000000000000AA'
-
-/** The active site key: content.ts → VITE_TURNSTILE_SITE_KEY → test key (dev only). */
-export const turnstileKey: string =
-  contact.turnstileSiteKey || (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || (import.meta.env.DEV ? TEST_KEY : '')
+/**
+ * The active site key: content.ts → VITE_TURNSTILE_SITE_KEY. While neither is set, the contact form
+ * uses a simple math question instead (see MathCheck).
+ */
+export const turnstileKey: string = contact.turnstileSiteKey || (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || ''
 
 let loader: Promise<void> | null = null
 function loadScript() {

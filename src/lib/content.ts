@@ -222,8 +222,8 @@ export const contact = {
    */
   formEndpoint: '' as string,
   /**
-   * TODO(client): your Cloudflare Turnstile site key. While empty, Cloudflare's public
-   * *test* key is used in development so the widget can be seen; production shows no widget.
+   * TODO(client): your Cloudflare Turnstile site key. While empty, the form asks a small sum
+   * ("7 + 4 = ?") as its human check; once set, Turnstile takes over automatically.
    */
   turnstileSiteKey: '' as string,
   /** TODO(client): e.g. '+20 100 000 0000' — shows a WhatsApp link when set */

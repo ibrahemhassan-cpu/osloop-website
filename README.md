@@ -48,14 +48,15 @@ The hero's glass ∞ and its orange play arrow are built in 3D from the **Media 
 
 ### Contact form + spam protection
 
-The form validates every field, includes a hidden honeypot field, and supports Cloudflare Turnstile.
+The form validates every field, includes a hidden honeypot field, and asks a human check before sending.
+Until the Cloudflare Turnstile keys are added, that check is a small sum (e.g. "7 + 4 = ?"); once the site key is set, Turnstile replaces it automatically.
 
 1. Create a Turnstile widget at dash.cloudflare.com. Put the **site key** in `contact.turnstileSiteKey`, or set the `VITE_TURNSTILE_SITE_KEY` env var.
 2. Create a free form at formspree.io.
 3. On Vercel, set the env vars `TURNSTILE_SECRET_KEY` and `FORMSPREE_ENDPOINT`.
-4. Set `contact.formEndpoint` to `'/api/contact'`. The function in `api/contact.ts` verifies Turnstile on the server and then forwards the message to Formspree.
+4. Set `contact.formEndpoint` to `'/api/contact'`. The function in `api/contact.ts` verifies Turnstile on the server (once its secret is set) and then forwards the message to Formspree.
 
-Until those steps are done, the form opens the visitor's email app with the brief already filled in. In local development, Cloudflare's test key is used so you can see the check working.
+Until the form endpoint is set, the form opens the visitor's email app with the brief already filled in.
 
 ## Where things live
 

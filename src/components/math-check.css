@@ -1,0 +1,35 @@
+.cmath__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.cmath__q {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--fg);
+}
+.cfield .cmath__input {
+  width: 84px;
+  text-align: center;
+  font-size: 18px;
+}
+.cmath__new {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line-2);
+  display: grid;
+  place-items: center;
+  color: var(--fg-2);
+  transition: color 0.3s, border-color 0.3s, transform 0.6s var(--ease-out);
+}
+.cmath__new:hover,
+.cmath__new:focus-visible {
+  color: var(--fg);
+  border-color: var(--fg-3);
+  transform: rotate(-120deg);
+}

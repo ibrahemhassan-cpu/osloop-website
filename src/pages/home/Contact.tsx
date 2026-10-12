@@ -5,6 +5,7 @@ import { useClock } from '../../lib/useClock'
 import { useTheme } from '../../providers/Theme'
 import { Arrow, Magnetic, RollText } from '../../components/ui'
 import { Turnstile, turnstileKey } from '../../components/Turnstile'
+import { MathCheck, type MathState } from '../../components/MathCheck'
 import type { PhoneValue } from '../../components/PhoneField'
 
 // The phone field carries country metadata — load it only when the form is near.
@@ -24,6 +25,7 @@ export function Contact() {
   const [form, setForm] = useState({ name: '', email: '', company: '', message: '', website: '' })
   const [phone, setPhone] = useState<PhoneValue | null>(null)
   const [token, setToken] = useState<string | null>(null)
+  const [math, setMath] = useState<MathState>('empty')
   const [captchaRun, setCaptchaRun] = useState(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<Status>('idle')
@@ -92,7 +94,15 @@ export function Contact() {
     if (!budget) e.budget = 'Please choose a budget range.'
     if (phone && phone.national && !phone.valid) e.phone = `This number doesn’t look valid for ${phone.label}.`
     if (form.message.trim().length < 10) e.message = 'A few words about the project, please.'
-    if (turnstileKey && !token) e.captcha = 'Please complete the security check below.'
+    // Human check: Cloudflare Turnstile once its key is set, a small sum until then.
+    if (turnstileKey) {
+      if (!token) e.captcha = 'Please complete the security check below.'
+    } else if (math === 'empty') {
+      e.captcha = 'Please answer the quick check.'
+    } else if (math === 'wrong') {
+      e.captcha = 'That’s not quite right — here’s a new one.'
+      setCaptchaRun((n) => n + 1)
+    }
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -334,15 +344,28 @@ export function Contact() {
                   </label>
                 </div>
 
-                <Turnstile
-                  theme={theme}
-                  resetKey={captchaRun}
-                  onToken={(t) => {
-                    setToken(t)
-                    if (t) clear('captcha')
-                  }}
-                />
-                {errors.captcha && <em className="cform__msg">{errors.captcha}</em>}
+                {turnstileKey ? (
+                  <>
+                    <Turnstile
+                      theme={theme}
+                      resetKey={captchaRun}
+                      onToken={(t) => {
+                        setToken(t)
+                        if (t) clear('captcha')
+                      }}
+                    />
+                    {errors.captcha && <em className="cform__msg">{errors.captcha}</em>}
+                  </>
+                ) : (
+                  <MathCheck
+                    key={captchaRun}
+                    error={errors.captcha}
+                    onChange={(s) => {
+                      setMath(s)
+                      if (s === 'right') clear('captcha')
+                    }}
+                  />
+                )}
 
                 <div className="cform__foot">
                   <Magnetic strength={0.2}>
