@@ -240,20 +240,24 @@ export const industries = ['Healthcare', 'Crypto', 'Food', 'SaaS']
 /* --------------------------------------------------------------------- Team */
 export type TeamMember = {
   role: string
-  /** TODO(client): real names and designed photos — the photo is the main visual of each card */
+  /** the big outlined letters on the card (the craft's initials when left out) */
+  mono?: string
+  skills?: string[]
+  /** TODO(client): real names and designed photos — a card with a photo shows it as its main visual */
   name?: string
   photo?: string
 }
 
+/** any number of people fits: the circle grows with the crew */
 export const team: TeamMember[] = [
-  { role: 'Creative Director' },
-  { role: 'Scriptwriter' },
-  { role: 'Storyboard Artist' },
-  { role: 'Illustrator' },
-  { role: '3D Artist' },
-  { role: 'Animator' },
-  { role: 'VFX Artist' },
-  { role: 'Sound Designer' },
+  { role: 'Creative Director', mono: 'CD', skills: ['Concept', 'Art direction', 'Client partnership'] },
+  { role: 'Scriptwriter', mono: 'SW', skills: ['Messaging', 'Storytelling', 'Tone of voice'] },
+  { role: 'Storyboard Artist', mono: 'SB', skills: ['Shot planning', 'Timing', 'Sketching'] },
+  { role: 'Illustrator', mono: 'IL', skills: ['Characters', 'Backgrounds', 'Hand drawing'] },
+  { role: '3D Artist', mono: '3D', skills: ['Modeling', 'Lighting', 'Rendering'] },
+  { role: 'Animator', mono: 'AN', skills: ['2D', 'Whiteboard', 'Character motion'] },
+  { role: 'VFX Artist', mono: 'FX', skills: ['Compositing', 'Simulation', 'Creatures'] },
+  { role: 'Sound Designer', mono: 'SFX', skills: ['Voice-over', 'Music', 'Sound design'] },
 ]
 
 /* ----------------------------------------------------------------- Projects */
