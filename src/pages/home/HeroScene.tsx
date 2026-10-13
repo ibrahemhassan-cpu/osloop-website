@@ -5,7 +5,20 @@ import { setCursorLabel } from '../../components/Cursor'
 import { brand } from '../../lib/content'
 import { prefersReducedMotion } from '../../lib/gsap'
 import { Environment, Float, Lightformer, MeshTransmissionMaterial, PerformanceMonitor, Sparkles } from '@react-three/drei'
-import { ARROW_HOME, ARROW_POINTING, createArrowGeometry, createFlightPath, createLoopGeometry, toScene } from './loopIcon'
+import {
+  ARROW_HOME,
+  ARROW_POINTING,
+  BAND_FLIGHT_OFFSET,
+  BAND_SECTION,
+  ICON_SCALE,
+  bandFrame,
+  createArrowGeometry,
+  createBandPath,
+  createFlightPath,
+  createLoopGeometry,
+  toScene,
+  type LoopBand,
+} from './loopIcon'
 
 type Theme = 'light' | 'dark'
 
@@ -27,22 +40,106 @@ const clamp = THREE.MathUtils.clamp
 const smoothstep = THREE.MathUtils.smoothstep
 const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10)
 
-/* ------------------------------------------------------------------ orange arrow */
+/* ------------------------------------------------------------------ the arrow draws the ∞ */
 
-const REST = 3 // seconds the arrow sits still in its slot
-const FLIGHT = 4.2 // seconds for the round trip
+const DRAW = 3 // the arrow rides the ∞ and the glass band comes out behind it
+const HOLD = 2.4 // the whole logo
+const ABSORB = 3.2 // the band's first end gathers and runs round the ∞ into the arrow
+const EMPTY = 0.4 // just the arrow, in its slot
+const CYCLE = DRAW + HOLD + ABSORB + EMPTY
 const HEADINGS = 720
+/** the band ends this far behind the arrow's centre, its rounded head hidden inside the arrow (icon units) */
+const LAG = 16
+/** length of the band's rounded ends while it's drawn or absorbed (icon units) */
+const NOSE = BAND_SECTION.width * 0.9
+/** the arrow rides just in front of the band's centre line (icon units) */
+const RIDE_Z = 4
+/** while it absorbs the band, the arrow steps back along the ∞ to take the band's last end in (icon units) */
+const TAKE = 11
+
+/** what the arrow needs to draw the glass band: the shader's uniforms, the mesh and the band's path */
+type BandDraw = {
+  uniforms: Record<string, THREE.IUniform>
+  mesh: MutableRefObject<THREE.Mesh | null>
+  path: ReturnType<typeof createBandPath>
+  band: LoopBand
+}
 
 /**
- * The orange play arrow of the logo. It rests in its slot, then lifts off, rides the ∞ once over the
- * glass — always pointing where it's going — and settles back exactly where it started. Repeat.
+ * Vertex-shader patch for the glass. The band is only shown between its tail (`uTail`) and its head
+ * (`uHead`), positions along the band path; past either end it folds into a rounded nose, so the ∞ can
+ * be drawn out by the arrow and later run back into it. The upper cut face (`aPath.x < 0`) grows with
+ * the band when it's born. The glass material itself is untouched.
  */
-function LoopArrow({ intro, mobile }: Pick<Refs, 'intro'> & { mobile: boolean }) {
+const DRAW_HEAD = /* glsl */ `
+  attribute vec2 aPath;
+  uniform float uHead;
+  uniform float uTail;
+  uniform float uLen;
+  uniform float uNose;
+  uniform float uGrow;
+  uniform vec3 uHeadP;
+  uniform vec3 uHeadT;
+  uniform vec3 uHeadN;
+  uniform vec3 uHeadB;
+  uniform vec3 uTailP;
+  uniform vec3 uTailT;
+  uniform vec3 uTailN;
+  uniform vec3 uTailB;
+  uniform vec2 uSection;
+  uniform vec3 uCut;
+
+  // a rounded nose of length uNose at P, pointing along dir; s = 0 at its base, 1 at its tip
+  vec3 nosePoint(vec3 P, vec3 dir, vec3 N, vec3 B, float s, float a, float k, out vec3 n) {
+    float r = sqrt(max(1.0 - s * s, 0.0)) * k;
+    vec2 cs = vec2(cos(a), sin(a));
+    n = normalize((N * cs.x / uSection.x + B * cs.y / uSection.y) * r + dir * (s / uNose + 1e-4));
+    return P + dir * (uNose * s * k) + (N * cs.x * uSection.x + B * cs.y * uSection.y) * r;
+  }
+`
+const DRAW_BODY = /* glsl */ `
+  vec3 drawPos = position;
+  float a = aPath.y * 6.28318530718;
+  if (aPath.x < 0.0 && uTail < 0.0) {
+    drawPos = mix(uCut, position, uGrow);
+  } else {
+    float u = aPath.x < 0.0 ? -1.0 : aPath.x;
+    float past = (u - uHead) * uLen;
+    float behind = (uTail - u) * uLen;
+    if (past > 0.0) drawPos = nosePoint(uHeadP, uHeadT, uHeadN, uHeadB, min(past / uNose, 1.0), a, uGrow, objectNormal);
+    else if (behind > 0.0) drawPos = nosePoint(uTailP, -uTailT, uTailN, uTailB, min(behind / uNose, 1.0), a, 1.0, objectNormal);
+  }
+`
+function drawable(material: THREE.Material, uniforms: Record<string, THREE.IUniform>) {
+  // once per material instance; the uniforms object never changes (only its values do)
+  if (material.userData.drawable) return
+  material.userData.drawable = true
+  const base = material.onBeforeCompile
+  material.onBeforeCompile = (shader, renderer) => {
+    base.call(material, shader, renderer)
+    Object.assign(shader.uniforms, uniforms)
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', `#include <common>\n${DRAW_HEAD}`)
+      .replace('#include <beginnormal_vertex>', `#include <beginnormal_vertex>\n${DRAW_BODY}`)
+      .replace('#include <begin_vertex>', 'vec3 transformed = drawPos;')
+  }
+  material.customProgramCacheKey = () => 'osloop-band-draw'
+  material.needsUpdate = true
+}
+
+/**
+ * The orange play arrow of the logo, and the glass ∞ it draws. The hero opens on the arrow alone; it
+ * rides the ∞ — always pointing the way it draws — and the band comes out behind it, until it's back in
+ * its slot with the logo complete. Then the band's first end gathers and runs round the ∞ into the
+ * arrow, and it all starts again.
+ */
+function LoopArrow({ intro, mobile, draw }: Pick<Refs, 'intro'> & { mobile: boolean; draw: BandDraw }) {
   const ref = useRef<THREE.Mesh>(null)
   const geometry = useMemo(() => createArrowGeometry(), [])
   const path = useMemo(() => createFlightPath(), [])
   const start = useMemo(() => path.at(0), [path])
   const home = useMemo(() => toScene(ARROW_HOME.x, ARROW_HOME.y, 0), [])
+  const frame = useMemo(() => ({ P: new THREE.Vector3(), T: new THREE.Vector3(), N: new THREE.Vector3(), B: new THREE.Vector3() }), [])
   // heading along the path, unwrapped — the ∞ turns both ways, so it ends where it began
   const headings = useMemo(() => {
     const out = new Float32Array(HEADINGS + 1)
@@ -64,32 +161,86 @@ function LoopArrow({ intro, mobile }: Pick<Refs, 'intro'> & { mobile: boolean })
   const still = useMemo(() => prefersReducedMotion(), [])
   const p = useMemo(() => new THREE.Vector3(), [])
 
-  useFrame((state) => {
-    const m = ref.current
-    if (!m) return
-    // the cycle starts (with a rest) once the intro has landed
-    if (clock.current < 0) {
-      if (intro.current < 0.97) return
-      clock.current = state.clock.elapsedTime
-    }
-    const t = (state.clock.elapsedTime - clock.current) % (REST + FLIGHT)
-    if (still || t < REST) {
+  /** one end of the band (its position along the band path) → the shader's frame for that end */
+  const setEnd = (u: number, P: THREE.IUniform<THREE.Vector3>, T: THREE.IUniform<THREE.Vector3>, N: THREE.IUniform<THREE.Vector3>, B: THREE.IUniform<THREE.Vector3>) => {
+    const f = bandFrame(draw.path, THREE.MathUtils.clamp(u, 0, 1), frame.P, frame.T, frame.N, frame.B)
+    toScene(f.P.x, f.P.y, f.P.z, P.value)
+    T.value.copy(f.T)
+    N.value.copy(f.N)
+    B.value.copy(f.B)
+  }
+  /** shows the band between `tail` and `head` (positions along the band path; null = that end is complete) */
+  const showBand = (tail: number | null, head: number | null) => {
+    const { uniforms: un, mesh, path: bandPath, band } = draw
+    const material = mesh.current?.material
+    if (material && !Array.isArray(material)) drawable(material, un)
+    const h = head ?? 2
+    const t = tail ?? -1
+    // while it's being born the band and its nose grow from the upper cut
+    const grow = head === null ? 1 : THREE.MathUtils.clamp(((h - band.start) * bandPath.length) / (NOSE * 1.2), 0, 1)
+    un.uHead.value = h
+    un.uTail.value = t
+    un.uGrow.value = grow
+    if (mesh.current) mesh.current.visible = grow > 0 && (tail === null || t < band.end + NOSE / bandPath.length)
+    if (head !== null) setEnd(h, un.uHeadP, un.uHeadT, un.uHeadN, un.uHeadB)
+    if (tail !== null) setEnd(t, un.uTailP, un.uTailT, un.uTailN, un.uTailB)
+  }
+
+  /** the arrow `u` of the way round its flight (0 and 1 are both its slot); w = 0 rest pose … 1 riding */
+  const pose = (m: THREE.Mesh, u: number, w: number, tilt: number) => {
+    if (w <= 0) {
       m.position.copy(home)
       m.rotation.set(0, 0, 0)
       m.scale.setScalar(1)
       return
     }
-    const x = (t - REST) / FLIGHT
-    const u = smootherstep(x) // eases out of the slot and back into it — no jumps
-    const w = smoothstep(x, 0, 0.16) * smoothstep(1 - x, 0, 0.16) // lift-off / landing
     path.at(u, p)
-    // it rides in front of the glass; a lower arc on phones keeps the whole trip on screen
-    toScene(ARROW_HOME.x + p.x - start.x, ARROW_HOME.y + p.y - start.y, (mobile ? 14 : 34) * w, m.position)
+    toScene(ARROW_HOME.x + p.x - start.x, ARROW_HOME.y + p.y - start.y, (p.z + RIDE_Z) * w, m.position)
     const f = u * HEADINGS
     const i0 = Math.min(HEADINGS - 1, Math.floor(f))
     const heading = THREE.MathUtils.lerp(headings[i0], headings[i0 + 1], f - i0)
-    m.rotation.set(0.35 * Math.sin(Math.PI * x) * w, 0, (heading - ARROW_POINTING) * w)
-    m.scale.setScalar(1 + (mobile ? 0.03 : 0.16) * w)
+    m.rotation.set(tilt * w, 0, (heading - ARROW_POINTING) * w)
+    m.scale.setScalar(1 + (mobile ? 0.02 : 0.06) * w)
+  }
+
+  useFrame((state) => {
+    const m = ref.current
+    if (!m) return
+    if (still) {
+      showBand(null, null)
+      pose(m, 1, 0, 0)
+      return
+    }
+    // it opens on the arrow alone; the cycle starts as the intro lands
+    if (clock.current < 0) {
+      showBand(null, -1)
+      if (intro.current < 0.75) return pose(m, 1, 0, 0)
+      clock.current = state.clock.elapsedTime
+    }
+    const t = (state.clock.elapsedTime - clock.current) % CYCLE
+    const L = path.length
+    const bandLen = draw.path.length
+    if (t < DRAW) {
+      // the arrow rides the ∞ and the band comes out behind it
+      const x = t / DRAW
+      const u = smootherstep(x)
+      showBand(null, (u * L - BAND_FLIGHT_OFFSET - LAG) / bandLen)
+      pose(m, u, smoothstep(x, 0, 0.12) * smoothstep(1 - x, 0, 0.12), 0.15 * Math.sin(Math.PI * x))
+    } else if (t < DRAW + HOLD) {
+      showBand(null, null)
+      pose(m, 1, 0, 0)
+    } else if (t < DRAW + HOLD + ABSORB) {
+      // the first end gathers into a nose and runs round the ∞ into the arrow, which steps back to take it
+      const x = (t - DRAW - HOLD) / ABSORB
+      const { start: s0, end: s1 } = draw.band
+      const k = smootherstep(THREE.MathUtils.clamp((x - 0.04) / 0.8, 0, 1))
+      showBand(s0 + (s1 + NOSE / bandLen - s0) * k, null)
+      const back = smoothstep(x, 0, 0.16) * (1 - smoothstep(x, 0.84, 1))
+      pose(m, 1 - (TAKE * back) / L, back, 0)
+    } else {
+      showBand(null, -1)
+      pose(m, 1, 0, 0)
+    }
   })
 
   return (
@@ -121,6 +272,31 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
   const group = useRef<THREE.Group>(null)
   const spin = useRef<THREE.Group>(null)
   const geometry = useMemo(() => createLoopGeometry(mobile ? 320 : 640, mobile ? 32 : 64), [mobile])
+  const loopMesh = useRef<THREE.Mesh>(null)
+  // the band is drawn by the arrow: the shader's uniforms are made once, their values change every frame
+  const bandPath = useMemo(() => createBandPath(), [])
+  const uniforms = useMemo(() => {
+    const tail = (geometry.userData.band as LoopBand).tail
+    return {
+      uHead: { value: 2 },
+      uTail: { value: -1 },
+      uLen: { value: bandPath.length * ICON_SCALE },
+      uNose: { value: NOSE * ICON_SCALE },
+      uGrow: { value: 1 },
+      uHeadP: { value: new THREE.Vector3() },
+      uHeadT: { value: new THREE.Vector3(1, 0, 0) },
+      uHeadN: { value: new THREE.Vector3(0, 1, 0) },
+      uHeadB: { value: new THREE.Vector3(0, 0, 1) },
+      uTailP: { value: new THREE.Vector3() },
+      uTailT: { value: new THREE.Vector3(1, 0, 0) },
+      uTailN: { value: new THREE.Vector3(0, 1, 0) },
+      uTailB: { value: new THREE.Vector3(0, 0, 1) },
+      uSection: { value: new THREE.Vector2(BAND_SECTION.width, BAND_SECTION.depth).multiplyScalar(ICON_SCALE) },
+      uCut: { value: toScene(tail[0], tail[1], tail[2]) },
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bandPath])
+  const draw = useMemo<BandDraw>(() => ({ uniforms, mesh: loopMesh, path: bandPath, band: geometry.userData.band as LoopBand }), [uniforms, bandPath, geometry])
   const { viewport } = useThree()
   const fit = mobile ? (viewport.width / 5.6) * 0.8 : Math.min(1, viewport.width / 7.2) * 0.8
   const baseY = mobile ? 0.55 : 0
@@ -213,8 +389,9 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
           if (!drag.current.active) setCursorLabel(null)
         }}
       >
-        <mesh geometry={geometry}>
+        <mesh ref={loopMesh} geometry={geometry}>
           <MeshTransmissionMaterial
+            ref={(m) => void (m && drawable(m as unknown as THREE.Material, uniforms))}
             backside={!mobile}
             backsideThickness={0.35}
             samples={mobile ? 4 : 8}
@@ -236,7 +413,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
             background={new THREE.Color(c.bg)}
           />
         </mesh>
-        <LoopArrow intro={intro} mobile={mobile} />
+        <LoopArrow intro={intro} mobile={mobile} draw={draw} />
       </group>
     </group>
   )

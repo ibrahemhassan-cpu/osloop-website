@@ -23,6 +23,8 @@ import {
  */
 
 const RZ = RT * 0.82 // half the tube thickness in depth — a slightly flattened, pebble-like section
+/** half the band's width and half its depth (icon units) */
+export const BAND_SECTION = { width: RT, depth: RZ }
 const LIFT = 12 // how far the strands part in depth where they cross
 const DEG = Math.PI / 180
 
@@ -106,83 +108,137 @@ class IconPath {
 
 /* ------------------------------------------------------------------ glass band */
 
-/** extra length past each cut, folded back onto the cut plane so the ends come out perfectly flat */
+/** the centre line runs a little past each cut, so every line of the surface can be trimmed exactly on it */
 const OVERRUN = 22 * DEG
 /** radius and resolution of the rounded edge around each cut face */
-const FILLET = 2.4
-const FILLET_STEPS = 5
+const FILLET = 2.2
+const FILLET_STEPS = 6
 
-type Rim = { p: THREE.Vector3; n: THREE.Vector3 }
-
-export function createLoopGeometry(tubular = 600, radial = 64) {
-  const path = new IconPath([
+/** the band's centre line, from just past its upper cut to just past its lower cut, with its depth profile */
+export function createBandPath() {
+  return new IconPath([
     { seg: arc(-A, CUT_START + OVERRUN, 90 * DEG), depth: 0 },
     { seg: S1, depth: -LIFT },
     { seg: RIGHT, depth: 0 },
     { seg: S2, depth: LIFT },
     { seg: arc(-A, 270 * DEG, CUT_END - OVERRUN), depth: 0 },
   ])
+}
+export type BandPath = ReturnType<typeof createBandPath>
+/** distance along the arrow's flight (from its slot) to the start of the band path */
+export const BAND_FLIGHT_OFFSET = RHO * (SLOT - CUT_START - OVERRUN)
+/** where the visible band starts and ends on its path, and the centre of its upper cut face (icon units) */
+export type LoopBand = { start: number; end: number; tail: [number, number, number] }
 
-  // the two cut planes (vertical, through the band's centre line) with their outward normals
+/** the frame the band's section is swept with at `u`: point P, tangent T, normal N (in plane), binormal B */
+export function bandFrame(path: BandPath, u: number, P = new THREE.Vector3(), T = new THREE.Vector3(), N = new THREE.Vector3(), B = new THREE.Vector3()) {
+  path.at(u, P)
+  path.tangent(u, T)
+  N.set(-T.y, T.x, 0).normalize() // Z × T
+  B.crossVectors(T, N)
+  return { P, T, N, B }
+}
+
+/**
+ * The glass ∞: an elliptical section swept along the band path, trimmed exactly on the two cut planes,
+ * with flat ends and a small rounded edge. Each vertex carries `aPath` = (position along the path,
+ * angle round the section) so a shader can draw the band progressively (see the hero).
+ * `userData.band` holds where the band starts and ends on the path.
+ */
+export function createLoopGeometry(tubular = 600, radial = 64) {
+  const path = createBandPath()
+  const len = path.length
+
+  // the two cut planes (vertical) with their outward normals
   const cutA = { p: new THREE.Vector3(-A + RHO * Math.cos(CUT_START), RHO * Math.sin(CUT_START), 0), n: new THREE.Vector3(-1, -1, 0).normalize() }
   const endDir = new THREE.Vector2(-21.59, -7.42).normalize() // the artwork's lower cut is ~5° off radial
   const cutB = { p: new THREE.Vector3(-A + RHO * Math.cos(CUT_END), RHO * Math.sin(CUT_END), 0), n: new THREE.Vector3(-endDir.y, endDir.x, 0) }
   if (cutB.n.dot(path.tangent(1)) < 0) cutB.n.negate()
   // the upper cut is oblique: on the inner edge it reaches a little into the "\" strand
-  const startZone = (RHO * OVERRUN + 18) / path.length
-  const endZone = 1 - startZone
+  const zone = (RHO * OVERRUN + 26) / len
 
-  const rows = tubular + 1
-  const cols = radial + 1
-  const pos = new Float32Array(rows * cols * 3)
-  const nor = new Float32Array(rows * cols * 3)
-  const uv = new Float32Array(rows * cols * 2)
-  const P = new THREE.Vector3()
-  const T = new THREE.Vector3()
-  const N = new THREE.Vector3()
-  const B = new THREE.Vector3()
-  const Z = new THREE.Vector3(0, 0, 1)
-  const v = new THREE.Vector3()
-  const n = new THREE.Vector3()
-  const ringStart: Rim[] = []
-  const ringEnd: Rim[] = []
-
-  for (let i = 0; i < rows; i++) {
-    const u = i / tubular
-    path.at(u, P)
-    path.tangent(u, T)
-    N.crossVectors(Z, T).normalize()
-    B.crossVectors(T, N)
-    for (let j = 0; j < cols; j++) {
-      const a = (j / radial) * Math.PI * 2
-      const c = Math.cos(a)
-      const s = Math.sin(a)
-      v.copy(P).addScaledVector(N, RT * c).addScaledVector(B, RZ * s)
-      n.copy(N).multiplyScalar(c / RT).addScaledVector(B, s / RZ).normalize()
-      // fold anything past a cut back onto the cut plane (along the path)
-      if (u < startZone) {
-        const d = v.clone().sub(cutA.p).dot(cutA.n)
-        if (d > 0) v.addScaledVector(T, -d / T.dot(cutA.n))
-      } else if (u > endZone) {
-        const d = v.clone().sub(cutB.p).dot(cutB.n)
-        if (d > 0) v.addScaledVector(T, -d / T.dot(cutB.n))
+  const F = bandFrame(path, 0)
+  const tmp = new THREE.Vector3()
+  /** a line of the surface: the point at angle (c, s) round the section, `inset` inside the surface */
+  const point = (u: number, c: number, s: number, inset: number, out: THREE.Vector3) => {
+    bandFrame(path, u, F.P, F.T, F.N, F.B)
+    return out.copy(F.P).addScaledVector(F.N, (RT - inset) * c).addScaledVector(F.B, (RZ - inset) * s)
+  }
+  /** where that line meets a cut plane, searching from `from` (past the cut) towards `to` */
+  const meet = (cut: { p: THREE.Vector3; n: THREE.Vector3 }, c: number, s: number, inset: number, from: number, to: number) => {
+    const f = (u: number) => point(u, c, s, inset, tmp).sub(cut.p).dot(cut.n)
+    let a = from
+    let fa = f(a)
+    for (let k = 1; k <= 64; k++) {
+      const b = from + ((to - from) * k) / 64
+      const fb = f(b)
+      if (fa > 0 !== fb > 0) {
+        let lo = a
+        let hi = b
+        for (let it = 0; it < 32; it++) {
+          const mid = (lo + hi) / 2
+          if (f(mid) > 0 === fa > 0) lo = mid
+          else hi = mid
+        }
+        return (lo + hi) / 2
       }
-      const k = (i * cols + j) * 3
-      pos[k] = v.x
-      pos[k + 1] = v.y
-      pos[k + 2] = v.z
-      nor[k] = n.x
-      nor[k + 1] = n.y
-      nor[k + 2] = n.z
-      uv[(i * cols + j) * 2] = u
-      uv[(i * cols + j) * 2 + 1] = j / radial
-      if (i === 0 && j < radial) ringStart.push({ p: v.clone(), n: n.clone() })
-      if (i === rows - 1 && j < radial) ringEnd.push({ p: v.clone(), n: n.clone() })
+      a = b
+      fa = fb
     }
+    return to
   }
 
+  const cols = radial + 1
+  const angles = Array.from({ length: cols }, (_, j) => (j / radial) * Math.PI * 2)
+  const startU = angles.map((a) => meet(cutA, Math.cos(a), Math.sin(a), 0, 0, zone))
+  const endU = angles.map((a) => meet(cutB, Math.cos(a), Math.sin(a), 0, 1, 1 - zone))
+  const bandStart = Math.min(...startU)
+  const bandEnd = Math.max(...endU)
+
+  const pos: number[] = []
+  const nor: number[] = []
+  const tag: number[] = []
+  const v = new THREE.Vector3()
+  const n = new THREE.Vector3()
+  const put = (p: THREE.Vector3, nn: THREE.Vector3, u: number, j: number) => {
+    pos.push(p.x, p.y, p.z)
+    nor.push(nn.x, nn.y, nn.z)
+    tag.push(u, j / radial)
+  }
+  /** the surface normal at angle (c, s) in the current frame */
+  const sideNormal = (c: number, s: number, out: THREE.Vector3) => out.copy(F.N).multiplyScalar(c / RT).addScaledVector(F.B, s / RZ).normalize()
+
+  // rounded edge at a cut: θ = 0 on the side, θ = π/2 on the flat face. The upper end is tagged -1:
+  // it's where the band is born when it's drawn, so a shader can grow it from its centre.
+  const filletRow = (cut: typeof cutA, k: number, end: boolean) => {
+    const th = (k / FILLET_STEPS) * (Math.PI / 2)
+    const inset = FILLET * (1 - Math.cos(th))
+    const along = (FILLET * (1 - Math.sin(th))) / len
+    angles.forEach((a, j) => {
+      const c = Math.cos(a)
+      const s = Math.sin(a)
+      const u0 = end ? meet(cut, c, s, inset, 1, 1 - zone) : meet(cut, c, s, inset, 0, zone)
+      point(end ? u0 - along : u0 + along, c, s, inset, v)
+      sideNormal(c, s, n).multiplyScalar(Math.cos(th)).addScaledVector(cut.n, Math.sin(th)).normalize()
+      put(v, n, end ? bandEnd : -1, j)
+    })
+  }
+
+  let rows = 0
+  for (let k = FILLET_STEPS; k >= 1; k--, rows++) filletRow(cutA, k, false)
+  for (let i = 0; i <= tubular; i++, rows++) {
+    angles.forEach((a, j) => {
+      const c = Math.cos(a)
+      const s = Math.sin(a)
+      const u = THREE.MathUtils.lerp(startU[j] + FILLET / len, endU[j] - FILLET / len, i / tubular)
+      point(u, c, s, 0, v)
+      put(v, sideNormal(c, s, n), u, j)
+    })
+  }
+  for (let k = 1; k <= FILLET_STEPS; k++, rows++) filletRow(cutB, k, true)
+
   const index: number[] = []
-  for (let i = 0; i < tubular; i++) {
+  for (let i = 0; i < rows - 1; i++) {
     for (let j = 0; j < radial; j++) {
       const a = i * cols + j
       const b = i * cols + j + 1
@@ -192,67 +248,29 @@ export function createLoopGeometry(tubular = 600, radial = 64) {
     }
   }
 
-  // Flat ends on the cut planes, with a small rounded fillet so the edge reads as polished glass.
-  const capPos: number[] = []
-  const capNor: number[] = []
-  const capIndex: number[] = []
-  const base = rows * cols
-  const cap = (ring: Rim[], normal: THREE.Vector3) => {
-    const first = base + capPos.length / 3
-    const m = ring.length
-    const centre = ring.reduce((acc, r) => acc.add(r.p), new THREE.Vector3()).divideScalar(m)
-    const inward = new THREE.Vector3()
-    const q = new THREE.Vector3()
-    const qn = new THREE.Vector3()
-    for (let k = 0; k <= FILLET_STEPS; k++) {
-      const a = (k / FILLET_STEPS) * (Math.PI / 2)
-      for (const r of ring) {
-        inward.subVectors(centre, r.p)
-        inward.addScaledVector(normal, -inward.dot(normal)).normalize()
-        q.copy(r.p)
-          .addScaledVector(inward, FILLET * (1 - Math.cos(a)))
-          .addScaledVector(normal, FILLET * Math.sin(a))
-        qn.copy(r.n).multiplyScalar(Math.cos(a)).addScaledVector(normal, Math.sin(a)).normalize()
-        capPos.push(q.x, q.y, q.z)
-        capNor.push(qn.x, qn.y, qn.z)
-      }
+  // the flat faces: a fan from the cut point on the centre line to the first / last ring
+  const face = (cut: typeof cutA, ringRow: number, u: number) => {
+    const centre = pos.length / 3
+    put(cut.p, cut.n, u, 0)
+    const ring = (j: number) => ringRow * cols + j
+    const p = (i: number) => new THREE.Vector3(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2])
+    const flip = p(ring(0)).sub(p(centre)).cross(p(ring(1)).sub(p(centre))).dot(cut.n) < 0
+    for (let j = 0; j < radial; j++) {
+      if (flip) index.push(centre, ring(j + 1), ring(j))
+      else index.push(centre, ring(j), ring(j + 1))
     }
-    const tip = centre.clone().addScaledVector(normal, FILLET)
-    const centreIndex = first + (FILLET_STEPS + 1) * m
-    capPos.push(tip.x, tip.y, tip.z)
-    capNor.push(normal.x, normal.y, normal.z)
-    // pick the winding that faces outwards
-    const at = (k: number, j: number) => first + k * m + (j % m)
-    const P = (i: number) => new THREE.Vector3(capPos[(i - base) * 3], capPos[(i - base) * 3 + 1], capPos[(i - base) * 3 + 2])
-    const e1 = P(at(0, 1)).sub(P(at(0, 0)))
-    const e2 = P(at(1, 0)).sub(P(at(0, 0)))
-    const flip = e1.cross(e2).dot(ring[0].n) < 0
-    const tri = (a: number, b: number, c: number) => (flip ? capIndex.push(a, c, b) : capIndex.push(a, b, c))
-    for (let k = 0; k < FILLET_STEPS; k++) {
-      for (let j = 0; j < m; j++) {
-        tri(at(k, j), at(k, j + 1), at(k + 1, j))
-        tri(at(k, j + 1), at(k + 1, j + 1), at(k + 1, j))
-      }
-    }
-    for (let j = 0; j < m; j++) tri(at(FILLET_STEPS, j), at(FILLET_STEPS, j + 1), centreIndex)
   }
-  cap(ringStart, cutA.n)
-  cap(ringEnd, cutB.n)
+  face(cutA, 0, -1)
+  face(cutB, rows - 1, bandEnd)
 
-  const total = base + capPos.length / 3
-  const outPos = new Float32Array(total * 3)
-  const outNor = new Float32Array(total * 3)
-  const outUv = new Float32Array(total * 2)
-  outPos.set(pos)
-  outPos.set(capPos, pos.length)
-  outNor.set(nor)
-  outNor.set(capNor, nor.length)
-  outUv.set(uv)
   const geo = new THREE.BufferGeometry()
-  geo.setAttribute('position', new THREE.BufferAttribute(outPos, 3))
-  geo.setAttribute('normal', new THREE.BufferAttribute(outNor, 3))
-  geo.setAttribute('uv', new THREE.BufferAttribute(outUv, 2))
-  geo.setIndex([...index, ...capIndex])
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3))
+  geo.setAttribute('uv', new THREE.Float32BufferAttribute(tag, 2))
+  geo.setAttribute('aPath', new THREE.Float32BufferAttribute(tag, 2))
+  geo.setIndex(index)
+  const band: LoopBand = { start: bandStart, end: bandEnd, tail: [cutA.p.x, cutA.p.y, cutA.p.z] }
+  geo.userData.band = band
   placeInScene(geo)
   return geo
 }
