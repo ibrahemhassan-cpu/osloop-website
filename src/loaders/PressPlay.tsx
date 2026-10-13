@@ -9,6 +9,15 @@ import './press-play.css'
 const ICON = iconSvg()
 
 /*
+ * The arrow draws a plain band; when the icon locks it becomes the official "Media logo icon" file
+ * (light / dark), so the finished ∞ — its cuts and its shading — is exactly the logo. The file is
+ * placed in icon units (1622 px at 8.35 px per unit); its own arrow is never shown, the one that
+ * flies is.
+ */
+const ART = { size: 1622 / 8.35, x: -841.5 / 8.35, y: -822.9 / 8.35 }
+const ARROW_AT_REST = `translate(${ARROW_HOME_SVG.x} ${ARROW_HOME_SVG.y}) scale(${ARROW_SCALE}) translate(${-ARROW_CENTRE_PDF.x} ${-ARROW_CENTRE_PDF.y})`
+
+/*
  * The stacked logo files (icon + "OSLOOP MEDIA") share the drawn icon's exact geometry, so they're
  * placed in icon units and only their "OSLOOP MEDIA" line is shown under the drawn loop.
  */
@@ -41,6 +50,7 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
   const root = useRef<HTMLDivElement>(null)
   const { theme } = useTheme()
   const stacked = STACKED[theme]
+  const art = theme === 'dark' ? brand.mediaIconWhite : brand.mediaIcon
 
   useGSAP(
     () => {
@@ -95,7 +105,7 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
       if (prefersReducedMotion()) {
         draw(flightLen)
         place(0, 0, 1)
-        gsap.set('.pre__shade, .pre__over', { opacity: 1 })
+        gsap.set('.pre__art', { opacity: 1 })
         gsap.timeline().to(el, { autoAlpha: 0, duration: 0.5, delay: 0.6 }).add(onReveal, 0.6).add(onDone)
         return
       }
@@ -127,13 +137,14 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
           },
           0.7,
         )
-        // 4 · the icon locks: fold shading at the crossing, then OSLOOP MEDIA rises
+        // 4 · the icon locks into the logo itself (its shading at the crossing), then OSLOOP MEDIA rises
         .addLabel('lock', '-=0.15')
-        .to('.pre__shade', { opacity: 1, duration: 0.6, ease: 'power2.out' }, 'lock')
-        .set('.pre__over', { opacity: 1 }, 'lock')
+        .to('.pre__art', { opacity: 1, duration: 0.5, ease: 'power2.out' }, 'lock')
+        .to('.pre__band', { opacity: 0, duration: 0.3, ease: 'power1.in' }, 'lock+=0.2')
         .fromTo('.pre__word', { y: TEXT_H }, { y: 0, duration: 0.8, ease: 'expo.out' }, 'lock')
         // a light sweeps across the finished loop
-        .fromTo('#pre-sheen', { attr: { x1: -150, x2: -110 } }, { attr: { x1: 110, x2: 150 }, duration: 0.9, ease: 'power2.inOut', immediateRender: false }, 'lock+=0.05')
+        // (a slanted streak that starts fully left of the icon and ends fully right of it)
+        .fromTo('#pre-sheen', { attr: { x1: -149, x2: -119 } }, { attr: { x1: 115, x2: 145 }, duration: 1, ease: 'power2.inOut', immediateRender: false }, 'lock+=0.15')
         // 5 · press play
         .addLabel('press', 'lock+=0.45')
         .to(st, { press: 0.82, duration: 0.16, ease: 'power2.in', onUpdate: () => place(flightLen, 0, st.press) }, 'press')
@@ -180,8 +191,11 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
         .fromTo('.pre__rim', { opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.25 }, { opacity: 0, duration: 0.85 }], ease: 'power1.inOut' }, 'open')
         .add(onDone)
 
-      // Start once fonts are ready (avoids a flash of fallback text in the HUD).
-      Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1200))]).then(() => tl.play())
+      // Start once fonts and the logo art are ready (no fallback text in the HUD, no band drawn too late).
+      const artReady = new Image()
+      artReady.src = el.querySelector('.pre__art')!.getAttribute('href')!
+      const ready = Promise.all([document.fonts.ready, artReady.decode().catch(() => {})])
+      Promise.race([ready, new Promise((r) => setTimeout(r, 1200))]).then(() => tl.play())
     },
     { scope: root },
   )
@@ -225,23 +239,26 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
       <div className="pre__stage">
         <svg className="pre__icon" viewBox="-90 -48 172 116">
           <defs>
+            {/* the band's upper end is cut straight, like the logo */}
             <mask id="pre-cut" maskUnits="userSpaceOnUse" x="-120" y="-90" width="240" height="200">
               <rect x="-120" y="-90" width="240" height="200" fill="#fff" />
               <polygon points={ICON.cutWedge} fill="#000" />
             </mask>
-            <linearGradient id="pre-fold" gradientUnits="userSpaceOnUse" x1="-18.48" y1="-18.36" x2="17.79" y2="17.91">
-              <stop offset="0" stopColor="#fff" />
-              <stop offset="0.114" stopColor="#fdfdfd" />
-              <stop offset="0.611" stopColor="#696a6d" />
-              <stop offset="0.955" stopColor="#fff" />
-              <stop offset="1" stopColor="#fff" />
-            </linearGradient>
+            {/* the logo file without its own arrow */}
+            <mask id="pre-art" maskUnits="userSpaceOnUse" x="-120" y="-90" width="240" height="200">
+              <rect x="-120" y="-90" width="240" height="200" fill="#fff" />
+              <path d={ARROW_D} transform={ARROW_AT_REST} fill="#000" stroke="#000" strokeWidth={5} strokeLinejoin="round" />
+            </mask>
+            {/* the logo's own silhouette, for the light that sweeps across it */}
+            <mask id="pre-shape" maskUnits="userSpaceOnUse" x="-120" y="-90" width="240" height="200" style={{ maskType: 'alpha' }}>
+              <image href={art} x={ART.x} y={ART.y} width={ART.size} height={ART.size} />
+            </mask>
             <radialGradient id="pre-halo">
               <stop offset="0" stopColor="#ffae23" stopOpacity="0.55" />
               <stop offset="1" stopColor="#ffae23" stopOpacity="0" />
             </radialGradient>
             {/* the light that sweeps across the finished loop (moved by the timeline) */}
-            <linearGradient id="pre-sheen" gradientUnits="userSpaceOnUse" x1="-150" y1="-30" x2="-110" y2="30">
+            <linearGradient id="pre-sheen" gradientUnits="userSpaceOnUse" x1="-149" y1="0" x2="-119" y2="12">
               <stop offset="0" style={{ stopColor: 'var(--pre-sheen)', stopOpacity: 0 }} />
               <stop offset="0.5" style={{ stopColor: 'var(--pre-sheen)', stopOpacity: 0.55 }} />
               <stop offset="1" style={{ stopColor: 'var(--pre-sheen)', stopOpacity: 0 }} />
@@ -256,12 +273,12 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
           </defs>
 
           <path className="pre__flight" d={ICON.flight} />
-          {/* one group: the cut applies to everything, and the fold shading multiplies onto the band */}
           <g mask="url(#pre-cut)">
             <path className="pre__band" d={ICON.band} />
-            <path className="pre__shade" d={ICON.s1} stroke="url(#pre-fold)" />
-            <path className="pre__over" d={ICON.s2} />
-            <path className="pre__sheen" d={ICON.band} stroke="url(#pre-sheen)" />
+          </g>
+          <image className="pre__art" href={art} x={ART.x} y={ART.y} width={ART.size} height={ART.size} mask="url(#pre-art)" />
+          <g mask="url(#pre-art)">
+            <rect className="pre__sheen" x="-120" y="-90" width="240" height="200" fill="url(#pre-sheen)" mask="url(#pre-shape)" />
           </g>
 
           <g clipPath="url(#pre-word-window)">

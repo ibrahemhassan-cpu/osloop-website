@@ -155,23 +155,14 @@
   fill: none;
   stroke: none;
 }
-.pre__band,
-.pre__over,
-.pre__shade,
-.pre__sheen {
+/* the band the arrow draws; when the icon locks, the logo file takes over */
+.pre__band {
   fill: none;
+  stroke: var(--pre-ink);
   stroke-width: 24.15;
 }
-.pre__band,
-.pre__over {
-  stroke: var(--pre-ink);
-}
-.pre__over,
-.pre__shade {
+.pre__art {
   opacity: 0;
-}
-.pre__shade {
-  mix-blend-mode: multiply;
 }
 .pre__arrow {
   fill: #ffae23;

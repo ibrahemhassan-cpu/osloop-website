@@ -56,10 +56,11 @@ export function iconSvg(overrunDeg = 22) {
   const start = CUT_START_DEG + overrunDeg
   const cut = pt(-A, CUT_START_DEG)
   const c = cut[1] - cut[0] // the upper cut runs at 45°: y = x + c
-  // the region beyond the cut is limited to the lobe's upper-left (from the lobe centre, between 60° and
-  // 180°) so the "\" strand — which passes close to the cut line's extension — is never touched
-  const u = (A - c) / (Math.cos(rad(60)) + Math.sin(rad(60)))
-  const inner = [-A + u * Math.cos(rad(60)), -u * Math.sin(rad(60))]
+  // the region beyond the cut is limited to the lobe's upper-left (from the lobe centre, between 25° and
+  // 180°): like the artwork, the straight cut carries on a little into the "\" strand's inner edge, and
+  // stops before it would touch the strand itself (measured against the official icon file)
+  const u = (A - c) / (Math.cos(rad(25)) + Math.sin(rad(25)))
+  const inner = [-A + u * Math.cos(rad(25)), -u * Math.sin(rad(25))]
   return {
     /** the band, drawn as a stroke of width 2·RT */
     band: M(-A, start) + arcTo(-A, start, 90) + S1 + RIGHT + S2 + arcTo(-A, 270, CUT_END_DEG),

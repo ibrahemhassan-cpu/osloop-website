@@ -30,6 +30,9 @@ export const brand = {
   /** "OsLoop Media logo light / dark small" — icon over OSLOOP MEDIA, used by the loading screen */
   stackedLogo: '/brand/osloop-media-logo-stacked.webp',
   stackedLogoWhite: '/brand/osloop-media-logo-stacked-white.webp',
+  /** "Media logo icon light / dark" — the ∞ the loading screen's arrow draws */
+  mediaIcon: '/brand/osloop-media-icon.webp',
+  mediaIconWhite: '/brand/osloop-media-icon-white.webp',
 }
 
 export const reel = {
