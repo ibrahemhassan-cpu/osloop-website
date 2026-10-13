@@ -240,24 +240,22 @@ export const industries = ['Healthcare', 'Crypto', 'Food', 'SaaS']
 /* --------------------------------------------------------------------- Team */
 export type TeamMember = {
   role: string
-  /** the big outlined letters on the card (the craft's initials when left out) */
-  mono?: string
-  skills?: string[]
-  /** TODO(client): real names and designed photos — a card with a photo shows it as its main visual */
+  mono: string
+  /** TODO(client): add real names and photos — cards switch to portraits automatically */
   name?: string
   photo?: string
+  skills: string[]
 }
 
-/** any number of people fits: the circle grows with the crew */
 export const team: TeamMember[] = [
-  { role: 'Creative Director', mono: 'CD', skills: ['Concept', 'Art direction', 'Client partnership'] },
-  { role: 'Scriptwriter', mono: 'SW', skills: ['Messaging', 'Storytelling', 'Tone of voice'] },
-  { role: 'Storyboard Artist', mono: 'SB', skills: ['Shot planning', 'Timing', 'Sketching'] },
-  { role: 'Illustrator', mono: 'IL', skills: ['Characters', 'Backgrounds', 'Hand drawing'] },
-  { role: '3D Artist', mono: '3D', skills: ['Modeling', 'Lighting', 'Rendering'] },
-  { role: 'Animator', mono: 'AN', skills: ['2D', 'Whiteboard', 'Character motion'] },
-  { role: 'VFX Artist', mono: 'FX', skills: ['Compositing', 'Simulation', 'Creatures'] },
-  { role: 'Sound Designer', mono: 'SFX', skills: ['Voice-over', 'Music', 'Sound design'] },
+  { role: 'Creative Direction', mono: 'CD', skills: ['Concept', 'Art direction', 'Client partnership'] },
+  { role: 'Scriptwriting', mono: 'SW', skills: ['Messaging', 'Storytelling', 'Tone of voice'] },
+  { role: 'Storyboard', mono: 'SB', skills: ['Shot planning', 'Timing', 'Sketching'] },
+  { role: 'Illustration', mono: 'IL', skills: ['Characters', 'Backgrounds', 'Hand drawing'] },
+  { role: '3D & CGI', mono: '3D', skills: ['Modeling', 'Lighting', 'Rendering'] },
+  { role: 'Animation', mono: 'AN', skills: ['2D', 'Whiteboard', 'Character motion'] },
+  { role: 'VFX & Compositing', mono: 'FX', skills: ['Compositing', 'Simulation', 'Creatures'] },
+  { role: 'Sound & Voice', mono: 'SFX', skills: ['Voice-over', 'Music', 'Sound design'] },
 ]
 
 /* ----------------------------------------------------------------- Projects */

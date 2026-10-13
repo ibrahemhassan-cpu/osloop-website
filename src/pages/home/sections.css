@@ -163,17 +163,16 @@
 }
 .team__stage {
   position: relative;
-  height: 100vh;
-  height: 100svh;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2.5vh;
-  padding: calc(var(--header-h) + 3vh) var(--gutter) 4vh;
+  justify-content: center;
+  gap: 5vh;
+  padding: calc(var(--header-h) + 2vh) var(--gutter) 6vh;
 }
 .team__head {
-  position: relative;
-  z-index: 2;
   display: grid;
   justify-items: center;
   gap: 16px;
@@ -192,13 +191,11 @@
   line-height: 1.55;
   max-width: 540px;
 }
-/* the circle the cards are dealt onto — its size comes from the crew (Team.tsx sets --w) */
 .team__deck {
-  --w: 200px;
+  --w: clamp(190px, 15.5vw, 250px);
   position: relative;
-  flex: 1;
   width: 100%;
-  min-height: 0;
+  height: calc(var(--w) * 1.4 + 90px);
 }
 .tcard {
   position: absolute;
@@ -212,7 +209,7 @@
 }
 .tcard:hover,
 .tcard:focus-visible {
-  z-index: 500 !important;
+  z-index: 50 !important;
 }
 .tcard__inner {
   position: relative;
@@ -220,8 +217,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: clamp(10px, calc(var(--w) * 0.08), 18px);
-  border-radius: clamp(14px, calc(var(--w) * 0.11), 24px);
+  padding: 18px;
+  border-radius: 24px;
   overflow: hidden;
   color: #fff;
   background: radial-gradient(130% 90% at 0% 0%, color-mix(in srgb, var(--tone) 70%, #ffffff), var(--tone) 45%, color-mix(in srgb, var(--tone) 55%, #050b24));
@@ -233,7 +230,7 @@
 }
 .tcard:hover .tcard__inner,
 .tcard:focus-visible .tcard__inner {
-  translate: 0 calc(var(--w) * -0.2);
+  translate: 0 -46px;
   scale: 1.08;
   box-shadow: 0 50px 90px -30px rgba(5, 11, 36, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
 }
@@ -278,20 +275,20 @@
 }
 .tcard__top {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
 }
-.tcard__top svg {
-  width: clamp(14px, calc(var(--w) * 0.1), 22px);
-  height: auto;
+.tcard__top .mono {
+  font-size: 10px;
+  opacity: 0.8;
 }
 .tcard__name {
-  font-size: clamp(10px, calc(var(--w) * 0.06), 13px);
+  font-size: 13px;
   opacity: 0.85;
   margin-bottom: 2px;
 }
 .tcard__role {
-  font-size: clamp(13px, calc(var(--w) * 0.105), 25px);
+  font-size: clamp(19px, 1.6vw, 25px);
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.05;
@@ -335,22 +332,18 @@
   opacity: 1;
 }
 .team__hint {
-  position: relative;
-  z-index: 2;
   color: var(--fg-3);
   font-size: 10.5px;
 }
-/* phones: the cards sit in a swipeable row (a circle of the whole crew would be too small to read) */
-@media (max-width: 759px) {
+@media (max-width: 899px) {
   .team__stage {
-    height: auto;
-    gap: 5vh;
+    min-height: 0;
     padding-top: 14vh;
     padding-bottom: 10vh;
   }
   .team__deck {
     --w: 220px;
-    flex: none;
+    height: auto;
     display: flex;
     gap: 14px;
     overflow-x: auto;

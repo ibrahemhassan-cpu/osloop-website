@@ -25,86 +25,48 @@ const ICONS: Record<string, React.ReactNode> = {
   SFX: <path d="M3 12h2M7 8v8M11 5v14M15 9v6M19 7v10" />,
 }
 
-const initials = (s: string) =>
-  s
-    .split(/\s+/)
-    .map((w) => w[0])
-    .join('')
-    .slice(0, 3)
-    .toUpperCase()
-
 /**
- * "The crew" — the cards start stacked like a deck and, as you scroll, are dealt one by one onto a
- * circle, close together; the circle then turns clockwise. It sizes itself to the crew, so more
- * people simply make a fuller circle. Hover lifts a card and reveals the craft behind it.
- * Real names/photos plug in from content.ts. On phones the cards sit in a swipeable row.
+ * "The crew" — cards start stacked like a deck and fan into an arc as you scroll.
+ * Hover lifts a card and reveals the craft behind it. Real names/photos plug in from content.ts.
  */
 export function Team() {
   const root = useRef<HTMLElement>(null)
 
   useGSAP(
     () => {
-      const deck = root.current!.querySelector<HTMLElement>('.team__deck')!
       const cards = gsap.utils.toArray<HTMLElement>('.tcard', root.current)
       const n = cards.length
+      const mid = (n - 1) / 2
       const mm = gsap.matchMedia()
 
-      mm.add('(min-width: 760px)', () => {
-        const st = { deal: 0, turn: 0 }
-        let radius = 0
-        // the circle: neighbours overlap a little (a little more as the crew grows) and the whole
-        // ring, cards included, fits the space under the heading
-        const measure = () => {
-          const close = gsap.utils.clamp(0.55, 0.85, 0.95 - n * 0.018)
-          const ring = close / Math.sin(Math.PI / Math.max(n, 3)) // centre-to-centre diameter, in card widths
-          const w = gsap.utils.clamp(96, 230, Math.min(deck.clientHeight / (ring + 1.4), deck.clientWidth / (ring + 1)))
-          radius = (ring * w) / 2
-          deck.style.setProperty('--w', `${w.toFixed(1)}px`)
-        }
-        const paint = () => {
-          cards.forEach((card, i) => {
-            // dealt in order round the circle, each a moment after the one before
-            const p = gsap.utils.clamp(0, 1, st.deal * 1.6 - (i / n) * 0.6)
-            const e = p * p * (3 - 2 * p)
-            const a = (((i / n) * 360 + st.turn - 90) * Math.PI) / 180 // from the top, clockwise
-            const x = radius * Math.cos(a) * e
-            const y = i * -3 * (1 - e) + radius * Math.sin(a) * e
-            const tilt = (i % 2 ? 1 : -1) * (2 + (i % 3) * 2) * (1 - e)
-            const front = (Math.sin(a) + 1) / 2 // 0 at the top of the circle, 1 at the bottom
-            const scale = (0.86 + 0.14 * e) * (1 - 0.06 * e * (1 - front))
-            card.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${tilt.toFixed(2)}deg) scale(${scale.toFixed(3)})`
-            card.style.zIndex = String(e > 0.5 ? 20 + Math.round(front * 100) : n - i)
-          })
-        }
-        measure()
-        paint()
-
+      mm.add('(min-width: 900px)', () => {
+        const spread = () => Math.min(window.innerWidth * 0.105, 170)
+        gsap.set(cards, {
+          x: 0,
+          y: (i) => 60 + i * -3,
+          rotation: (i) => (i % 2 ? 1 : -1) * (2 + (i % 3) * 2),
+          scale: 0.86,
+        })
         gsap
           .timeline({
             scrollTrigger: {
               trigger: root.current,
               start: 'top top',
-              end: '+=160%',
+              end: '+=120%',
               pin: '.team__stage',
               scrub: 1.2,
               invalidateOnRefresh: true,
-              onRefresh: () => {
-                measure()
-                paint()
-              },
             },
           })
-          .to(st, { deal: 1, duration: 0.55, ease: 'power2.inOut', onUpdate: paint }, 0)
-          .to(st, { turn: 90, duration: 1, ease: 'none', onUpdate: paint }, 0)
-          .from('.team__hint', { autoAlpha: 0, y: 20, duration: 0.15 }, 0.45)
-
-        return () => {
-          cards.forEach((c) => {
-            c.style.transform = ''
-            c.style.zIndex = ''
+          .to(cards, {
+            x: (i) => (i - mid) * spread(),
+            y: (i) => Math.pow(Math.abs(i - mid), 2) * 9,
+            rotation: (i) => (i - mid) * 5.5,
+            scale: 1,
+            ease: 'power2.inOut',
+            stagger: { each: 0.02, from: 'center' },
           })
-          deck.style.removeProperty('--w')
-        }
+          .from('.team__hint', { autoAlpha: 0, y: 20, duration: 0.3 }, '-=0.2')
       })
 
       // Reflection follows the pointer on each card.
@@ -115,9 +77,8 @@ export function Team() {
         card.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`)
         card.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`)
       }
-      const el = root.current!
-      el.addEventListener('pointermove', move)
-      return () => el.removeEventListener('pointermove', move)
+      root.current!.addEventListener('pointermove', move)
+      return () => root.current?.removeEventListener('pointermove', move)
     },
     { scope: root },
   )
@@ -135,49 +96,44 @@ export function Team() {
         </div>
 
         <div className="team__deck">
-          {team.map((m, i) => {
-            const tone = TONES[i % TONES.length]
-            const mono = m.mono ?? initials(m.role)
-            return (
-              <article
-                key={`${m.role}-${i}`}
-                className={`tcard${m.photo ? ' tcard--photo' : ''}${tone.ink ? ' tcard--ink' : ''}`}
-                style={{ '--tone': tone.c } as CSSProperties}
-                tabIndex={0}
-              >
-                <div className="tcard__inner">
-                  {m.photo ? (
-                    <img className="tcard__photo" src={m.photo} alt={m.name ?? m.role} loading="lazy" draggable={false} />
-                  ) : (
-                    <span className="tcard__mono" aria-hidden>
-                      {mono}
-                    </span>
-                  )}
-                  <div className="tcard__top">
-                    {ICONS[mono] && (
-                      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        {ICONS[mono]}
-                      </svg>
-                    )}
-                  </div>
-                  <div className="tcard__bottom">
-                    {m.name && <p className="tcard__name">{m.name}</p>}
-                    <h3 className="tcard__role">{m.role}</h3>
-                    {m.skills && m.skills.length > 0 && (
-                      <ul className="tcard__skills">
-                        {m.skills.map((s) => (
-                          <li key={s} className="mono">
-                            {s}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  <span className="tcard__shine" aria-hidden />
+          {team.map((m, i) => (
+            <article
+              key={m.role}
+              className={`tcard${m.photo ? ' tcard--photo' : ''}${TONES[i % TONES.length].ink ? ' tcard--ink' : ''}`}
+              style={{ '--tone': TONES[i % TONES.length].c, zIndex: i < team.length / 2 ? i + 1 : team.length - i } as CSSProperties}
+              tabIndex={0}
+            >
+              <div className="tcard__inner">
+                {m.photo ? (
+                  <img className="tcard__photo" src={m.photo} alt={m.name ?? m.role} loading="lazy" />
+                ) : (
+                  <span className="tcard__mono" aria-hidden>
+                    {m.mono}
+                  </span>
+                )}
+                <div className="tcard__top">
+                  <span className="mono">
+                    {String(i + 1).padStart(2, '0')} / {String(team.length).padStart(2, '0')}
+                  </span>
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    {ICONS[m.mono]}
+                  </svg>
                 </div>
-              </article>
-            )
-          })}
+                <div className="tcard__bottom">
+                  {m.name && <p className="tcard__name">{m.name}</p>}
+                  <h3 className="tcard__role">{m.role}</h3>
+                  <ul className="tcard__skills">
+                    {m.skills.map((s) => (
+                      <li key={s} className="mono">
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <span className="tcard__shine" aria-hidden />
+              </div>
+            </article>
+          ))}
         </div>
 
         <p className="team__hint mono">Hover a card to meet the craft</p>
