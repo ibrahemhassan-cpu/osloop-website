@@ -208,8 +208,9 @@ export function createLoopGeometry(tubular = 600, radial = 64) {
   /** the surface normal at angle (c, s) in the current frame */
   const sideNormal = (c: number, s: number, out: THREE.Vector3) => out.copy(F.N).multiplyScalar(c / RT).addScaledVector(F.B, s / RZ).normalize()
 
-  // rounded edge at a cut: θ = 0 on the side, θ = π/2 on the flat face. The upper end is tagged -1:
-  // it's where the band is born when it's drawn, so a shader can grow it from its centre.
+  // rounded edge at a cut: θ = 0 on the side, θ = π/2 on the flat face. The upper end is tagged
+  // negative, -(1 + u): it's where the band is born when it's drawn, so a shader can grow it from its
+  // centre, and still knows where each point sits along the band.
   const filletRow = (cut: typeof cutA, k: number, end: boolean) => {
     const th = (k / FILLET_STEPS) * (Math.PI / 2)
     const inset = FILLET * (1 - Math.cos(th))
@@ -218,9 +219,10 @@ export function createLoopGeometry(tubular = 600, radial = 64) {
       const c = Math.cos(a)
       const s = Math.sin(a)
       const u0 = end ? meet(cut, c, s, inset, 1, 1 - zone) : meet(cut, c, s, inset, 0, zone)
-      point(end ? u0 - along : u0 + along, c, s, inset, v)
+      const u = end ? u0 - along : u0 + along
+      point(u, c, s, inset, v)
       sideNormal(c, s, n).multiplyScalar(Math.cos(th)).addScaledVector(cut.n, Math.sin(th)).normalize()
-      put(v, n, end ? bandEnd : -1, j)
+      put(v, n, end ? bandEnd : -1 - u, j)
     })
   }
 
@@ -248,10 +250,11 @@ export function createLoopGeometry(tubular = 600, radial = 64) {
     }
   }
 
-  // the flat faces: a fan from the cut point on the centre line to the first / last ring
+  // the flat faces: a fan from the cut point on the centre line to the first / last ring (the centre is
+  // tagged with angle -1, so a shader folding the end into a nose sends it to the tip)
   const face = (cut: typeof cutA, ringRow: number, u: number) => {
     const centre = pos.length / 3
-    put(cut.p, cut.n, u, 0)
+    put(cut.p, cut.n, u, -radial)
     const ring = (j: number) => ringRow * cols + j
     const p = (i: number) => new THREE.Vector3(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2])
     const flip = p(ring(0)).sub(p(centre)).cross(p(ring(1)).sub(p(centre))).dot(cut.n) < 0
@@ -260,7 +263,7 @@ export function createLoopGeometry(tubular = 600, radial = 64) {
       else index.push(centre, ring(j), ring(j + 1))
     }
   }
-  face(cutA, 0, -1)
+  face(cutA, 0, -1 - meet(cutA, 0, 0, 0, 0, zone))
   face(cutB, rows - 1, bandEnd)
 
   const geo = new THREE.BufferGeometry()

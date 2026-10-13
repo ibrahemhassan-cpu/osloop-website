@@ -66,15 +66,18 @@ type BandDraw = {
 }
 
 /**
- * Vertex-shader patch for the glass. The band is only shown between its tail (`uTail`) and its head
- * (`uHead`), positions along the band path; past either end it folds into a rounded nose, so the ∞ can
- * be drawn out by the arrow and later run back into it. The upper cut face (`aPath.x < 0`) grows with
- * the band when it's born. The glass material itself is untouched.
+ * Vertex-shader patch for the glass. The band is only shown from its tail (`uTail`) to its head
+ * (`uHead`), positions along the band path. While it's drawn, past the head it folds into a rounded
+ * nose that leads into the arrow. While it's taken back, its first end rounds off *inside* the band (a
+ * dome `uTailLen` long ending at the tail) and runs round the ∞ — nothing ever sticks out. The upper
+ * cut face (`aPath.x < 0`, tagged -(1 + u)) grows with the band when it's born. The glass material
+ * itself is untouched.
  */
 const DRAW_HEAD = /* glsl */ `
   attribute vec2 aPath;
   uniform float uHead;
   uniform float uTail;
+  uniform float uTailLen;
   uniform float uLen;
   uniform float uNose;
   uniform float uGrow;
@@ -89,25 +92,32 @@ const DRAW_HEAD = /* glsl */ `
   uniform vec2 uSection;
   uniform vec3 uCut;
 
-  // a rounded nose of length uNose at P, pointing along dir; s = 0 at its base, 1 at its tip
-  vec3 nosePoint(vec3 P, vec3 dir, vec3 N, vec3 B, float s, float a, float k, out vec3 n) {
+  // a rounded nose, len long from its base P, pointing along dir; s = 0 at its base, 1 at its tip
+  vec3 nosePoint(vec3 P, vec3 dir, vec3 N, vec3 B, float s, float a, float k, float len, out vec3 n) {
     float r = sqrt(max(1.0 - s * s, 0.0)) * k;
     vec2 cs = vec2(cos(a), sin(a));
-    n = normalize((N * cs.x / uSection.x + B * cs.y / uSection.y) * r + dir * (s / uNose + 1e-4));
-    return P + dir * (uNose * s * k) + (N * cs.x * uSection.x + B * cs.y * uSection.y) * r;
+    n = normalize((N * cs.x / uSection.x + B * cs.y / uSection.y) * r + dir * (s / max(len, 1e-4) + 1e-4));
+    return P + dir * (len * s * k) + (N * cs.x * uSection.x + B * cs.y * uSection.y) * r;
   }
 `
 const DRAW_BODY = /* glsl */ `
   vec3 drawPos = position;
   float a = aPath.y * 6.28318530718;
-  if (aPath.x < 0.0 && uTail < 0.0) {
+  bool cap = aPath.x < 0.0;
+  bool centre = aPath.y < 0.0; // the middle of a cut face: it folds to the very tip
+  float u = cap ? -aPath.x - 1.0 : aPath.x;
+  if (uTail >= 0.0) {
+    // taken back: everything before the tail folds into the dome that ends there
+    float ahead = (u - uTail) * uLen;
+    if (ahead < uTailLen) {
+      float s = centre ? 1.0 : clamp(1.0 - ahead / max(uTailLen, 1e-4), 0.0, 1.0);
+      drawPos = nosePoint(uTailP, -uTailT, uTailN, uTailB, s, a, 1.0, uTailLen, objectNormal);
+    }
+  } else if (cap) {
     drawPos = mix(uCut, position, uGrow);
   } else {
-    float u = aPath.x < 0.0 ? -1.0 : aPath.x;
     float past = (u - uHead) * uLen;
-    float behind = (uTail - u) * uLen;
-    if (past > 0.0) drawPos = nosePoint(uHeadP, uHeadT, uHeadN, uHeadB, min(past / uNose, 1.0), a, uGrow, objectNormal);
-    else if (behind > 0.0) drawPos = nosePoint(uTailP, -uTailT, uTailN, uTailB, min(behind / uNose, 1.0), a, 1.0, objectNormal);
+    if (past > 0.0) drawPos = nosePoint(uHeadP, uHeadT, uHeadN, uHeadB, centre ? 1.0 : min(past / uNose, 1.0), a, uGrow, uNose, objectNormal);
   }
 `
 function drawable(material: THREE.Material, uniforms: Record<string, THREE.IUniform>) {
@@ -169,8 +179,11 @@ function LoopArrow({ intro, mobile, draw }: Pick<Refs, 'intro'> & { mobile: bool
     N.value.copy(f.N)
     B.value.copy(f.B)
   }
-  /** shows the band between `tail` and `head` (positions along the band path; null = that end is complete) */
-  const showBand = (tail: number | null, head: number | null) => {
+  /**
+   * shows the band from `tail` to `head` (positions along the band path; null = that end is complete);
+   * `round` (0–1) is how far the first end has rounded off into its dome while it's taken back
+   */
+  const showBand = (tail: number | null, head: number | null, round = 0) => {
     const { uniforms: un, mesh, path: bandPath, band } = draw
     const material = mesh.current?.material
     if (material && !Array.isArray(material)) drawable(material, un)
@@ -178,12 +191,15 @@ function LoopArrow({ intro, mobile, draw }: Pick<Refs, 'intro'> & { mobile: bool
     const t = tail ?? -1
     // while it's being born the band and its nose grow from the upper cut
     const grow = head === null ? 1 : THREE.MathUtils.clamp(((h - band.start) * bandPath.length) / (NOSE * 1.2), 0, 1)
+    const dome = NOSE * round // icon units
     un.uHead.value = h
     un.uTail.value = t
+    un.uTailLen.value = dome * ICON_SCALE
     un.uGrow.value = grow
-    if (mesh.current) mesh.current.visible = grow > 0 && (tail === null || t < band.end + NOSE / bandPath.length)
+    if (mesh.current) mesh.current.visible = grow > 0 && (tail === null || t < band.end)
     if (head !== null) setEnd(h, un.uHeadP, un.uHeadT, un.uHeadN, un.uHeadB)
-    if (tail !== null) setEnd(t, un.uTailP, un.uTailT, un.uTailN, un.uTailB)
+    // the dome's base sits `dome` ahead of the tail
+    if (tail !== null) setEnd(t + dome / bandPath.length, un.uTailP, un.uTailT, un.uTailN, un.uTailB)
   }
 
   /** the arrow `u` of the way round its flight (0 and 1 are both its slot); w = 0 rest pose … 1 riding */
@@ -230,11 +246,12 @@ function LoopArrow({ intro, mobile, draw }: Pick<Refs, 'intro'> & { mobile: bool
       showBand(null, null)
       pose(m, 1, 0, 0)
     } else if (t < DRAW + HOLD + ABSORB) {
-      // the first end gathers into a nose and runs round the ∞ into the arrow, which steps back to take it
+      // the first end rounds off, then runs round the ∞ into the arrow, which steps back to take it
       const x = (t - DRAW - HOLD) / ABSORB
       const { start: s0, end: s1 } = draw.band
-      const k = smootherstep(THREE.MathUtils.clamp((x - 0.04) / 0.8, 0, 1))
-      showBand(s0 + (s1 + NOSE / bandLen - s0) * k, null)
+      const round = smoothstep(x, 0, 0.14)
+      const k = smootherstep(THREE.MathUtils.clamp((x - 0.08) / 0.78, 0, 1))
+      showBand(s0 + (s1 + 0.004 - s0) * k, null, round)
       const back = smoothstep(x, 0, 0.16) * (1 - smoothstep(x, 0.84, 1))
       pose(m, 1 - (TAKE * back) / L, back, 0)
     } else {
@@ -280,6 +297,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
     return {
       uHead: { value: 2 },
       uTail: { value: -1 },
+      uTailLen: { value: 0 },
       uLen: { value: bandPath.length * ICON_SCALE },
       uNose: { value: NOSE * ICON_SCALE },
       uGrow: { value: 1 },
