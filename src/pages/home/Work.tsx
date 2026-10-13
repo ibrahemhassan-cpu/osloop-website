@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap, isTouch } from '../../lib/gsap'
 import { projects } from '../../lib/content'
-import { TransitionLink, useExperience } from '../../providers/Experience'
+import { TransitionLink } from '../../providers/Experience'
 import { ProjectCover } from '../../components/ProjectCover'
-import { Arrow, Magnetic, RollText } from '../../components/ui'
+import { Arrow } from '../../components/ui'
 
 const FEATURED = projects
 
@@ -12,7 +12,6 @@ export function Work() {
   const root = useRef<HTMLElement>(null)
   const preview = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState<number | null>(null)
-  const { go } = useExperience()
 
   useEffect(() => {
     if (isTouch() || !preview.current) return
@@ -76,21 +75,6 @@ export function Work() {
         <p>
           <strong>{projects.length}</strong> projects, each with its full story.
         </p>
-        <Magnetic strength={0.25}>
-          <a
-            href="/projects"
-            className="btn btn--blue roll-host"
-            onClick={(e) => {
-              e.preventDefault()
-              go('/projects')
-            }}
-          >
-            <RollText text="See all projects" />
-            <span className="btn__icon">
-              <Arrow />
-            </span>
-          </a>
-        </Magnetic>
       </div>
 
       <div className={`work__preview${hover !== null ? ' is-on' : ''}`} ref={preview} aria-hidden>

@@ -18,7 +18,6 @@ const ExperienceCtx = createContext<Ctx>({ ready: false, go: () => {} })
 
 const LABELS: Record<string, string> = {
   '/': 'Your story, our expertise',
-  '/projects': 'Selected work',
 }
 
 export function ExperienceProvider({ children }: { children: ReactNode }) {

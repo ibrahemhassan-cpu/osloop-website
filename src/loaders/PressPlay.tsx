@@ -104,10 +104,11 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
       // the timecode runs until the play arrow is pressed
       const tl = gsap.timeline({ paused: true, onUpdate: () => (tc.textContent = timecode(Math.min(tl.time(), tl.labels.press ?? 99))) })
 
-      // 1 · the viewfinder opens
+      // 1 · the viewfinder opens, and the lens pulls focus
       tl.from('.pre__glow', { opacity: 0, duration: 1.4, ease: 'power2.out' }, 0)
         .from('.pre__corner', { scale: 0, duration: 0.9, stagger: 0.05, ease: 'expo.out' }, 0)
         .from('.pre__hud-in', { yPercent: 115, duration: 0.9, stagger: 0.06, ease: 'expo.out' }, 0.08)
+        .fromTo('.pre__icon', { filter: 'blur(7px)', scale: 1.05 }, { filter: 'blur(0px)', scale: 1, duration: 1.1, ease: 'power2.out', clearProps: 'filter' }, 0)
         // 2 · the play arrow appears in its slot
         .to(st, { pop: 1, duration: 0.6, ease: 'back.out(2.4)', onUpdate: () => place(0, 0, st.pop) }, 0.2)
         // 3 · …and rides the loop, drawing it
@@ -131,6 +132,8 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
         .to('.pre__shade', { opacity: 1, duration: 0.6, ease: 'power2.out' }, 'lock')
         .set('.pre__over', { opacity: 1 }, 'lock')
         .fromTo('.pre__word', { y: TEXT_H }, { y: 0, duration: 0.8, ease: 'expo.out' }, 'lock')
+        // a light sweeps across the finished loop
+        .fromTo('#pre-sheen', { attr: { x1: -150, x2: -110 } }, { attr: { x1: 110, x2: 150 }, duration: 0.9, ease: 'power2.inOut', immediateRender: false }, 'lock+=0.05')
         // 5 · press play
         .addLabel('press', 'lock+=0.45')
         .to(st, { press: 0.82, duration: 0.16, ease: 'power2.in', onUpdate: () => place(flightLen, 0, st.press) }, 'press')
@@ -145,7 +148,7 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
         .fromTo(
           '.pre__ripple',
           { attr: { r: RT * 1.6 }, opacity: 0.8 },
-          { attr: { r: 150 }, opacity: 0, duration: 1.1, ease: 'power2.out', immediateRender: false },
+          { attr: { r: 150 }, opacity: 0, duration: 1.1, ease: 'power2.out', stagger: 0.14, immediateRender: false },
           '<',
         )
         .addLabel('open', '<0.08')
@@ -173,6 +176,8 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
         )
         .to('.pre__stage', { scale: 1.12, duration: 1.1, ease: 'power3.in' }, 'open')
         .to('.pre__hud, .pre__corner', { opacity: 0, duration: 0.45, ease: 'power2.in' }, 'open')
+        // the opening circle carries a soft orange edge
+        .fromTo('.pre__rim', { opacity: 0 }, { keyframes: [{ opacity: 1, duration: 0.25 }, { opacity: 0, duration: 0.85 }], ease: 'power1.inOut' }, 'open')
         .add(onDone)
 
       // Start once fonts are ready (avoids a flash of fallback text in the HUD).
@@ -184,6 +189,7 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
   return (
     <div className="pre" ref={root} aria-hidden>
       <div className="pre__glow" />
+      <span className="pre__rim" />
 
       {['tl', 'tr', 'bl', 'br'].map((c) => (
         <span key={c} className={`pre__corner pre__corner--${c}`} />
@@ -234,6 +240,12 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
               <stop offset="0" stopColor="#ffae23" stopOpacity="0.55" />
               <stop offset="1" stopColor="#ffae23" stopOpacity="0" />
             </radialGradient>
+            {/* the light that sweeps across the finished loop (moved by the timeline) */}
+            <linearGradient id="pre-sheen" gradientUnits="userSpaceOnUse" x1="-150" y1="-30" x2="-110" y2="30">
+              <stop offset="0" style={{ stopColor: 'var(--pre-sheen)', stopOpacity: 0 }} />
+              <stop offset="0.5" style={{ stopColor: 'var(--pre-sheen)', stopOpacity: 0.55 }} />
+              <stop offset="1" style={{ stopColor: 'var(--pre-sheen)', stopOpacity: 0 }} />
+            </linearGradient>
             {/* the window the line rises into, and the line itself (moves with it) */}
             <clipPath id="pre-word-window">
               <rect x="-110" y={TEXT_TOP} width="220" height={TEXT_H} />
@@ -249,6 +261,7 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
             <path className="pre__band" d={ICON.band} />
             <path className="pre__shade" d={ICON.s1} stroke="url(#pre-fold)" />
             <path className="pre__over" d={ICON.s2} />
+            <path className="pre__sheen" d={ICON.band} stroke="url(#pre-sheen)" />
           </g>
 
           <g clipPath="url(#pre-word-window)">
@@ -265,6 +278,7 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
           </g>
 
           <circle className="pre__halo" r={RT * 2.6} fill="url(#pre-halo)" />
+          <circle className="pre__ripple" cx={ARROW_HOME_SVG.x} cy={ARROW_HOME_SVG.y} r={RT * 1.6} />
           <circle className="pre__ripple" cx={ARROW_HOME_SVG.x} cy={ARROW_HOME_SVG.y} r={RT * 1.6} />
           <g className="pre__arrow">
             <path d={ARROW_D} transform={`scale(${ARROW_SCALE}) translate(${-ARROW_CENTRE_PDF.x} ${-ARROW_CENTRE_PDF.y})`} />

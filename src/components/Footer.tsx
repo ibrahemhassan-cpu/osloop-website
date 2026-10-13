@@ -88,7 +88,6 @@ export function Footer({ links }: { links: NavLink[] }) {
           <div className="ftr__col">
             <p className="mono ftr__kicker">Explore</p>
             {links.map((l) => link(l.target, l.label))}
-            {link('/projects', 'All projects')}
           </div>
           <div className="ftr__col">
             <p className="mono ftr__kicker">Contact</p>

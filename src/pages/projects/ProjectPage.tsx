@@ -17,7 +17,7 @@ import './projects.css'
 export default function ProjectRoute() {
   const { slug } = useParams()
   const project = projects.find((p) => p.slug === slug)
-  if (!project) return <Navigate to="/projects" replace />
+  if (!project) return <Navigate to="/" replace />
   return <ProjectPage key={project.slug} project={project} />
 }
 
@@ -94,8 +94,8 @@ function ProjectPage({ project: p }: { project: Project }) {
       <Header links={NAV} />
       <main className="case" ref={main}>
         <section className="case__hero" data-header-theme="auto">
-          <TransitionLink to="/projects" className="case__back mono">
-            <Arrow rotate={180} size={12} /> All projects
+          <TransitionLink to="/#work" className="case__back mono">
+            <Arrow rotate={180} size={12} /> Back to work
           </TransitionLink>
           <h1 className="case__title">{p.title}</h1>
           <div className="case__intro">

@@ -1,6 +1,7 @@
 /* ---------- Preloader — "press play" ---------- */
 .pre {
   --pre-ink: #0b3cb7; /* the logo blue on light */
+  --pre-sheen: #ffffff;
   --pre-hud: rgba(5, 11, 36, 0.56);
   --pre-frame: rgba(5, 11, 36, 0.3);
   --pre-inset: clamp(14px, 2.2vw, 30px);
@@ -18,8 +19,21 @@
 }
 [data-theme='dark'] .pre {
   --pre-ink: #ffffff;
+  --pre-sheen: #9db7ff;
   --pre-hud: rgba(255, 255, 255, 0.6);
   --pre-frame: rgba(255, 255, 255, 0.3);
+}
+/* a soft orange edge round the circle the site opens through */
+.pre__rim {
+  position: absolute;
+  left: calc(var(--hx) - var(--hr));
+  top: calc(var(--hy) - var(--hr));
+  width: calc(var(--hr) * 2);
+  height: calc(var(--hr) * 2);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px rgba(255, 174, 35, 0.55), 0 0 40px 8px rgba(255, 174, 35, 0.3);
+  opacity: 0;
+  pointer-events: none;
 }
 .pre__glow {
   position: absolute;
@@ -143,7 +157,8 @@
 }
 .pre__band,
 .pre__over,
-.pre__shade {
+.pre__shade,
+.pre__sheen {
   fill: none;
   stroke-width: 24.15;
 }
