@@ -1,5 +1,9 @@
 // All copy & brand assets live here so the client can edit one file.
 
+/** YouTube still: 'maxresdefault' is the thumbnail, 'maxres1..3' are frames at 25/50/75% of the video. */
+export const yt = (id: string, frame: 'maxresdefault' | 'maxres1' | 'maxres2' | 'maxres3' = 'maxresdefault') =>
+  `https://i.ytimg.com/vi/${id}/${frame}.jpg`
+
 export const brand = {
   name: 'OsLoop',
   fullName: 'OsLoop Media Production',
@@ -8,64 +12,142 @@ export const brand = {
   location: 'Alexandria, Egypt',
   timeZone: 'Africa/Cairo',
   mapUrl: 'https://goo.gl/maps/ou6TEmMqB5Xh9jE1A',
-  // TODO(client): replace with official SVG logos for crisp rendering.
-  logo: 'https://agency.osloop.com/images/Osloop---LOGO-01-01-1.png',
-  logoWhite: 'https://agency.osloop.com/images/Osloop---LOGO-WHITE.png',
+  /*
+   * Official logo files supplied by OsLoop (public/brand/, originals in public/brand/raw/).
+   *   mediaLogo / mediaLogoWhite → navbar, loader and page transitions ("OsLoop Media Production")
+   *   logoWhite                 → footer ("OsLoop Main logo white")
+   *   logoWhite / logoBlue      → the general logo behind the hero glass (dark / light theme)
+   * The tab icon (public/favicon*.png) is made from "main logo icon light"; the hero glass ∞ and its
+   * orange arrow are modelled on "Media logo icon".
+   */
+  mediaLogo: '/brand/osloop-media-logo.webp',
+  mediaLogoWhite: '/brand/osloop-media-logo-white.webp',
+  /** the same two files at 600px wide — crisp in the navbar without loading the full-size art */
+  mediaLogoNav: '/brand/osloop-media-logo-nav.webp',
+  mediaLogoWhiteNav: '/brand/osloop-media-logo-white-nav.webp',
+  logoWhite: '/brand/osloop-logo-white.webp',
+  logoBlue: '/brand/osloop-logo-blue.webp',
+  /** "OsLoop Media logo light / dark small" — icon over OSLOOP MEDIA, used by the loading screen */
+  stackedLogo: '/brand/osloop-media-logo-stacked.webp',
+  stackedLogoWhite: '/brand/osloop-media-logo-stacked-white.webp',
+  /** "Media logo icon light / dark" — the ∞ the loading screen's arrow draws */
+  mediaIcon: '/brand/osloop-media-icon.webp',
+  mediaIconWhite: '/brand/osloop-media-icon-white.webp',
 }
 
 export const reel = {
   youtubeId: '2yJWao9VURw',
-  /** seconds — the reel opens on its strongest moment (1:17) */
+  /** seconds — where the muted background loop starts. The Play Reel popup always starts at 0:00. */
   start: 77,
-  poster: 'https://i.ytimg.com/vi/2yJWao9VURw/maxresdefault.jpg',
+  poster: yt('2yJWao9VURw'),
   // TODO(client): drop a short muted MP4 loop of the showreel here, e.g. '/media/reel-loop.mp4'
   loopMp4: '' as string,
+}
+
+export const videos = {
+  theCode: 'sY-HPw9R1u4',
+  aiden: 'vCRLr4DG5EU',
+  headtech: 'gqKvTu3zZdQ',
+  mark: '7QwmBHm1kyc',
 }
 
 export const images = {
   explainer: 'https://agency.osloop.com/images/Rectangle-43.png',
   handDrawn: 'https://agency.osloop.com/images/Rectangle-44.png',
   videoRoom: 'https://agency.osloop.com/images/Rectangle-45.png',
+  arva1: 'https://arva.osloop.com/stills/v1.webp',
+  arva2: 'https://arva.osloop.com/stills/v2.webp',
 }
 
-export const services = [
+/* ----------------------------------------------------------------- Services */
+export type Service = { id: string; title: string; lead: string; body: string; tags: string[]; images: string[] }
+
+// TODO(client): add more stills per service — 2+ images play as a slow crossfade loop.
+export const services: Service[] = [
   {
     id: 'explainer',
-    index: '01',
     title: 'Explainer Videos',
     lead: 'Complex ideas, simply told.',
-    body: 'Scripted, storyboarded and animated to make your product click in under two minutes — for landing pages, pitches and campaigns.',
-    tags: ['2D Animation', 'Whiteboard', 'Cartoon', 'Real Hand Drawing'],
-    image: images.explainer,
+    body: 'Scripted, storyboarded and animated to make your product click — for landing pages, pitches and campaigns.',
+    tags: ['Script', 'Character animation', 'Voice-over'],
+    images: [yt(videos.aiden), yt(videos.aiden, 'maxres2'), images.explainer, yt(videos.aiden, 'maxres3')],
+  },
+  {
+    id: 'motion',
+    title: 'Motion Graphics',
+    lead: 'Information that moves.',
+    body: 'Type, icons, data and product UI choreographed into clear, rhythmic motion that holds attention.',
+    tags: ['Kinetic type', 'Infographics', 'Product UI'],
+    images: [yt(videos.headtech), yt(videos.headtech, 'maxres1'), yt(videos.headtech, 'maxres2'), yt(videos.headtech, 'maxres3')],
+  },
+  {
+    id: 'editing',
+    title: 'Video Editing',
+    lead: 'The cut that makes it land.',
+    body: 'Editing, color grading and clean-up that turn raw footage into a polished, on-brand film.',
+    tags: ['Editing', 'Color grading', 'Clean-up'],
+    images: [yt(videos.mark), yt(videos.mark, 'maxres1'), yt(videos.mark, 'maxres2')],
   },
   {
     id: '3d',
-    index: '02',
-    title: '3D Production',
-    lead: 'Products you can almost touch.',
-    body: 'Photoreal product renders, VFX objects, creatures and environments — lit, shaded and animated like a film set.',
-    tags: ['Product 3D', 'VFX', 'Environments', 'Characters'],
-    image: images.videoRoom,
+    title: '3D Videos',
+    lead: 'Spaces and products you can almost touch.',
+    body: 'Architectural walkthroughs, photoreal products and environments — lit, shaded and animated like a film set.',
+    tags: ['Architecture', 'Product 3D', 'Environments'],
+    images: [yt(videos.theCode, 'maxres1'), yt(videos.theCode), yt(videos.theCode, 'maxres3'), images.videoRoom],
   },
   {
-    id: 'web',
-    index: '03',
+    id: 'hand-drawn',
+    title: 'Real Hand Drawing Videos',
+    lead: 'Drawn live, frame by frame.',
+    body: 'A real hand, a real pen — the warmth of hand-drawn storytelling that feels personal and memorable.',
+    tags: ['Hand drawing', 'Storytelling', 'Voice-over'],
+    images: [yt(reel.youtubeId, 'maxres1'), images.handDrawn],
+  },
+  {
+    id: 'whiteboard',
+    title: 'Whiteboard Animation',
+    lead: 'Sketch it. Explain it.',
+    body: 'Clean whiteboard sketches that build your message line by line — perfect for training and education.',
+    tags: ['Whiteboard', 'Education', 'Training'],
+    images: ['/services/whiteboard.svg', yt(reel.youtubeId, 'maxres1')],
+  },
+  {
+    id: 'graphic',
+    title: 'Graphic Design',
+    lead: 'Brands that look like they mean it.',
+    body: 'Identities, brand manuals and campaign visuals designed as one consistent system.',
+    tags: ['Brand identity', 'Brand manuals', 'Campaigns'],
+    images: ['/services/graphic-design.svg', yt(reel.youtubeId)],
+  },
+  {
+    id: 'web-mobile',
+    title: 'Website & Mobile Design',
+    lead: 'Interfaces people enjoy using.',
+    body: 'Websites and mobile apps designed around your audience — clear structure, crafted details, real usability.',
+    tags: ['UX/UI', 'Websites', 'Mobile apps'],
+    images: [images.arva1, images.arva2],
+  },
+  {
+    id: 'animated-web',
     title: 'Animated Websites',
     lead: 'Sites that move like film.',
     body: 'Scroll-driven storytelling, motion systems and interactive 3D that turn visitors into an audience.',
-    tags: ['Scroll Stories', 'WebGL', 'Motion Systems', 'Micro-interactions'],
-    image: images.handDrawn,
+    tags: ['Scroll stories', 'WebGL', 'Micro-interactions'],
+    images: ['/services/animated-web.svg', images.arva2],
   },
 ]
 
+/* ------------------------------------------------------------------ Process */
+// TODO(client): swap the illustrated backgrounds in public/process/ for real artwork if you have it.
 export const pipeline = [
-  { n: '01', title: 'Script Writing', body: 'We learn your industry, then write every line to earn its place.' },
-  { n: '02', title: 'Storyboard', body: 'Each scene sketched, timed and approved before a single frame moves.' },
-  { n: '03', title: 'Illustrations', body: 'Characters, worlds and assets designed in your brand’s own language.' },
-  { n: '04', title: 'Voice Over', body: 'Native, professional voices that give the story its soul.' },
-  { n: '05', title: 'Animation', body: '2D, 3D, whiteboard or hand-drawn — crafted frame by frame.' },
-  { n: '06', title: 'VFX', body: 'Compositing, particles and effects that push it past ordinary.' },
-  { n: '07', title: 'SFX', body: 'Sound design and music that make every beat land.' },
+  { n: '01', title: 'Script Writing', body: 'We learn your industry, then write every line to earn its place.', bg: '/process/script.svg' },
+  { n: '02', title: 'Storyboard', body: 'Each scene sketched, timed and approved before a single frame moves.', bg: '/process/storyboard.svg' },
+  { n: '03', title: 'Illustrations', body: 'Characters, worlds and assets designed in your brand’s own language.', bg: '/process/illustration.svg' },
+  { n: '04', title: 'Voice Over', body: 'Native, professional voices that give the story its soul.', bg: '/process/voice.svg' },
+  { n: '05', title: 'Animation', body: '2D, 3D, whiteboard or hand-drawn — crafted frame by frame.', bg: '/process/animation.svg' },
+  { n: '06', title: 'VFX & SFX', body: 'Effects, compositing and sound design that make every beat land.', bg: '/process/vfx-sfx.svg' },
+  { n: '07', title: 'Final Result', body: 'A polished master, delivered in every format you need.', bg: '/process/final.svg' },
 ]
 
 export const marqueeA = ['Script Writing', 'Storyboard', 'Illustrations', 'Voice Over', 'Animation', 'VFX', 'SFX']
@@ -139,13 +221,21 @@ export const socials = [
 /* ------------------------------------------------------------------ Contact */
 export const contact = {
   /**
-   * TODO(client): paste a form endpoint to receive messages directly in your inbox
-   * (e.g. a free Formspree form: 'https://formspree.io/f/xxxxxxx').
-   * While empty, the form opens the visitor's email app with the message ready to send.
+   * Where the form posts. '/api/contact' is the included serverless function (api/contact.ts):
+   * it verifies Cloudflare Turnstile and forwards the message to FORMSPREE_ENDPOINT.
+   * Leave empty to fall back to opening the visitor's email app with the message ready.
+   * TODO(client): set to '/api/contact' once the env vars in README are configured.
    */
   formEndpoint: '' as string,
-  /** TODO(client): e.g. '+20 100 000 0000' — shows a WhatsApp button when set */
+  /**
+   * TODO(client): your Cloudflare Turnstile site key. While empty, the form asks a small sum
+   * ("7 + 4 = ?") as its human check; once set, Turnstile takes over automatically.
+   */
+  turnstileSiteKey: '' as string,
+  /** TODO(client): e.g. '+20 100 000 0000' — shows a WhatsApp link when set */
   whatsapp: '' as string,
+  needs: ['Explainer video', '3D production', 'Animated website', 'Not sure yet'],
+  budgets: ['Less than $2,800', '$2,800 to $5,600', 'More than $5,600'],
 }
 
 export const industries = ['Healthcare', 'Crypto', 'Food', 'SaaS']
@@ -172,16 +262,27 @@ export const team: TeamMember[] = [
 ]
 
 /* ----------------------------------------------------------------- Projects */
+export type ProjectLink =
+  | { kind: 'youtube'; id: string; label: string }
+  | { kind: 'pdf'; url: string; label: string }
+  | { kind: 'web'; url: string; label: string }
+
 export type Project = {
   slug: string
   title: string
+  /** short name used in lists and the curtain */
+  name: string
   category: string
-  client: string
+  /** filter group on /projects */
+  group: 'Animation' | 'VFX' | 'Branding' | 'Web'
+  year: string
   services: string[]
   deliverable: string
   /** null → a designed generative cover is shown */
   cover: string | null
+  gallery: string[]
   accent: string
+  link: ProjectLink
   summary: string
   /** Where it started — the brief */
   start: string
@@ -189,143 +290,179 @@ export type Project = {
   journey: { stage: string; text: string }[]
   /** Where it ended — the result */
   end: string
-  quote: { text: string; source: string }
 }
 
-const q = (i: number) => ({ text: testimonials[i].quote, source: testimonials[i].project })
-
 /*
- * TODO(client): project names and client quotes are real (from the current site);
- * the story copy below is a first draft written around the OsLoop pipeline.
- * Replace with the real brief, process notes, stills and results for each project.
+ * TODO(client): titles, categories, years and links are real; the story copy is a first
+ * draft written around each piece of work. Replace with the real brief, process notes and results.
  */
 export const projects: Project[] = [
   {
-    slug: 'realistic-3d-product',
-    title: 'Realistic 3D Product Animation',
-    category: '3D Production',
-    client: 'Upwork client',
-    services: ['3D modeling', 'Look development', 'Animation', 'Rendering'],
-    deliverable: 'Photoreal product film',
-    cover: images.videoRoom,
-    accent: '#2c5bff',
-    summary: 'A product brought to life in photoreal 3D — every surface, reflection and movement built to match the brief exactly.',
-    start:
-      'The client arrived with a product and a precise list of requirements: show it realistically, show how it works, and keep every detail exactly as specified. After years of working with freelancers, they wanted a team that would follow the brief to the letter.',
-    journey: [
-      { stage: 'Brief & references', text: 'We gathered specs, references and the exact shots the client had in mind, and locked a shot list before a single polygon was modeled.' },
-      { stage: 'Modeling', text: 'The product was modeled to scale — every part, edge and surface matched to the real object.' },
-      { stage: 'Look development', text: 'Materials, lighting and reflections were tuned until the renders felt close enough to touch.' },
-      { stage: 'Animation', text: 'Camera moves and product animations reveal each feature in turn, timed to the message.' },
-      { stage: 'Delivery', text: 'Final renders were delivered in every format the client needed, ready to publish.' },
-    ],
-    end: 'A realistic product film that does exactly what the brief asked for — delivered without endless back-and-forth.',
-    quote: q(0),
-  },
-  {
-    slug: 'animated-brand-video',
-    title: 'Animated Brand Video',
-    category: '2D Animation',
-    client: 'Upwork client',
-    services: ['Script', 'Storyboard', 'Illustration', '2D animation', 'Voice-over'],
-    deliverable: 'Animated explainer',
-    cover: images.explainer,
-    accent: '#ffb547',
-    summary: 'A story-driven animated video that turns a complex offer into something anyone understands in seconds.',
-    start:
-      'The client had a strong product and a message that was hard to explain in words. They needed a short animated video that people would actually watch to the end — and remember.',
-    journey: [
-      { stage: 'Script', text: 'We distilled the offer into one clear story: a relatable character, a real problem, and the moment the product makes it disappear.' },
-      { stage: 'Storyboard', text: 'Every scene was sketched and timed, so the client could see the whole video before animation started.' },
-      { stage: 'Illustration', text: 'Characters and scenes were designed in the brand’s colors and personality.' },
-      { stage: 'Animation & voice', text: 'Smooth 2D animation, a professional voice-over and music brought the story to life.' },
-      { stage: 'Sound & delivery', text: 'Sound design added the final polish before delivery in web and social formats.' },
-    ],
-    end: 'An animated video that went beyond what the client expected — and a client who now recommends the team to others.',
-    quote: q(1),
-  },
-  {
-    slug: 'vfx-film-scene',
-    title: 'VFX for a Film Scene',
-    category: 'VFX',
-    client: 'Upwork client · Film',
-    services: ['VFX objects', 'Creatures', 'Backgrounds', 'Compositing'],
-    deliverable: 'Composited film shots',
-    cover: reel.poster,
-    accent: '#7d9bff',
-    summary: 'Objects, animals and backgrounds created and composited into live-action footage — on an ambitious timeline.',
-    start:
-      'A filmmaker needed VFX that was ambitious in both scope and turnaround: objects, animals and full backgrounds that had to sit naturally inside their footage.',
-    journey: [
-      { stage: 'Shot breakdown', text: 'We broke the scene down shot by shot to understand exactly what each moment needed.' },
-      { stage: 'Asset creation', text: 'Objects, animals and environments were built to match the look and scale of the footage.' },
-      { stage: 'Tracking & integration', text: 'Every element was tracked into the plates so it moves with the camera.' },
-      { stage: 'Compositing', text: 'Lighting, color and grain were matched until the effects disappeared into the film.' },
-      { stage: 'Delivery', text: 'Final shots were delivered on schedule, ready for the edit.' },
-    ],
-    end: 'Effects that serve the story instead of shouting over it — delivered on a tight schedule, exactly as the director imagined.',
-    quote: q(2),
-  },
-  {
-    slug: '3d-products-elements',
-    title: '3D Products & Elements',
+    slug: 'the-code',
+    title: 'THE CODE — Architectural 3D Experience',
+    name: 'THE CODE',
     category: '3D Animation',
-    client: 'Upwork client',
-    services: ['3D products', 'Motion elements', 'Video animation'],
-    deliverable: '3D assets & animations',
-    cover: null,
+    group: 'Animation',
+    year: '2025',
+    services: ['3D modeling', 'Architectural visualisation', 'Lighting & materials', 'Animation'],
+    deliverable: 'Full 3D animated film',
+    cover: yt(videos.theCode, 'maxres1'),
+    gallery: [yt(videos.theCode), yt(videos.theCode, 'maxres2'), yt(videos.theCode, 'maxres3')],
+    accent: '#c99a6b',
+    link: { kind: 'youtube', id: videos.theCode, label: 'Watch the film' },
+    summary: 'A cinematic 3D film that walks the viewer through architecture, interiors and a premium service — every space built, lit and animated in 3D.',
+    start:
+      'THE CODE needed to show a premium, space-saving service in a way that felt as refined as the homes it serves. Real filming couldn’t deliver the scale or control they wanted — so the whole world had to be built in 3D.',
+    journey: [
+      { stage: 'Script & shot list', text: 'We shaped the message into a short story and planned every camera move before modeling started.' },
+      { stage: 'Architecture & interiors', text: 'Buildings, rooms and furniture were modeled to scale, from the façade down to the bedside lamp.' },
+      { stage: 'Materials & lighting', text: 'Wood, stone, fabric and glass were tuned under warm, cinematic light so every frame feels premium.' },
+      { stage: 'Animation & characters', text: 'Camera paths, product UI and people bring the service to life inside the spaces.' },
+      { stage: 'Sound & delivery', text: 'Voice-over, music and sound design were layered in, and the film was delivered in full HD.' },
+    ],
+    end: 'A full 3D film that makes a service feel tangible — architecture, people and product in one seamless, cinematic story.',
+  },
+  {
+    slug: 'aiden',
+    title: 'Aiden — AI Assistant Explainer',
+    name: 'Aiden',
+    category: 'Animated Explainer',
+    group: 'Animation',
+    year: '2023',
+    services: ['Script', 'Character design', '2D animation', 'Voice-over'],
+    deliverable: 'Animated explainer video',
+    // cover: Aiden's own AI interface (H-26)
+    cover: yt(videos.aiden, 'maxres3'),
+    gallery: [yt(videos.aiden), yt(videos.aiden, 'maxres2'), yt(videos.aiden, 'maxres1')],
+    accent: '#2c5bff',
+    link: { kind: 'youtube', id: videos.aiden, label: 'Watch the explainer' },
+    summary: 'Meet Aiden — an AI assistant introduced through a friendly character and a clean, technology-led visual world.',
+    start: 'AI products are powerful but hard to picture. The goal was to introduce Aiden in a way anyone could understand — and remember — in a couple of minutes.',
+    journey: [
+      { stage: 'Script', text: 'We turned features into a simple story: a relatable problem, and the moment Aiden makes it easy.' },
+      { stage: 'Character & style', text: 'Aiden got a personality and a look, set against clean interface and data visuals.' },
+      { stage: 'Storyboard', text: 'Every scene was sketched and timed so the flow was approved before animation began.' },
+      { stage: 'Animation & voice', text: 'Smooth 2D character animation and UI motion, carried by a professional voice-over.' },
+      { stage: 'Sound & delivery', text: 'Music and sound design added the final polish before delivery.' },
+    ],
+    end: 'A friendly, clear explainer that gives an AI product a face — and makes it easy to understand.',
+  },
+  {
+    slug: 'headtech',
+    title: 'Headtech — Animated Product Explainer',
+    name: 'Headtech',
+    category: 'Motion Graphics',
+    group: 'Animation',
+    year: '2022',
+    services: ['Motion graphics', '3D product visuals', 'Kinetic typography', 'Sound design'],
+    deliverable: 'Animated product explainer',
+    // cover: the clean product frame, without captions
+    cover: yt(videos.headtech, 'maxres3'),
+    gallery: [yt(videos.headtech), yt(videos.headtech, 'maxres1'), yt(videos.headtech, 'maxres2')],
     accent: '#3ddc84',
-    summary: 'A set of 3D products, elements and animations built as one consistent visual system for video.',
-    start:
-      'The client needed a family of 3D products and elements that could be reused across several videos — consistent, flexible and fast to work with.',
+    link: { kind: 'youtube', id: videos.headtech, label: 'Watch the explainer' },
+    summary: 'A high-tech headset explained through bold motion graphics, 3D product visuals and kinetic type.',
+    start: 'Headtech’s product packs a lot of technology into one device. The challenge was to show each feature clearly without overwhelming the viewer.',
     journey: [
-      { stage: 'System design', text: 'We defined a shared style — materials, lighting and motion rules — so every element felt part of one family.' },
-      { stage: 'Modeling', text: 'Products and elements were modeled clean and reusable.' },
-      { stage: 'Animation', text: 'Each element was animated with motion that fits the brand rhythm.' },
-      { stage: 'Video assembly', text: 'The pieces were combined into finished video animations.' },
+      { stage: 'Feature mapping', text: 'We ranked every feature and built the story around the ones that matter most.' },
+      { stage: 'Design frames', text: 'A dark, futuristic visual language with clean typography set the tone.' },
+      { stage: 'Motion', text: 'Product visuals, callouts and kinetic type were choreographed into a clear rhythm.' },
+      { stage: 'Sound & delivery', text: 'A driving soundtrack and sound design gave every transition its punch.' },
     ],
-    end: 'A reusable 3D toolkit plus finished animations — and a client who wants to work together again.',
-    quote: q(3),
+    end: 'A sharp, energetic product explainer that turns complex technology into clear benefits.',
   },
   {
-    slug: 'motion-graphics',
-    title: 'Motion Graphics Production',
-    category: 'Motion Design',
-    client: 'Upwork client',
-    services: ['Motion graphics', 'Illustration', 'Animation', 'Sound'],
-    deliverable: 'Motion graphics series',
-    cover: images.handDrawn,
-    accent: '#ff7a59',
-    summary: 'A motion graphics and animation production that shaped a big idea into sharp, memorable pieces.',
-    start: 'The client came with a big idea and a lot of content. They needed it shaped into motion graphics that felt crafted, not templated.',
+    slug: 'mark-before-after',
+    title: 'Mark — VFX Before & After',
+    name: 'Mark',
+    category: 'VFX & Compositing',
+    group: 'VFX',
+    year: '2022',
+    services: ['Compositing', 'Color grading', 'Clean-up', 'Editing'],
+    deliverable: 'Before & after VFX edit',
+    // cover: the frame where original vs edited reads clearest
+    cover: yt(videos.mark, 'maxres1'),
+    gallery: [yt(videos.mark), yt(videos.mark, 'maxres2'), yt(videos.mark, 'maxres3')],
+    accent: '#7d9bff',
+    link: { kind: 'youtube', id: videos.mark, label: 'Watch the before & after' },
+    summary: 'Raw footage transformed through compositing, grading and clean-up — shown side by side, original against edited.',
+    start: 'The footage was solid but flat. The goal was to make it look cinematic and polished without losing what made it real.',
     journey: [
-      { stage: 'Discovery', text: 'We listened first — to the audience, the goals and the tone the client wanted.' },
-      { stage: 'Design frames', text: 'Key frames set the visual language before any motion was added.' },
-      { stage: 'Animation', text: 'Type, shapes and illustrations were choreographed into fluid motion.' },
-      { stage: 'Sound & finish', text: 'Music and sound design gave every transition its weight.' },
+      { stage: 'Review', text: 'We studied every shot to decide what needed fixing, enhancing or replacing.' },
+      { stage: 'Clean-up & compositing', text: 'Distractions were removed and elements composited in seamlessly.' },
+      { stage: 'Color grading', text: 'A consistent, cinematic grade brought depth and mood to every frame.' },
+      { stage: 'Before & after', text: 'The final edit shows the original and the result side by side.' },
     ],
-    end: 'A production the client called one of the most amazing work experiences they ever had.',
-    quote: q(4),
+    end: 'The same footage, transformed — a before & after that shows exactly what careful VFX and grading can do.',
   },
   {
-    slug: 'explainer-for-dentists',
-    title: 'Explainer Video for Dentists',
-    category: 'Healthcare · Explainer',
-    client: 'Upwork client · Healthcare',
-    services: ['Script', 'Medical illustration', '2D animation', 'Voice-over'],
-    deliverable: 'Healthcare explainer',
-    cover: null,
-    accent: '#46c2ff',
-    summary: 'A clear, friendly explainer for dental professionals — clinical detail turned into a story anyone can follow.',
-    start:
-      'Healthcare messages have to be accurate and easy to follow at the same time. The client needed an explainer that dentists would trust and their audience would understand.',
-    journey: [
-      { stage: 'Research & script', text: 'We learned the clinical language, then rewrote it in words a patient would understand.' },
-      { stage: 'Storyboard', text: 'Every step was visualized in a calm, reassuring sequence.' },
-      { stage: 'Illustration', text: 'Clean, friendly medical illustrations — precise without being scary.' },
-      { stage: 'Animation & voice', text: 'Gentle animation and a warm voice-over guide the viewer from start to finish.' },
+    slug: 'river-city-recovery',
+    title: 'River City Recovery — Brand Identity System',
+    name: 'River City Recovery',
+    category: 'Brand Identity',
+    group: 'Branding',
+    year: '2025',
+    services: ['Logo design', 'Color system', 'Typography', 'Brand manual'],
+    deliverable: 'Brand identity & brand manual',
+    // cover: the identity applied (signage, packaging, web, merch, cards) — from the brand manual
+    cover: '/projects/river-city/cover.webp',
+    // one page of the manual per journey stage
+    gallery: [
+      '/projects/river-city/manual-p3.webp',
+      '/projects/river-city/manual-p9.webp',
+      '/projects/river-city/manual-p11.webp',
+      '/projects/river-city/manual-p16.webp',
+      '/projects/river-city/manual-p17.webp',
     ],
-    end: 'An explainer that makes a clinical topic feel simple — and a client who would work with the team again whenever they can.',
-    quote: q(5),
+    accent: '#29af5f',
+    link: {
+      kind: 'pdf',
+      url: 'https://www.dropbox.com/scl/fi/ncged49ssl2v681u2kabd/River-City-Recovery-Brand-Manual-V01-14th-Oct-2025.pdf?rlkey=rj1a09sckxt7p6jn7eno6qdne&st=ejj07snm&e=1&dl=0',
+      label: 'View the brand manual',
+    },
+    summary:
+      'A complete identity for River City Recovery — a mark where a flowing river becomes growth, a calm green color system, and a brand manual that keeps every touchpoint consistent.',
+    start:
+      'River City Recovery needed a brand that feels trustworthy, calm and hopeful — one that speaks with compassion and without judgment, and looks the same on every sign, screen and document.',
+    journey: [
+      {
+        stage: 'Logo & mark',
+        text: 'A circular mark with a flowing “river” path that stands for healing, renewal and forward motion — with RECOVERY set in bold to keep the focus on purpose.',
+      },
+      {
+        stage: 'Color system',
+        text: 'An RCR primary green, a dark green and a green-to-teal gradient, with supporting neutrals, a 60/30/10 usage ratio and contrast checked for accessibility.',
+      },
+      {
+        stage: 'Typography & voice',
+        text: 'Franklin Gothic in a clear type hierarchy, and a plain-language, compassionate tone of voice: “We’re here to help — no judgment.”',
+      },
+      { stage: 'Pattern & imagery', text: 'A quiet roundel pattern for backgrounds, and an imagery style that is authentic, diverse and hopeful.' },
+      { stage: 'Applications', text: 'Signage, stationery, merchandise, web and mobile — every touchpoint designed and documented in the brand manual.' },
+    ],
+    end: 'A complete identity system and brand manual — logo, color, type, imagery, iconography, voice and applications — ready for every sign, screen and document. Second chances start here.',
+  },
+  {
+    slug: 'arvamethod',
+    title: 'ARVAmethod — Digital Experience Design',
+    name: 'ARVAmethod',
+    category: 'Website Design & Development',
+    group: 'Web',
+    year: '2025',
+    services: ['UX/UI design', 'Web development', 'Motion', 'Responsive design'],
+    deliverable: 'Website in two design directions',
+    cover: images.arva1,
+    gallery: [images.arva2],
+    accent: '#b8865b',
+    link: { kind: 'web', url: 'https://arva.osloop.com/', label: 'Visit the website' },
+    summary: 'A new website for ARVAmethod, designed and built in two directions — each a complete, explorable experience.',
+    start: 'ARVAmethod wanted a site that feels as considered as its method — and the freedom to compare more than one direction before choosing.',
+    journey: [
+      { stage: 'Structure', text: 'We mapped the content and the journey a visitor should take.' },
+      { stage: 'Two directions', text: 'Two complete visual directions were designed, each with its own personality.' },
+      { stage: 'Build', text: 'Both were built as working, responsive websites — not just static mockups.' },
+      { stage: 'Motion & polish', text: 'Subtle motion and details made each experience feel alive.' },
+    ],
+    end: 'Two complete, live website directions — so the decision could be made by experiencing them, not imagining them.',
   },
 ]

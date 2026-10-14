@@ -11,9 +11,8 @@ import { projects, type Project } from '../../lib/content'
 import { NAV } from '../../lib/nav'
 import './projects.css'
 
-const groupOf = (p: Project) =>
-  p.category.includes('3D') ? '3D' : p.category.includes('VFX') ? 'VFX' : p.category.includes('Motion') ? 'Motion' : 'Explainers'
-const FILTERS = ['All', 'Explainers', '3D', 'VFX', 'Motion'].filter((f) => f === 'All' || projects.some((p) => groupOf(p) === f))
+const groupOf = (p: Project) => p.group
+const FILTERS = ['All', 'Animation', 'VFX', 'Branding', 'Web'].filter((f) => f === 'All' || projects.some((p) => groupOf(p) === f))
 
 export default function ProjectsPage() {
   const { ready } = useExperience()
@@ -100,12 +99,12 @@ export default function ProjectsPage() {
         </section>
 
         <section className="pgrid" data-header-theme="auto">
-          {projects.map((p, i) => {
+          {projects.map((p) => {
             const show = filter === 'All' || groupOf(p) === filter
             const offset = show && visible++ % 2 === 1
             return (
               <article key={p.slug} className={`pgrid__item${show ? '' : ' is-hidden'}${offset ? ' is-offset' : ''}`} data-flip-id={p.slug}>
-                <TransitionLink to={`/projects/${p.slug}`} label={p.title} className="pcard" data-cursor="Read story">
+                <TransitionLink to={`/projects/${p.slug}`} label={p.name} className="pcard" data-cursor="Read story">
                   <div className="pcard__media">
                     <ProjectCover project={p} />
                     <span className="pcard__view">
@@ -114,7 +113,7 @@ export default function ProjectsPage() {
                   </div>
                   <div className="pcard__meta">
                     <span className="mono">
-                      {String(i + 1).padStart(2, '0')} · {p.category}
+                      {p.category} · {p.year}
                     </span>
                     <h2 className="pcard__title">{p.title}</h2>
                     <p>{p.summary}</p>

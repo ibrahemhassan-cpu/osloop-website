@@ -1,18 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap, isTouch } from '../../lib/gsap'
 import { projects } from '../../lib/content'
-import { TransitionLink, useExperience } from '../../providers/Experience'
+import { TransitionLink } from '../../providers/Experience'
 import { ProjectCover } from '../../components/ProjectCover'
-import { Arrow, Magnetic, RollText } from '../../components/ui'
+import { Arrow } from '../../components/ui'
 
-const FEATURED = projects.slice(0, 4)
+const FEATURED = projects
 
 /** Selected work — a big index of projects with a floating preview that trails the cursor. */
 export function Work() {
   const root = useRef<HTMLElement>(null)
   const preview = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState<number | null>(null)
-  const { go } = useExperience()
 
   useEffect(() => {
     if (isTouch() || !preview.current) return
@@ -48,7 +47,7 @@ export function Work() {
           <li key={p.slug} data-reveal="fade" data-delay={String(i * 0.06)}>
             <TransitionLink
               to={`/projects/${p.slug}`}
-              label={p.title}
+              label={p.name}
               className={`work__row${hover === i ? ' is-hover' : ''}`}
               data-cursor="View story"
               onMouseEnter={() => setHover(i)}
@@ -57,7 +56,11 @@ export function Work() {
               <span className="work__thumb">
                 <ProjectCover project={p} />
               </span>
-              <span className="work__title">{p.title}</span>
+              {/* the official title, split so every row keeps the one-line rhythm of the list */}
+              <span className="work__title">
+                {p.name}
+                <span className="work__sub">{p.title.split(' — ')[1]}</span>
+              </span>
               <span className="work__cat mono">{p.category}</span>
               <span className="work__go">
                 <Arrow size={18} rotate={-45} />
@@ -72,21 +75,6 @@ export function Work() {
         <p>
           <strong>{projects.length}</strong> projects, each with its full story.
         </p>
-        <Magnetic strength={0.25}>
-          <a
-            href="/projects"
-            className="btn btn--blue roll-host"
-            onClick={(e) => {
-              e.preventDefault()
-              go('/projects')
-            }}
-          >
-            <RollText text="See all projects" />
-            <span className="btn__icon">
-              <Arrow />
-            </span>
-          </a>
-        </Magnetic>
       </div>
 
       <div className={`work__preview${hover !== null ? ' is-on' : ''}`} ref={preview} aria-hidden>

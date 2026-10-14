@@ -4,7 +4,6 @@ import { ExperienceProvider } from './providers/Experience'
 import { ThemeProvider } from './providers/Theme'
 import { Cursor } from './components/Cursor'
 import HomePage from './pages/home/HomePage'
-import ProjectsPage from './pages/projects/ProjectsPage'
 import ProjectRoute from './pages/projects/ProjectPage'
 
 export default function App() {
@@ -14,7 +13,7 @@ export default function App() {
         <ExperienceProvider>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/projects" element={<ProjectsPage />} />
+            {/* the All projects page is closed while it's being redesigned (pages/projects/ProjectsPage.tsx) */}
             <Route path="/projects/:slug" element={<ProjectRoute />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

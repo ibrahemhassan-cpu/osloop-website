@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { gsap, useGSAP } from '../../lib/gsap'
 import { services } from '../../lib/content'
+import { ImageLoop } from '../../components/ImageLoop'
 
 export function Services() {
   const root = useRef<HTMLElement>(null)
@@ -27,7 +28,7 @@ export function Services() {
           },
         })
         gsap.utils.toArray<HTMLElement>('.v1-svc', root.current).forEach((panel) => {
-          const media = panel.querySelector('.v1-svc__media img')
+          const media = panel.querySelector('.v1-svc__loop .iloop__track')
           const title = panel.querySelector('.v1-svc__title')
           gsap.fromTo(media, { xPercent: -12, scale: 1.18 }, {
             xPercent: 12,
@@ -58,7 +59,7 @@ export function Services() {
       <div className="v1-services__track">
         <div className="v1-services__intro">
           <h2 className="v1-services__h" data-reveal="lines">
-            Three crafts. <br />
+            Nine services. <br />
             <span className="serif">One obsession:</span> <br />
             your story.
           </h2>
@@ -72,10 +73,9 @@ export function Services() {
           </div>
         </div>
 
-        {services.map((s) => (
-          <article className="v1-svc" key={s.id} data-cursor="Explore">
+        {services.map((s, i) => (
+          <article className="v1-svc" key={s.id}>
             <div className="v1-svc__text">
-              <span className="v1-svc__index">{s.index}</span>
               <h3 className="v1-svc__title">{s.title}</h3>
               <p className="v1-svc__lead serif">{s.lead}</p>
               <p className="v1-svc__body">{s.body}</p>
@@ -88,8 +88,7 @@ export function Services() {
               </ul>
             </div>
             <div className="v1-svc__media">
-              <img src={s.image} alt={`${s.title} — OsLoop work`} loading="lazy" />
-              <span className="v1-svc__media-tag mono">{s.index} / 03</span>
+              <ImageLoop className="v1-svc__loop" images={s.images} alt={`${s.title} — OsLoop work`} offset={(i % 3) * 700} dots />
             </div>
           </article>
         ))}

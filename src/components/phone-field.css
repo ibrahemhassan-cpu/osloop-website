@@ -1,0 +1,105 @@
+.phone {
+  position: relative;
+}
+.phone__row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  border-bottom: 1px solid var(--line-2);
+  transition: border-color 0.4s;
+}
+.phone__row:focus-within {
+  border-color: var(--blue-2);
+}
+.phone.has-error .phone__row {
+  border-color: #ff5d5d;
+}
+.phone__flag {
+  font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 18px;
+  line-height: 1;
+}
+.phone__cc {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 2px;
+  font-size: 16px;
+  color: var(--fg);
+}
+.phone__cc svg {
+  opacity: 0.6;
+}
+.phone__row input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 16px;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 10px 0;
+}
+.phone__row input::placeholder {
+  color: var(--fg-3);
+}
+.phone__menu {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  background: var(--bg-2);
+  border: 1px solid var(--card-line);
+  box-shadow: 0 30px 60px -20px rgba(5, 11, 36, 0.45);
+  overflow: hidden;
+}
+.phone__search {
+  font: inherit;
+  font-size: 15px;
+  color: var(--fg);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 14px 16px;
+  outline: none;
+}
+.phone__menu ul {
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.phone__menu li button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 15px;
+  color: var(--fg);
+}
+.phone__menu li button:hover,
+.phone__menu li button[aria-selected='true'] {
+  background: var(--chip);
+}
+.phone__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.phone__dial {
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+.phone__empty {
+  padding: 14px 16px;
+  color: var(--fg-3);
+}

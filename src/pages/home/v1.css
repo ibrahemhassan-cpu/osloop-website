@@ -245,39 +245,11 @@ html.is-grabbing * {
   font-weight: 500;
   line-height: 1.04;
   letter-spacing: -0.05em;
-  max-width: 16.5em;
+  max-width: 15em;
+  text-wrap: balance;
 }
 .v1-about__statement .serif {
   color: var(--hl);
-}
-.v1-pill {
-  position: relative;
-  display: inline-block;
-  width: 1.75em;
-  height: 1.12em;
-  margin: -0.1em 0.04em;
-  border-radius: 999px;
-  overflow: hidden;
-  vertical-align: -0.2em;
-  background: var(--blue-2);
-  box-shadow: 0 0 0 3px var(--bg), 0 18px 40px -18px rgba(5, 11, 36, 0.5);
-  transition: transform 0.8s var(--ease-out), border-radius 0.8s var(--ease-out), box-shadow 0.6s;
-  z-index: 1;
-}
-.v1-pill img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 1.2s var(--ease-out);
-}
-.v1-pill:hover {
-  transform: scale(2.3);
-  border-radius: 0.22em;
-  z-index: 5;
-  box-shadow: 0 0 0 2px var(--bg), 0 30px 60px -20px rgba(5, 11, 36, 0.6);
-}
-.v1-pill:hover img {
-  transform: scale(1.06);
 }
 .v1-about__row {
   display: flex;
@@ -410,11 +382,6 @@ html.is-grabbing * {
   flex-direction: column;
   min-width: 0;
 }
-.v1-svc__index {
-  font-family: var(--f-mono);
-  font-size: 13px;
-  color: var(--hl);
-}
 .v1-svc__title {
   margin-top: auto;
   font-size: clamp(44px, 5.2vw, 96px);
@@ -451,12 +418,13 @@ html.is-grabbing * {
   overflow: hidden;
   min-height: 0;
 }
-.v1-svc__media img {
+/* the crossfading stills sit in one layer (.iloop__track) so the parallax moves them together,
+   while the dots stay still */
+.v1-svc__loop {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+}
+.v1-svc__loop .iloop__track {
   will-change: transform;
 }
 .v1-svc__media::after {
@@ -464,19 +432,6 @@ html.is-grabbing * {
   position: absolute;
   inset: 0;
   background: linear-gradient(200deg, transparent 50%, rgba(5, 11, 36, 0.6));
-}
-.v1-svc__media-tag {
-  position: absolute;
-  z-index: 1;
-  left: 18px;
-  bottom: 16px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: rgba(5, 11, 36, 0.6);
-  color: #fff;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  font-size: 10.5px;
 }
 .v1-services__bar {
   position: absolute;
@@ -546,12 +501,19 @@ html.is-grabbing * {
   height: 1300px;
   margin: -650px 0 0 -650px;
   border-radius: 50%;
+  /* the floor itself stays still; only its light lines turn (see .v1-process__rays) */
   transform: rotateX(78deg);
-  background: repeating-conic-gradient(from 0deg, rgba(157, 183, 255, 0.16) 0deg 0.6deg, transparent 0.6deg 10deg),
-    radial-gradient(closest-side, rgba(44, 91, 255, 0.35), transparent 75%);
+  background: radial-gradient(closest-side, rgba(44, 91, 255, 0.35), transparent 75%);
   -webkit-mask: radial-gradient(closest-side, #000 40%, transparent);
   mask: radial-gradient(closest-side, #000 40%, transparent);
   pointer-events: none;
+}
+.v1-process__rays {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, rgba(157, 183, 255, 0.16) 0deg 0.6deg, transparent 0.6deg 10deg);
+  will-change: transform;
 }
 .v1-ring {
   position: relative;
@@ -571,13 +533,25 @@ html.is-grabbing * {
   border-radius: 24px;
   backface-visibility: hidden;
   transform: rotateY(var(--a)) translateZ(var(--r));
-  background: linear-gradient(165deg, rgba(44, 91, 255, calc(0.15 + var(--glow) * 0.75)), rgba(10, 20, 56, 0.92) 70%);
+  /* the stage illustration is the card background; the original blue wash sits on top and
+     deepens towards the copy so the text always reads */
+  background-color: #0a1438;
+  background-image: linear-gradient(
+      165deg,
+      rgba(44, 91, 255, calc(0.06 + var(--glow) * 0.26)),
+      rgba(10, 20, 56, calc(0.5 - var(--glow) * 0.22)) 42%,
+      rgba(10, 20, 56, 0.94) 78%
+    ),
+    var(--bg);
+  background-size: 100% 100%, cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid rgba(157, 183, 255, calc(0.15 + var(--glow) * 0.5));
   box-shadow: 0 30px 80px -30px rgba(44, 91, 255, calc(var(--glow) * 0.9));
 }
 .v1-ring__top {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   color: var(--sky);
 }
@@ -606,7 +580,7 @@ html.is-grabbing * {
   right: var(--gutter);
   bottom: 5vh;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-end;
 }
 .v1-process__step {
@@ -796,6 +770,7 @@ html.is-grabbing * {
   color: rgba(255, 255, 255, 0.6);
 }
 .v1-testi__body {
+  touch-action: pan-y;
   position: relative;
   min-height: 46vh;
   display: flex;
@@ -975,6 +950,7 @@ html.is-grabbing * {
   color: var(--hl);
 }
 .v1-badge {
+  pointer-events: none;
   position: relative;
   width: 210px;
   height: 210px;
@@ -1001,11 +977,6 @@ html.is-grabbing * {
   color: var(--white);
   transition: transform 0.8s var(--ease-out), background 0.4s, color 0.4s;
   box-shadow: 0 20px 60px -15px rgba(44, 91, 255, 0.9);
-}
-.v1-badge:hover .v1-badge__core {
-  transform: scale(1.12) rotate(45deg);
-  background: var(--white);
-  color: var(--blue-2);
 }
 
 /* =============== RESPONSIVE =============== */

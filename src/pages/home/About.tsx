@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { gsap, SplitText, useGSAP } from '../../lib/gsap'
-import { images, industries, marqueeA, marqueeB } from '../../lib/content'
+import { industries, marqueeA, marqueeB } from '../../lib/content'
 import { useNavTo } from '../../lib/useNavTo'
 import { Button } from '../../components/ui'
 import { Marquee } from '../../components/Marquee'
@@ -75,30 +75,15 @@ export function About() {
           )
         },
       })
-      gsap.utils.toArray<HTMLElement>('.v1-pill', root.current).forEach((pill) => {
-        gsap.from(pill, {
-          width: 0,
-          duration: 1.4,
-          ease: 'silk',
-          scrollTrigger: { trigger: pill, start: 'top 75%', toggleActions: 'play none none reverse' },
-        })
-      })
     },
     { scope: root, dependencies: [ready] },
-  )
-
-  const pill = (src: string, alt: string) => (
-    <span className="v1-pill" data-cursor="Our work">
-      <img src={src} alt={alt} loading="lazy" />
-    </span>
   )
 
   return (
     <section className="v1-about" id="about" ref={root} data-header-theme="auto">
       <p className="v1-about__statement">
-        We are OsLoop {pill(images.explainer, '2D explainer animation by OsLoop')} an animation & video production studio.
-        We turn complex ideas into stories {pill(images.videoRoom, '3D production by OsLoop')} people actually feel —{' '}
-        <span className="serif">frame by frame,</span> loop after loop {pill(images.handDrawn, 'Hand-drawn animation by OsLoop')}
+        We are OsLoop — an animation & video production studio. We turn complex ideas into stories people actually feel —{' '}
+        <span className="serif">frame by frame,</span> loop after loop.
       </p>
 
       <div className="v1-about__row">

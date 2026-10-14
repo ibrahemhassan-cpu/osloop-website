@@ -1,0 +1,187 @@
+/* ---------- Preloader — "press play" ---------- */
+.pre {
+  --pre-ink: #0b3cb7; /* the logo blue on light */
+  --pre-sheen: #ffffff;
+  --pre-hud: rgba(5, 11, 36, 0.56);
+  --pre-frame: rgba(5, 11, 36, 0.3);
+  --pre-inset: clamp(14px, 2.2vw, 30px);
+  --hr: -1px;
+  --hx: 50%;
+  --hy: 50%;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--bg);
+  overflow: hidden;
+  /* the site opens through a circle that grows from the play arrow */
+  -webkit-mask-image: radial-gradient(circle at var(--hx) var(--hy), transparent var(--hr), #000 calc(var(--hr) + 1.5px));
+  mask-image: radial-gradient(circle at var(--hx) var(--hy), transparent var(--hr), #000 calc(var(--hr) + 1.5px));
+}
+[data-theme='dark'] .pre {
+  --pre-ink: #ffffff;
+  --pre-sheen: #9db7ff;
+  --pre-hud: rgba(255, 255, 255, 0.6);
+  --pre-frame: rgba(255, 255, 255, 0.3);
+}
+/* a soft orange edge round the circle the site opens through */
+.pre__rim {
+  position: absolute;
+  left: calc(var(--hx) - var(--hr));
+  top: calc(var(--hy) - var(--hr));
+  width: calc(var(--hr) * 2);
+  height: calc(var(--hr) * 2);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1.5px rgba(255, 174, 35, 0.55), 0 0 40px 8px rgba(255, 174, 35, 0.3);
+  opacity: 0;
+  pointer-events: none;
+}
+.pre__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(46% 40% at 50% 44%, var(--glow), transparent 72%);
+  pointer-events: none;
+}
+
+/* viewfinder frame */
+.pre__corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 0 solid var(--pre-frame);
+}
+.pre__corner--tl {
+  top: var(--pre-inset);
+  left: var(--pre-inset);
+  border-width: 1.5px 0 0 1.5px;
+  transform-origin: 0 0;
+}
+.pre__corner--tr {
+  top: var(--pre-inset);
+  right: var(--pre-inset);
+  border-width: 1.5px 1.5px 0 0;
+  transform-origin: 100% 0;
+}
+.pre__corner--bl {
+  bottom: var(--pre-inset);
+  left: var(--pre-inset);
+  border-width: 0 0 1.5px 1.5px;
+  transform-origin: 0 100%;
+}
+.pre__corner--br {
+  bottom: var(--pre-inset);
+  right: var(--pre-inset);
+  border-width: 0 1.5px 1.5px 0;
+  transform-origin: 100% 100%;
+}
+.pre__hud {
+  position: absolute;
+  inset: calc(var(--pre-inset) + 18px) calc(var(--pre-inset) + 22px);
+  color: var(--pre-hud);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  pointer-events: none;
+}
+.pre__hud-item {
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.pre__hud-item--tl {
+  top: 0;
+  left: 0;
+  min-width: 7em; /* room for "Play" when it replaces "Rec" */
+}
+.pre__hud-item--tr {
+  top: 0;
+  right: 0;
+}
+.pre__hud-item--bl {
+  bottom: 0;
+  left: 0;
+}
+.pre__hud-item--br {
+  bottom: 0;
+  right: 0;
+}
+.pre__hud-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.pre__hud-play {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  visibility: hidden; /* shown (and slid in) by the timeline */
+  color: var(--fg);
+}
+.pre__hud-play svg {
+  fill: #ffae23;
+}
+.pre__rec {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffae23;
+  box-shadow: 0 0 10px rgba(255, 174, 35, 0.8);
+  animation: pre-blink 1.1s steps(2, jump-none) infinite;
+}
+@keyframes pre-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+.pre__tc-v {
+  font-weight: 500;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* the icon */
+.pre__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.pre__icon {
+  width: min(400px, 66vw);
+  height: auto;
+  overflow: visible;
+}
+.pre__flight {
+  fill: none;
+  stroke: none;
+}
+/* the band the arrow draws; when the icon locks, the logo file takes over */
+.pre__band {
+  fill: none;
+  stroke: var(--pre-ink);
+  stroke-width: 24.15;
+}
+.pre__art {
+  opacity: 0;
+}
+.pre__arrow {
+  fill: #ffae23;
+}
+.pre__ripple {
+  fill: none;
+  stroke: #ffae23;
+  stroke-width: 1.2;
+  opacity: 0;
+}
+.pre__halo {
+  opacity: 0;
+}
+
+@media (max-width: 560px) {
+  .pre__hud-item--tr {
+    display: none;
+  }
+  .pre__hud {
+    font-size: 10px;
+  }
+}

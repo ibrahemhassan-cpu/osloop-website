@@ -3,6 +3,7 @@ import { Navigate, useParams } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
 import { ProjectCover } from '../../components/ProjectCover'
+import { VideoEmbed } from '../../components/VideoEmbed'
 import { Arrow, Button } from '../../components/ui'
 import { useExperience, TransitionLink } from '../../providers/Experience'
 import { useAutoReveal } from '../../lib/useAutoReveal'
@@ -16,7 +17,7 @@ import './projects.css'
 export default function ProjectRoute() {
   const { slug } = useParams()
   const project = projects.find((p) => p.slug === slug)
-  if (!project) return <Navigate to="/projects" replace />
+  if (!project) return <Navigate to="/" replace />
   return <ProjectPage key={project.slug} project={project} />
 }
 
@@ -27,6 +28,8 @@ function ProjectPage({ project: p }: { project: Project }) {
   const [stage, setStage] = useState(0)
   const index = projects.indexOf(p)
   const next = projects[(index + 1) % projects.length]
+  // a gallery with one image per stage follows the story; otherwise the cover leads the stills
+  const stills = p.gallery.length >= p.journey.length ? p.gallery : [p.cover, ...p.gallery].filter((x): x is string => !!x)
   useAutoReveal(main, ready)
 
   useGSAP(
@@ -91,8 +94,8 @@ function ProjectPage({ project: p }: { project: Project }) {
       <Header links={NAV} />
       <main className="case" ref={main}>
         <section className="case__hero" data-header-theme="auto">
-          <TransitionLink to="/projects" className="case__back mono">
-            <Arrow rotate={180} size={12} /> All projects
+          <TransitionLink to="/#work" className="case__back mono">
+            <Arrow rotate={180} size={12} /> Back to work
           </TransitionLink>
           <h1 className="case__title">{p.title}</h1>
           <div className="case__intro">
@@ -100,8 +103,8 @@ function ProjectPage({ project: p }: { project: Project }) {
           </div>
           <dl className="case__meta">
             <div>
-              <dt className="mono">Client</dt>
-              <dd>{p.client}</dd>
+              <dt className="mono">Year</dt>
+              <dd>{p.year}</dd>
             </div>
             <div>
               <dt className="mono">Category</dt>
@@ -139,13 +142,13 @@ function ProjectPage({ project: p }: { project: Project }) {
             <aside className="journey__aside">
               <div className="journey__sticky">
                 <div className="journey__media">
-                  <ProjectCover project={p} />
-                </div>
-                <div className="journey__now">
-                  <span className="journey__count">
-                    <span key={stage}>{String(stage + 1).padStart(2, '0')}</span>
-                  </span>
-                  <span className="mono">/ {String(p.journey.length).padStart(2, '0')}</span>
+                  {stills.length ? (
+                    stills.map((src, i) => (
+                      <img key={src} src={src} alt="" loading="lazy" className={i === stage % stills.length ? 'is-on' : ''} />
+                    ))
+                  ) : (
+                    <ProjectCover project={p} />
+                  )}
                 </div>
                 <p className="journey__stage" key={`t${stage}`}>
                   {p.journey[stage].stage}
@@ -156,10 +159,9 @@ function ProjectPage({ project: p }: { project: Project }) {
               <span className="journey__line" aria-hidden>
                 <span className="journey__fill" />
               </span>
-              {p.journey.map((s, i) => (
+              {p.journey.map((s) => (
                 <li key={s.stage} className="jstep">
                   <span className="jstep__dot" aria-hidden />
-                  <span className="jstep__n mono">Step {String(i + 1).padStart(2, '0')}</span>
                   <h3>{s.stage}</h3>
                   <p>{s.text}</p>
                 </li>
@@ -174,23 +176,38 @@ function ProjectPage({ project: p }: { project: Project }) {
             </h2>
           </div>
           <div className="case__end">
-            <p className="case__end-text" data-reveal="fade">
-              {p.end}
-            </p>
-            <figure className="case__quote" data-reveal="scale">
-              <div className="case__stars" aria-label="Five stars">
-                ★★★★★
-              </div>
-              <blockquote>“{p.quote.text}”</blockquote>
-              <figcaption className="mono">
-                {p.client} — {p.quote.source}
-              </figcaption>
-            </figure>
+            <div className="case__end-copy" data-reveal="fade">
+              <p className="case__end-text">{p.end}</p>
+              {p.link.kind === 'youtube' ? (
+                <a className="case__ext mono" href={`https://www.youtube.com/watch?v=${p.link.id}`} target="_blank" rel="noreferrer">
+                  Open on YouTube <Arrow size={12} rotate={-45} />
+                </a>
+              ) : (
+                <a className="case__ext mono" href={p.link.url} target="_blank" rel="noreferrer">
+                  {p.link.label} <Arrow size={12} rotate={-45} />
+                </a>
+              )}
+            </div>
+            <div className="case__media" data-reveal="scale">
+              {p.link.kind === 'youtube' ? (
+                <VideoEmbed id={p.link.id} title={p.title} />
+              ) : (
+                <a className="case__link" href={p.link.url} target="_blank" rel="noreferrer">
+                  <span className="case__link-media">
+                    <ProjectCover project={p} />
+                  </span>
+                  <span className="case__link-label">
+                    {p.link.label}
+                    <Arrow size={20} rotate={-45} />
+                  </span>
+                </a>
+              )}
+            </div>
           </div>
         </section>
 
         <section className="case__next" data-header-theme="dark" data-theme="dark">
-          <TransitionLink to={`/projects/${next.slug}`} label={next.title} className="nextp" data-cursor="Next story">
+          <TransitionLink to={`/projects/${next.slug}`} label={next.name} className="nextp" data-cursor="Next story">
             <span className="nextp__bg" aria-hidden>
               <ProjectCover project={next} />
             </span>
