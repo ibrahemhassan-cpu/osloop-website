@@ -64,6 +64,9 @@ const RIDE_Z = 4
 /** while it absorbs the band, the arrow steps back along the ∞ to take the band's last end in (icon units) */
 const TAKE = 11
 
+/** a click on the arrow asks for a replay; `busy` while the arrow is moving (clicks are ignored then) */
+type Play = { request: boolean; busy: boolean }
+
 /** what the arrow needs to draw the glass band: the shader's uniforms, the mesh and the band's path */
 type BandDraw = {
   uniforms: Record<string, THREE.IUniform>
@@ -149,15 +152,15 @@ function drawable(material: THREE.Material, uniforms: Record<string, THREE.IUnif
  * middle of the ∞; it glides into its slot and rides the ∞ — always pointing the way it draws — and the
  * band comes out behind it, until it's back in its slot with the logo complete. Then the band's first end
  * gathers and runs round the ∞ into the arrow, the arrow draws it once more, and the logo stays. A click
- * on the arrow (`replay`) plays the take-back-and-draw once again.
+ * on the arrow (`play`) plays the take-back-and-draw once again.
  */
 function LoopArrow({
   intro,
   mobile,
   draw,
   arrow: ref,
-  replay,
-}: Pick<Refs, 'intro'> & { mobile: boolean; draw: BandDraw; arrow: MutableRefObject<THREE.Mesh | null>; replay: MutableRefObject<boolean> }) {
+  play,
+}: Pick<Refs, 'intro'> & { mobile: boolean; draw: BandDraw; arrow: MutableRefObject<THREE.Mesh | null>; play: MutableRefObject<Play> }) {
   const geometry = useMemo(() => createArrowGeometry(), [])
   const path = useMemo(() => createFlightPath(), [])
   const start = useMemo(() => path.at(0), [path])
@@ -248,7 +251,8 @@ function LoopArrow({
     const m = ref.current
     if (!m) return
     if (still) {
-      replay.current = false
+      play.current.request = false
+      play.current.busy = true
       showBand(null, null)
       pose(m, 1, 0, 0)
       return
@@ -256,7 +260,7 @@ function LoopArrow({
     const now = state.clock.elapsedTime
     // nothing shows until the intro lands; then the arrow appears in the middle
     if (!started.current) {
-      replay.current = false
+      play.current.request = false
       showBand(null, -1)
       m.scale.setScalar(1e-3)
       if (intro.current < 0.75) return
@@ -264,8 +268,8 @@ function LoopArrow({
       run.current = { steps: INTRO, at: now }
     }
     // a click only counts once the logo is at rest
-    if (replay.current) {
-      replay.current = false
+    if (play.current.request) {
+      play.current.request = false
       if (!run.current) run.current = { steps: REPLAY, at: now }
     }
     // which step of the run is playing, and how far into it
@@ -279,6 +283,7 @@ function LoopArrow({
       t -= STEP[s]
     }
     if (!step) run.current = null
+    play.current.busy = !!step
     const L = path.length
     const bandLen = draw.path.length
     if (step === 'enter') {
@@ -369,9 +374,14 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
   const baseY = mobile ? 0.55 : 0
   const drag = useRef({ active: false, hover: false, ry: 0, rx: 0, vy: 0, vx: 0, lx: 0, ly: 0, lt: 0, lift: 0 })
   const arrow = useRef<THREE.Mesh>(null)
-  const replay = useRef(false)
-  /** over the arrow it plays the ∞; anywhere else on the glass it spins */
-  const label = (e: ThreeEvent<PointerEvent>) => (e.object === arrow.current ? 'Play' : 'Drag')
+  const play = useRef<Play>({ request: false, busy: true })
+  const shown = useRef<string | null>(null)
+  /** the cursor's label, sent only when it changes */
+  const cursor = (next: string | null) => {
+    if (next !== shown.current) setCursorLabel((shown.current = next))
+  }
+  /** over the resting arrow it plays the ∞; anywhere else on the glass it spins */
+  const label = (e: ThreeEvent<PointerEvent>) => cursor(e.object === arrow.current && !play.current.busy ? 'Play' : 'Drag')
 
   const onDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
@@ -382,7 +392,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
     d.lt = performance.now()
     d.vx = 0
     d.vy = 0
-    setCursorLabel('Spin')
+    cursor('Spin')
     document.documentElement.classList.add('is-grabbing')
     window.dispatchEvent(new Event('loop:grab'))
     const move = (ev: PointerEvent) => {
@@ -403,7 +413,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
       d.vy = clamp(d.vy, -22, 22)
       d.vx = clamp(d.vx, -10, 10)
       document.documentElement.classList.remove('is-grabbing')
-      setCursorLabel(d.hover ? 'Drag' : null)
+      cursor(d.hover ? 'Drag' : null)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
       window.removeEventListener('pointercancel', up)
@@ -453,18 +463,18 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
         onPointerDown={onDown}
         onPointerOver={(e) => {
           drag.current.hover = true
-          if (!drag.current.active) setCursorLabel(label(e))
+          if (!drag.current.active) label(e)
         }}
         onPointerMove={(e) => {
-          if (!drag.current.active) setCursorLabel(label(e))
+          if (!drag.current.active) label(e)
         }}
         onClick={(e) => {
           // a click (not a spin) on the arrow
-          if (e.object === arrow.current && e.delta < 6) replay.current = true
+          if (e.object === arrow.current && e.delta < 6) play.current.request = true
         }}
         onPointerOut={() => {
           drag.current.hover = false
-          if (!drag.current.active) setCursorLabel(null)
+          if (!drag.current.active) cursor(null)
         }}
       >
         <mesh ref={loopMesh} geometry={geometry}>
@@ -491,7 +501,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
             background={new THREE.Color(c.bg)}
           />
         </mesh>
-        <LoopArrow intro={intro} mobile={mobile} draw={draw} arrow={arrow} replay={replay} />
+        <LoopArrow intro={intro} mobile={mobile} draw={draw} arrow={arrow} play={play} />
       </group>
     </group>
   )

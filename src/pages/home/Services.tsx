@@ -78,7 +78,7 @@ export function Services() {
       <div className="v1-services__track">
         <div className="v1-services__intro">
           <h2 className="v1-services__h" data-reveal="lines">
-            Nine services. <br />
+            Ten services. <br />
             <span className="serif">One obsession:</span> <br />
             your story.
           </h2>

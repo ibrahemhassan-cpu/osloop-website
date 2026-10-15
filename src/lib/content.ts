@@ -73,6 +73,15 @@ export const services: Service[] = [
     images: [yt(videos.aiden), yt(videos.aiden, 'maxres2'), images.explainer, yt(videos.aiden, 'maxres3')],
   },
   {
+    // TODO(client): swap the illustrations for stills from your AI videos
+    id: 'ai-video',
+    title: 'AI Videos',
+    lead: 'Bold worlds, made in days.',
+    body: 'Generative AI directed by real storytellers — a clear script, one consistent look and every shot edited into a film that feels crafted.',
+    tags: ['Generative video', 'AI imagery', 'Edit & sound'],
+    images: ['/services/ai-video.svg', '/services/ai-video-2.svg'],
+  },
+  {
     id: 'motion',
     title: 'Motion Graphics',
     lead: 'Information that moves.',
@@ -293,7 +302,7 @@ export type Project = {
   reviews: Review[]
 }
 
-/** `by` is who said it (name, role, company); without it the card just reads "Client review" */
+/** `by` is who said it (e.g. "Name — Role, Company"); without it the card just reads "Client review" */
 export type Review = { quote: string; by?: string }
 
 /** TODO(client): the real review for each project — until then, one of the site's own reviews stands in */

@@ -228,7 +228,7 @@ function ProjectPage({ project: p }: { project: Project }) {
                     ★★★★★
                   </div>
                   <blockquote>“{r.quote}”</blockquote>
-                  <figcaption className="mono">{r.by ?? `Client review — ${p.name}`}</figcaption>
+                  <figcaption className="mono">{r.by ?? 'Client review'}</figcaption>
                 </figure>
               ))}
             </div>
