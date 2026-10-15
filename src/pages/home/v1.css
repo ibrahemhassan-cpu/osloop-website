@@ -568,38 +568,27 @@ html.is-grabbing * {
   border-radius: 24px;
   backface-visibility: hidden;
   transform: rotateY(var(--a)) translateZ(var(--r));
+  /* the stage's icon, drawn big, is the card background; the original blue wash sits on top and
+     deepens towards the copy so the text always reads */
   background-color: #0a1438;
   background-image: linear-gradient(
-    165deg,
-    rgba(44, 91, 255, calc(0.12 + var(--glow) * 0.26)),
-    rgba(10, 20, 56, calc(0.6 - var(--glow) * 0.22)) 42%,
-    rgba(10, 20, 56, 0.94) 78%
-  );
+      165deg,
+      rgba(44, 91, 255, calc(0.06 + var(--glow) * 0.26)),
+      rgba(10, 20, 56, calc(0.5 - var(--glow) * 0.22)) 42%,
+      rgba(10, 20, 56, 0.94) 78%
+    ),
+    var(--bg);
+  background-size: 100% 100%, cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid rgba(157, 183, 255, calc(0.15 + var(--glow) * 0.5));
   box-shadow: 0 30px 80px -30px rgba(44, 91, 255, calc(var(--glow) * 0.9));
 }
 .v1-ring__top {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-/* the stage's icon, big, on a glass tile that lights up as the card comes to the front */
-.v1-ring__icon {
-  width: var(--icon, 100px);
-  aspect-ratio: 1;
-  flex: none;
-  display: grid;
-  place-items: center;
-  border-radius: 28%;
-  background: radial-gradient(120% 120% at 30% 20%, rgba(44, 91, 255, calc(0.35 + var(--glow) * 0.4)), rgba(10, 20, 56, 0.2) 70%);
-  border: 1px solid rgba(157, 183, 255, calc(0.2 + var(--glow) * 0.45));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 18px 50px -18px rgba(44, 91, 255, calc(0.3 + var(--glow) * 0.7));
-}
-.v1-ring__icon svg {
-  width: 58%;
-  height: 58%;
-  filter: drop-shadow(0 0 calc(var(--glow) * 10px) rgba(157, 183, 255, 0.7));
+  justify-content: flex-end;
+  align-items: center;
+  color: var(--sky);
 }
 .v1-ring__n {
   font-size: 120px;
@@ -1037,7 +1026,6 @@ html.is-grabbing * {
     height: var(--ch);
   }
   .v1-ring__card {
-    --icon: calc(var(--ch) * 0.27);
     padding: calc(var(--ch) * 0.065);
     border-radius: calc(var(--ch) * 0.06);
   }
@@ -1130,7 +1118,6 @@ html.is-grabbing * {
     font-size: 80px;
   }
   .v1-ring__card {
-    --icon: 84px;
     padding: 20px;
   }
   .v1-ring__card h3 {
