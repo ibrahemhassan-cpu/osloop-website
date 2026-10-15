@@ -1,10 +1,28 @@
 import { useRef } from 'react'
-import { gsap, useGSAP } from '../../lib/gsap'
+import { gsap, useGSAP, type ScrollTrigger } from '../../lib/gsap'
+import { useSmoothScroll } from '../../providers/SmoothScroll'
 import { services } from '../../lib/content'
 import { ImageLoop } from '../../components/ImageLoop'
 
 export function Services() {
   const root = useRef<HTMLElement>(null)
+  const pin = useRef<ScrollTrigger | null>(null)
+  const { scrollTo } = useSmoothScroll()
+
+  /** straight down to the next section — the cards don't slide past on the way */
+  const skip = () => {
+    const track = root.current!.querySelector('.v1-services__track')
+    gsap.to(track, {
+      autoAlpha: 0,
+      duration: 0.35,
+      ease: 'power2.in',
+      onComplete: () => {
+        scrollTo('#work', { immediate: true })
+        pin.current?.getTween()?.progress(1)
+        gsap.set(track, { autoAlpha: 1, delay: 0.1 })
+      },
+    })
+  }
 
   useGSAP(
     () => {
@@ -27,6 +45,7 @@ export function Services() {
             },
           },
         })
+        pin.current = move.scrollTrigger ?? null
         gsap.utils.toArray<HTMLElement>('.v1-svc', root.current).forEach((panel) => {
           const media = panel.querySelector('.v1-svc__loop .iloop__track')
           const title = panel.querySelector('.v1-svc__title')
@@ -96,6 +115,11 @@ export function Services() {
       <div className="v1-services__bar" aria-hidden>
         <div className="v1-services__bar-fill" />
       </div>
+      <button type="button" className="v1-services__skip" onClick={skip} aria-label="Skip to the next section" data-cursor="Next section">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M12 5v14M6 13l6 6 6-6" />
+        </svg>
+      </button>
     </section>
   )
 }

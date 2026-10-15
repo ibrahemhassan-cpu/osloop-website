@@ -139,15 +139,14 @@ export const services: Service[] = [
 ]
 
 /* ------------------------------------------------------------------ Process */
-// TODO(client): swap the illustrated backgrounds in public/process/ for real artwork if you have it.
 export const pipeline = [
-  { n: '01', title: 'Script Writing', body: 'We learn your industry, then write every line to earn its place.', bg: '/process/script.svg' },
-  { n: '02', title: 'Storyboard', body: 'Each scene sketched, timed and approved before a single frame moves.', bg: '/process/storyboard.svg' },
-  { n: '03', title: 'Illustrations', body: 'Characters, worlds and assets designed in your brand’s own language.', bg: '/process/illustration.svg' },
-  { n: '04', title: 'Voice Over', body: 'Native, professional voices that give the story its soul.', bg: '/process/voice.svg' },
-  { n: '05', title: 'Animation', body: '2D, 3D, whiteboard or hand-drawn — crafted frame by frame.', bg: '/process/animation.svg' },
-  { n: '06', title: 'VFX & SFX', body: 'Effects, compositing and sound design that make every beat land.', bg: '/process/vfx-sfx.svg' },
-  { n: '07', title: 'Final Result', body: 'A polished master, delivered in every format you need.', bg: '/process/final.svg' },
+  { n: '01', title: 'Script Writing', body: 'We learn your industry, then write every line to earn its place.' },
+  { n: '02', title: 'Storyboard', body: 'Each scene sketched, timed and approved before a single frame moves.' },
+  { n: '03', title: 'Illustrations', body: 'Characters, worlds and assets designed in your brand’s own language.' },
+  { n: '04', title: 'Voice Over', body: 'Native, professional voices that give the story its soul.' },
+  { n: '05', title: 'Animation', body: '2D, 3D, whiteboard or hand-drawn — crafted frame by frame.' },
+  { n: '06', title: 'VFX & SFX', body: 'Effects, compositing and sound design that make every beat land.' },
+  { n: '07', title: 'Final Result', body: 'A polished master, delivered in every format you need.' },
 ]
 
 export const marqueeA = ['Script Writing', 'Storyboard', 'Illustrations', 'Voice Over', 'Animation', 'VFX', 'SFX']
@@ -290,7 +289,15 @@ export type Project = {
   journey: { stage: string; text: string }[]
   /** Where it ended — the result */
   end: string
+  /** What the client said — the last chapter of the story */
+  reviews: Review[]
 }
+
+/** `by` is who said it (name, role, company); without it the card just reads "Client review" */
+export type Review = { quote: string; by?: string }
+
+/** TODO(client): the real review for each project — until then, one of the site's own reviews stands in */
+const review = (i: number): Review[] => [{ quote: testimonials[i].quote }]
 
 /*
  * TODO(client): titles, categories, years and links are real; the story copy is a first
@@ -321,6 +328,7 @@ export const projects: Project[] = [
       { stage: 'Sound & delivery', text: 'Voice-over, music and sound design were layered in, and the film was delivered in full HD.' },
     ],
     end: 'A full 3D film that makes a service feel tangible — architecture, people and product in one seamless, cinematic story.',
+    reviews: review(0),
   },
   {
     slug: 'aiden',
@@ -346,6 +354,7 @@ export const projects: Project[] = [
       { stage: 'Sound & delivery', text: 'Music and sound design added the final polish before delivery.' },
     ],
     end: 'A friendly, clear explainer that gives an AI product a face — and makes it easy to understand.',
+    reviews: review(1),
   },
   {
     slug: 'headtech',
@@ -370,6 +379,7 @@ export const projects: Project[] = [
       { stage: 'Sound & delivery', text: 'A driving soundtrack and sound design gave every transition its punch.' },
     ],
     end: 'A sharp, energetic product explainer that turns complex technology into clear benefits.',
+    reviews: review(4),
   },
   {
     slug: 'mark-before-after',
@@ -394,6 +404,7 @@ export const projects: Project[] = [
       { stage: 'Before & after', text: 'The final edit shows the original and the result side by side.' },
     ],
     end: 'The same footage, transformed — a before & after that shows exactly what careful VFX and grading can do.',
+    reviews: review(2),
   },
   {
     slug: 'river-city-recovery',
@@ -441,6 +452,7 @@ export const projects: Project[] = [
       { stage: 'Applications', text: 'Signage, stationery, merchandise, web and mobile — every touchpoint designed and documented in the brand manual.' },
     ],
     end: 'A complete identity system and brand manual — logo, color, type, imagery, iconography, voice and applications — ready for every sign, screen and document. Second chances start here.',
+    reviews: review(5),
   },
   {
     slug: 'arvamethod',
@@ -464,5 +476,31 @@ export const projects: Project[] = [
       { stage: 'Motion & polish', text: 'Subtle motion and details made each experience feel alive.' },
     ],
     end: 'Two complete, live website directions — so the decision could be made by experiencing them, not imagining them.',
+    reviews: review(3),
+  },
+  {
+    // TODO(client): placeholder — swap in the real AI video's title, still, link and story
+    slug: 'ai-video',
+    title: 'AI Video — Generative Brand Film',
+    name: 'AI Video',
+    category: 'AI Video Production',
+    group: 'Animation',
+    year: '2025',
+    services: ['Concept & script', 'AI image & video generation', 'Editing', 'Sound design'],
+    deliverable: 'AI-generated brand film',
+    cover: null,
+    gallery: [],
+    accent: '#8b5cff',
+    link: { kind: 'youtube', id: reel.youtubeId, label: 'Watch the film' },
+    summary: 'A brand film made with generative AI — worlds and shots that would take weeks to build, directed and edited into one clear story.',
+    start: 'The brief called for a striking, cinematic film on a short timeline. Generative AI let us explore bold visual worlds fast — while the story stayed in human hands.',
+    journey: [
+      { stage: 'Concept & script', text: 'We wrote the story first and planned every shot, so the AI served the message — not the other way round.' },
+      { stage: 'Look development', text: 'A consistent visual style was defined and tested until every generated frame felt like the same film.' },
+      { stage: 'Generation', text: 'Shots were generated, refined and regenerated, keeping characters, light and colour consistent.' },
+      { stage: 'Edit & sound', text: 'The best takes were cut together with music, voice-over and sound design, then graded and delivered.' },
+    ],
+    end: 'A cinematic AI film delivered in a fraction of the usual time — fresh visuals, one consistent look and a story that stays clear.',
+    reviews: review(1),
   },
 ]

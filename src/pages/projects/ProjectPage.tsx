@@ -70,7 +70,7 @@ function ProjectPage({ project: p }: { project: Project }) {
         },
       })
 
-      // Journey timeline: the line draws itself, each stage lights up in turn.
+      // Journey timeline: the line draws itself, and every stage it reaches lights up and stays lit.
       gsap.fromTo(
         '.journey__fill',
         { scaleY: 0 },
@@ -81,8 +81,16 @@ function ProjectPage({ project: p }: { project: Project }) {
           trigger: el,
           start: 'top 62%',
           end: 'bottom 62%',
-          toggleClass: 'is-on',
-          onToggle: (self) => self.isActive && setStage(i),
+          onEnter: () => {
+            el.classList.add('is-on')
+            setStage(i)
+          },
+          onEnterBack: () => setStage(i),
+          // scrolling back above a stage is the only thing that turns it off again
+          onLeaveBack: () => {
+            el.classList.remove('is-on')
+            setStage(Math.max(0, i - 1))
+          },
         })
       })
     },
@@ -205,6 +213,27 @@ function ProjectPage({ project: p }: { project: Project }) {
             </div>
           </div>
         </section>
+
+        {p.reviews.length > 0 && (
+          <section className="case__chapter case__chapter--reviews" data-header-theme="auto">
+            <div className="case__chapter-head">
+              <h2 data-reveal="lines">
+                What the client <span className="serif">said.</span>
+              </h2>
+            </div>
+            <div className="case__reviews">
+              {p.reviews.map((r) => (
+                <figure className="case__quote" data-reveal="scale" key={r.quote}>
+                  <div className="case__stars" aria-label="Five stars">
+                    ★★★★★
+                  </div>
+                  <blockquote>“{r.quote}”</blockquote>
+                  <figcaption className="mono">{r.by ?? `Client review — ${p.name}`}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="case__next" data-header-theme="dark" data-theme="dark">
           <TransitionLink to={`/projects/${next.slug}`} label={next.name} className="nextp" data-cursor="Next story">

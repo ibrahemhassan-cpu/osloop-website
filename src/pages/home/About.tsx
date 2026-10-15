@@ -106,7 +106,6 @@ export function About() {
         </div>
         <div className="v1-about__ctas" data-reveal="fade" data-delay="0.15">
           <Button label="See our work" variant="light" onClick={() => navTo('#work')} />
-          <Button label="Meet the team" variant="ghost" onClick={() => navTo('#team')} />
         </div>
       </div>
     </section>

@@ -6,6 +6,5 @@ export const NAV: NavLink[] = [
   { label: 'Services', target: '#services' },
   { label: 'Work', target: '#work' },
   { label: 'Process', target: '#process' },
-  { label: 'Team', target: '#team' },
   { label: 'Reviews', target: '#testimonials' },
 ]
