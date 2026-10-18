@@ -91,7 +91,7 @@ export function Team() {
             The people behind <span className="serif">the loop.</span>
           </h2>
           <p className="team__p" data-reveal="fade">
-            Writers, artists, animators and sound designers — one crew, from the first word to the final frame.
+            Writers, artists, animators and sound designers. One crew, from the first word to the final frame.
           </p>
         </div>
 

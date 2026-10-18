@@ -66,7 +66,7 @@ export function Footer({ links }: { links: NavLink[] }) {
         <div className="ftr__grid">
           <div className="ftr__col ftr__col--lead">
             <p className="ftr__lead">
-              Animation & video production studio crafting explainer videos, 3D productions and animated websites —
+              Animation & video production studio crafting explainer videos, 3D productions and animated websites
               <span className="serif"> for brands with a story.</span>
             </p>
             <Magnetic strength={0.2}>

@@ -10,6 +10,7 @@ import { useAutoReveal } from '../../lib/useAutoReveal'
 import { useNavTo } from '../../lib/useNavTo'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../lib/gsap'
 import { projects, type Project } from '../../lib/content'
+import { Testimonials } from '../home/Testimonials'
 import { NAV } from '../../lib/nav'
 import './projects.css'
 
@@ -70,7 +71,7 @@ function ProjectPage({ project: p }: { project: Project }) {
         },
       })
 
-      // Journey timeline: the line draws itself, each stage lights up in turn.
+      // Journey timeline: the line draws itself, and every stage it reaches lights up and stays lit.
       gsap.fromTo(
         '.journey__fill',
         { scaleY: 0 },
@@ -81,8 +82,16 @@ function ProjectPage({ project: p }: { project: Project }) {
           trigger: el,
           start: 'top 62%',
           end: 'bottom 62%',
-          toggleClass: 'is-on',
-          onToggle: (self) => self.isActive && setStage(i),
+          onEnter: () => {
+            el.classList.add('is-on')
+            setStage(i)
+          },
+          onEnterBack: () => setStage(i),
+          // scrolling back above a stage is the only thing that turns it off again
+          onLeaveBack: () => {
+            el.classList.remove('is-on')
+            setStage(Math.max(0, i - 1))
+          },
         })
       })
     },
@@ -205,6 +214,20 @@ function ProjectPage({ project: p }: { project: Project }) {
             </div>
           </div>
         </section>
+
+        {/* what the client said: the same reviews section as the home page */}
+        {p.reviews.length > 0 && (
+          <Testimonials
+            id="client-review"
+            list={false}
+            items={p.reviews.map((r) => ({ quote: r.quote, project: p.name }))}
+            title={
+              <>
+                What the client <span className="serif">said.</span>
+              </>
+            }
+          />
+        )}
 
         <section className="case__next" data-header-theme="dark" data-theme="dark">
           <TransitionLink to={`/projects/${next.slug}`} label={next.name} className="nextp" data-cursor="Next story">

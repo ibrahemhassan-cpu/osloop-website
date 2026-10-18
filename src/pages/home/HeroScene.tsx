@@ -39,14 +39,21 @@ const TAU = Math.PI * 2
 const clamp = THREE.MathUtils.clamp
 const smoothstep = THREE.MathUtils.smoothstep
 const smootherstep = (x: number) => x * x * x * (x * (x * 6 - 15) + 10)
+const backOut = (x: number) => 1 + 2.70158 * (x - 1) ** 3 + 1.70158 * (x - 1) ** 2
 
 /* ------------------------------------------------------------------ the arrow draws the ∞ */
 
+const ENTER = 1.6 // the arrow appears in the middle of the ∞ and glides into its slot
 const DRAW = 3 // the arrow rides the ∞ and the glass band comes out behind it
-const HOLD = 2.4 // the whole logo
+const HOLD = 1.8 // the whole logo
 const ABSORB = 3.2 // the band's first end gathers and runs round the ∞ into the arrow
 const EMPTY = 0.4 // just the arrow, in its slot
-const CYCLE = DRAW + HOLD + ABSORB + EMPTY
+type Step = 'enter' | 'draw' | 'hold' | 'absorb' | 'empty'
+const STEP: Record<Step, number> = { enter: ENTER, draw: DRAW, hold: HOLD, absorb: ABSORB, empty: EMPTY }
+/** on load: from the middle, draw the ∞, take it back in, draw it again — then the logo stays */
+const INTRO: Step[] = ['enter', 'draw', 'hold', 'absorb', 'empty', 'draw']
+/** a click on the arrow: take the ∞ back in and draw it again, once */
+const REPLAY: Step[] = ['absorb', 'empty', 'draw']
 const HEADINGS = 720
 /** the band ends this far behind the arrow's centre, its rounded head hidden inside the arrow (icon units) */
 const LAG = 16
@@ -56,6 +63,9 @@ const NOSE = BAND_SECTION.width * 0.9
 const RIDE_Z = 4
 /** while it absorbs the band, the arrow steps back along the ∞ to take the band's last end in (icon units) */
 const TAKE = 11
+
+/** a click on the arrow asks for a replay; `busy` while the arrow is moving (clicks are ignored then) */
+type Play = { request: boolean; busy: boolean }
 
 /** what the arrow needs to draw the glass band: the shader's uniforms, the mesh and the band's path */
 type BandDraw = {
@@ -138,17 +148,25 @@ function drawable(material: THREE.Material, uniforms: Record<string, THREE.IUnif
 }
 
 /**
- * The orange play arrow of the logo, and the glass ∞ it draws. The hero opens on the arrow alone; it
- * rides the ∞ — always pointing the way it draws — and the band comes out behind it, until it's back in
- * its slot with the logo complete. Then the band's first end gathers and runs round the ∞ into the
- * arrow, and it all starts again.
+ * The orange play arrow of the logo, and the glass ∞ it draws. The hero opens on the arrow alone, in the
+ * middle of the ∞; it glides into its slot and rides the ∞ — always pointing the way it draws — and the
+ * band comes out behind it, until it's back in its slot with the logo complete. Then the band's first end
+ * gathers and runs round the ∞ into the arrow, the arrow draws it once more, and the logo stays. A click
+ * on the arrow (`play`) plays the take-back-and-draw once again.
  */
-function LoopArrow({ intro, mobile, draw }: Pick<Refs, 'intro'> & { mobile: boolean; draw: BandDraw }) {
-  const ref = useRef<THREE.Mesh>(null)
+function LoopArrow({
+  intro,
+  mobile,
+  draw,
+  arrow: ref,
+  play,
+}: Pick<Refs, 'intro'> & { mobile: boolean; draw: BandDraw; arrow: MutableRefObject<THREE.Mesh | null>; play: MutableRefObject<Play> }) {
   const geometry = useMemo(() => createArrowGeometry(), [])
   const path = useMemo(() => createFlightPath(), [])
   const start = useMemo(() => path.at(0), [path])
   const home = useMemo(() => toScene(ARROW_HOME.x, ARROW_HOME.y, 0), [])
+  // the crossing of the ∞, where the arrow first appears
+  const middle = useMemo(() => toScene(0, 0, RIDE_Z), [])
   const frame = useMemo(() => ({ P: new THREE.Vector3(), T: new THREE.Vector3(), N: new THREE.Vector3(), B: new THREE.Vector3() }), [])
   // heading along the path, unwrapped — the ∞ turns both ways, so it ends where it began
   const headings = useMemo(() => {
@@ -167,7 +185,9 @@ function LoopArrow({ intro, mobile, draw }: Pick<Refs, 'intro'> & { mobile: bool
     }
     return out
   }, [path])
-  const clock = useRef(-1)
+  /** the steps being played and when they started (null = at rest, the logo complete) */
+  const run = useRef<{ steps: Step[]; at: number } | null>(null)
+  const started = useRef(false)
   const still = useMemo(() => prefersReducedMotion(), [])
   const p = useMemo(() => new THREE.Vector3(), [])
 
@@ -219,49 +239,83 @@ function LoopArrow({ intro, mobile, draw }: Pick<Refs, 'intro'> & { mobile: bool
     m.scale.setScalar(1 + (mobile ? 0.02 : 0.06) * w)
   }
 
+  /** the arrow appears in the middle of the ∞ (x = 0) and glides into its slot (x = 1) */
+  const enter = (m: THREE.Mesh, x: number) => {
+    const k = smootherstep(clamp((x - 0.3) / 0.7, 0, 1))
+    m.position.lerpVectors(middle, home, k)
+    m.rotation.set(0.25 * Math.sin(Math.PI * k), 0, -0.9 * (1 - k))
+    m.scale.setScalar(Math.max(1e-3, backOut(clamp(x / 0.35, 0, 1))) * (1 + 0.2 * (1 - k)))
+  }
+
   useFrame((state) => {
     const m = ref.current
     if (!m) return
     if (still) {
+      play.current.request = false
+      play.current.busy = true
       showBand(null, null)
       pose(m, 1, 0, 0)
       return
     }
-    // it opens on the arrow alone; the cycle starts as the intro lands
-    if (clock.current < 0) {
+    const now = state.clock.elapsedTime
+    // nothing shows until the intro lands; then the arrow appears in the middle
+    if (!started.current) {
+      play.current.request = false
       showBand(null, -1)
-      if (intro.current < 0.75) return pose(m, 1, 0, 0)
-      clock.current = state.clock.elapsedTime
+      m.scale.setScalar(1e-3)
+      if (intro.current < 0.75) return
+      started.current = true
+      run.current = { steps: INTRO, at: now }
     }
-    const t = (state.clock.elapsedTime - clock.current) % CYCLE
+    // a click only counts once the logo is at rest
+    if (play.current.request) {
+      play.current.request = false
+      if (!run.current) run.current = { steps: REPLAY, at: now }
+    }
+    // which step of the run is playing, and how far into it
+    let step: Step | null = null
+    let t = run.current ? now - run.current.at : 0
+    for (const s of run.current?.steps ?? []) {
+      if (t < STEP[s]) {
+        step = s
+        break
+      }
+      t -= STEP[s]
+    }
+    if (!step) run.current = null
+    play.current.busy = !!step
     const L = path.length
     const bandLen = draw.path.length
-    if (t < DRAW) {
+    if (step === 'enter') {
+      showBand(null, -1)
+      enter(m, t / ENTER)
+    } else if (step === 'draw') {
       // the arrow rides the ∞ and the band comes out behind it
       const x = t / DRAW
       const u = smootherstep(x)
       showBand(null, (u * L - BAND_FLIGHT_OFFSET - LAG) / bandLen)
       pose(m, u, smoothstep(x, 0, 0.12) * smoothstep(1 - x, 0, 0.12), 0.15 * Math.sin(Math.PI * x))
-    } else if (t < DRAW + HOLD) {
-      showBand(null, null)
-      pose(m, 1, 0, 0)
-    } else if (t < DRAW + HOLD + ABSORB) {
+    } else if (step === 'absorb') {
       // the first end rounds off, then runs round the ∞ into the arrow, which steps back to take it
-      const x = (t - DRAW - HOLD) / ABSORB
+      const x = t / ABSORB
       const { start: s0, end: s1 } = draw.band
       const round = smoothstep(x, 0, 0.14)
       const k = smootherstep(THREE.MathUtils.clamp((x - 0.08) / 0.78, 0, 1))
       showBand(s0 + (s1 + 0.004 - s0) * k, null, round)
       const back = smoothstep(x, 0, 0.16) * (1 - smoothstep(x, 0.84, 1))
       pose(m, 1 - (TAKE * back) / L, back, 0)
-    } else {
+    } else if (step === 'empty') {
       showBand(null, -1)
+      pose(m, 1, 0, 0)
+    } else {
+      // 'hold', and at rest: the whole logo
+      showBand(null, null)
       pose(m, 1, 0, 0)
     }
   })
 
   return (
-    <mesh ref={ref} geometry={geometry} position={home}>
+    <mesh ref={ref} geometry={geometry} position={home} scale={0.001}>
       {/* not tone-mapped, so it stays the logo's own orange (#FFAE23) */}
       <meshPhysicalMaterial
         color="#ffae23"
@@ -319,6 +373,15 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
   const fit = mobile ? (viewport.width / 5.6) * 0.8 : Math.min(1, viewport.width / 7.2) * 0.8
   const baseY = mobile ? 0.55 : 0
   const drag = useRef({ active: false, hover: false, ry: 0, rx: 0, vy: 0, vx: 0, lx: 0, ly: 0, lt: 0, lift: 0 })
+  const arrow = useRef<THREE.Mesh>(null)
+  const play = useRef<Play>({ request: false, busy: true })
+  const shown = useRef<string | null>(null)
+  /** the cursor's label, sent only when it changes */
+  const cursor = (next: string | null) => {
+    if (next !== shown.current) setCursorLabel((shown.current = next))
+  }
+  /** over the resting arrow it plays the ∞; anywhere else on the glass it spins */
+  const label = (e: ThreeEvent<PointerEvent>) => cursor(e.object === arrow.current && !play.current.busy ? 'Play' : 'Drag')
 
   const onDown = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation()
@@ -329,7 +392,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
     d.lt = performance.now()
     d.vx = 0
     d.vy = 0
-    setCursorLabel('Spin')
+    cursor('Spin')
     document.documentElement.classList.add('is-grabbing')
     window.dispatchEvent(new Event('loop:grab'))
     const move = (ev: PointerEvent) => {
@@ -350,7 +413,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
       d.vy = clamp(d.vy, -22, 22)
       d.vx = clamp(d.vx, -10, 10)
       document.documentElement.classList.remove('is-grabbing')
-      setCursorLabel(d.hover ? 'Drag' : null)
+      cursor(d.hover ? 'Drag' : null)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
       window.removeEventListener('pointercancel', up)
@@ -398,13 +461,20 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
       <group
         ref={spin}
         onPointerDown={onDown}
-        onPointerOver={() => {
+        onPointerOver={(e) => {
           drag.current.hover = true
-          if (!drag.current.active) setCursorLabel('Drag')
+          if (!drag.current.active) label(e)
+        }}
+        onPointerMove={(e) => {
+          if (!drag.current.active) label(e)
+        }}
+        onClick={(e) => {
+          // a click (not a spin) on the arrow
+          if (e.object === arrow.current && e.delta < 6) play.current.request = true
         }}
         onPointerOut={() => {
           drag.current.hover = false
-          if (!drag.current.active) setCursorLabel(null)
+          if (!drag.current.active) cursor(null)
         }}
       >
         <mesh ref={loopMesh} geometry={geometry}>
@@ -431,7 +501,7 @@ function GlassLoop({ progress, intro, mobile, theme }: Refs & { mobile: boolean;
             background={new THREE.Color(c.bg)}
           />
         </mesh>
-        <LoopArrow intro={intro} mobile={mobile} draw={draw} />
+        <LoopArrow intro={intro} mobile={mobile} draw={draw} arrow={arrow} play={play} />
       </group>
     </group>
   )

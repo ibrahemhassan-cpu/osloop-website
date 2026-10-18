@@ -4,16 +4,43 @@ import { pipeline } from '../../lib/content'
 
 const STEP = 360 / pipeline.length
 
+/** each stage's icon (24 × 24, stroked): script, storyboard, illustrations, voice over, animation, vfx & sfx, final result */
 const icons = [
-  // script, storyboard, illustrations, voice over, animation, vfx & sfx, final result
-  <path key="0" d="M6 3h9l4 4v14H6zM9 10h7M9 14h7M9 18h4" />,
-  <path key="1" d="M3 5h8v6H3zM13 5h8v6h-8zM3 13h8v6H3zM13 13h8v6h-8z" />,
-  <path key="2" d="M4 20l4-1L19 8l-3-3L5 16zM14 7l3 3" />,
-  <path key="3" d="M12 3a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3zM5 11a7 7 0 0 0 14 0M12 18v3" />,
-  <path key="4" d="M4 12c3-6 5-6 8 0s5 6 8 0" />,
-  <path key="5" d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z" />,
-  <path key="6" d="M3 5h18v12H3zM8 21h8M12 17v4M10 8.5v5l4.5-2.5z" />,
+  '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
+  '<rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/><path d="M6.2 6.2v2.6l2.2-1.3z"/>',
+  '<path d="M12 3a9 9 0 0 0 0 18c1 0 1.6-.7 1.6-1.6 0-.4-.2-.8-.4-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="9.8" cy="6.8" r="1.2"/><circle cx="14.6" cy="6.8" r="1.2"/>',
+  '<rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M8.5 21h7"/>',
+  '<circle cx="14.5" cy="12" r="6.5"/><path d="M13 9.5v5l4-2.5zM2 9h4M3 12h3M2 15h4"/>',
+  '<path d="M9 3l1.6 4.4L15 9l-4.4 1.6L9 15l-1.6-4.4L3 9l4.4-1.6z"/><path d="M16 15v4M19 12.5v9M22 16v2"/>',
+  '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M9 10l2 2 4-4"/>',
 ]
+
+/**
+ * A card's background art (600 × 780, the card's own shape): the blue grid the old illustrations had,
+ * with the stage's icon in the top-right corner (beside the number, never over it), drawn in a white →
+ * sky → orange line on a glass disc with a soft blue glow.
+ */
+const art = (icon: string) =>
+  `url("data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 780">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16285f"/><stop offset="1" stop-color="#050b24"/></linearGradient>
+        <radialGradient id="glow"><stop offset="0" stop-color="#2c5bff" stop-opacity=".6"/><stop offset="1" stop-color="#2c5bff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="disc" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#2c5bff" stop-opacity=".45"/><stop offset="1" stop-color="#0a1438" stop-opacity=".35"/></radialGradient>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#9db7ff" stroke-opacity=".07"/></pattern>
+        <linearGradient id="ink" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#9db7ff"/><stop offset="1" stop-color="#ffb547"/></linearGradient>
+        <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".8"/></filter>
+      </defs>
+      <rect width="600" height="780" fill="url(#bg)"/>
+      <rect width="600" height="780" fill="url(#grid)"/>
+      <circle cx="438" cy="162" r="230" fill="url(#glow)"/>
+      <circle cx="438" cy="162" r="108" fill="url(#disc)" stroke="#9db7ff" stroke-opacity=".3" stroke-width="2"/>
+      <g transform="translate(372 96) scale(5.5)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <g stroke="#2c5bff" stroke-width="2.4" opacity=".8" filter="url(#soft)">${icon}</g>
+        <g stroke="url(#ink)" stroke-width="1.1">${icon}</g>
+      </g>
+    </svg>`,
+  )}")`
 
 export function Process() {
   const root = useRef<HTMLElement>(null)
@@ -86,13 +113,10 @@ export function Process() {
               <article
                 className="v1-ring__card"
                 key={s.title}
-                style={{ '--a': `${i * STEP}deg`, '--bg': `url(${s.bg})` } as CSSProperties}
+                style={{ '--a': `${i * STEP}deg`, '--bg': art(icons[i]) } as CSSProperties}
               >
-                <div className="v1-ring__top">
-                  <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                    {icons[i]}
-                  </svg>
-                </div>
+                {/* the icon is part of the background art; this keeps the number where it always was */}
+                <div className="v1-ring__top" aria-hidden />
                 <div className="v1-ring__n">{s.n}</div>
                 <div>
                   <h3>{s.title}</h3>

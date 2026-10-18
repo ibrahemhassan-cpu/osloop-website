@@ -116,7 +116,7 @@ export function Hero() {
               </div>
             </div>
             <p className="v1-hero__lede">
-              Prioritizing client collaboration and satisfaction — strong partnerships, tailored services, and animation
+              Prioritizing client collaboration and satisfaction: strong partnerships, tailored services, and animation
               that makes people feel something.
             </p>
             <div className="v1-hero__ctas">

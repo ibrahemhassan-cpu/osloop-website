@@ -30,3 +30,7 @@
 .curtain__label {
   color: var(--muted-dark);
 }
+/* no line under the logo → the logo stays centred */
+.curtain__label:empty {
+  display: none;
+}

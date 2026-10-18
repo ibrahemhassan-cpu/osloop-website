@@ -37,7 +37,7 @@ export function Work() {
           Selected <span className="serif">work.</span>
         </h2>
         <p className="work__p" data-reveal="fade">
-          A few of the stories we’ve helped tell — open any project to see where it started, how it was made and where it
+          A few of the stories we’ve helped tell. Open any project to see where it started, how it was made and where it
           ended.
         </p>
       </div>
@@ -59,7 +59,7 @@ export function Work() {
               {/* the official title, split so every row keeps the one-line rhythm of the list */}
               <span className="work__title">
                 {p.name}
-                <span className="work__sub">{p.title.split(' — ')[1]}</span>
+                <span className="work__sub">{p.title.split(': ')[1]}</span>
               </span>
               <span className="work__cat mono">{p.category}</span>
               <span className="work__go">

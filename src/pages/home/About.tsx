@@ -82,7 +82,7 @@ export function About() {
   return (
     <section className="v1-about" id="about" ref={root} data-header-theme="auto">
       <p className="v1-about__statement">
-        We are OsLoop — an animation & video production studio. We turn complex ideas into stories people actually feel —{' '}
+        We are OsLoop, an animation & video production studio. We turn complex ideas into stories people actually feel,{' '}
         <span className="serif">frame by frame,</span> loop after loop.
       </p>
 
@@ -90,7 +90,7 @@ export function About() {
         <div className="v1-about__info" data-reveal="fade">
           <p className="v1-about__text">
             From our studio in Alexandria, Egypt, we script, design, animate and sound-design videos for brands in every
-            industry — and we learn your world before we tell your story.
+            industry, and we learn your world before we tell your story.
           </p>
           <ul className="v1-about__inds">
             {industries.map((x) => (
@@ -106,7 +106,6 @@ export function About() {
         </div>
         <div className="v1-about__ctas" data-reveal="fade" data-delay="0.15">
           <Button label="See our work" variant="light" onClick={() => navTo('#work')} />
-          <Button label="Meet the team" variant="ghost" onClick={() => navTo('#team')} />
         </div>
       </div>
     </section>

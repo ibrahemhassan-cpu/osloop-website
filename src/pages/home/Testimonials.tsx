@@ -1,12 +1,35 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../lib/gsap'
 import { testimonials } from '../../lib/content'
 import { Arrow, Magnetic } from '../../components/ui'
 
 const DURATION = 9
-const N = testimonials.length
 
-export function Testimonials() {
+type Review = { quote: string; project: string }
+
+/**
+ * Client reviews: a big quote that changes on its own while the section is on screen. The home page
+ * shows all of them with the list of projects beside; a project page passes its own reviews and no list
+ * (they're all the same project). With a single review, the arrows and timer go too.
+ */
+export function Testimonials({
+  items = testimonials,
+  title = (
+    <>
+      Echoes of <span className="serif">satisfaction.</span>
+    </>
+  ),
+  id = 'testimonials',
+  list = true,
+}: {
+  items?: Review[]
+  title?: ReactNode
+  id?: string
+  list?: boolean
+}) {
+  const N = items.length
+  const single = N === 1
+  const showList = list && !single
   const root = useRef<HTMLElement>(null)
   // `n` bumps on every change so the entrance replays even when landing back on the same review
   const [view, setView] = useState({ idx: 0, n: 0 })
@@ -55,6 +78,7 @@ export function Testimonials() {
         .from(split.lines, { yPercent: 110, duration: 1.1, stagger: 0.07, ease: 'silk' })
         .fromTo('.v1-testi__project', { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.8 }, 0.3)
       timer.current?.kill()
+      if (single) return () => split.revert()
       timer.current = gsap.fromTo(
         '.v1-testi__timer-fill',
         { scaleX: 0 },
@@ -100,13 +124,13 @@ export function Testimonials() {
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) show(idxRef.current + (dx < 0 ? 1 : -1))
   }
 
-  const t = testimonials[idx]
+  const t = items[idx]
 
   return (
-    <section className="v1-testi" id="testimonials" ref={root} data-header-theme="dark" data-theme="dark">
+    <section className={`v1-testi${showList ? '' : ' v1-testi--single'}${single ? ' v1-testi--one' : ''}`} id={id} ref={root} data-header-theme="dark" data-theme="dark">
       <div className="v1-testi__head">
         <h2 className="v1-testi__h" data-reveal="lines">
-          Echoes of <span className="serif">satisfaction.</span>
+          {title}
         </h2>
         <div className="v1-testi__rating" data-reveal="fade">
           <span className="v1-testi__stars" aria-label="5 out of 5 stars">
@@ -141,37 +165,41 @@ export function Testimonials() {
             <span className="mono">Project</span>
             <strong>{t.project}</strong>
           </div>
-          <div className="v1-testi__controls">
-            <span className="v1-testi__count mono">
-              {String(idx + 1).padStart(2, '0')} / {String(N).padStart(2, '0')}
-            </span>
-            <div className="v1-testi__timer" aria-hidden>
-              <div className="v1-testi__timer-fill" />
+          {!single && (
+            <div className="v1-testi__controls">
+              <span className="v1-testi__count mono">
+                {String(idx + 1).padStart(2, '0')} / {String(N).padStart(2, '0')}
+              </span>
+              <div className="v1-testi__timer" aria-hidden>
+                <div className="v1-testi__timer-fill" />
+              </div>
+              <Magnetic>
+                <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current - 1)} aria-label="Previous review">
+                  <Arrow rotate={180} />
+                </button>
+              </Magnetic>
+              <Magnetic>
+                <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current + 1)} aria-label="Next review">
+                  <Arrow />
+                </button>
+              </Magnetic>
             </div>
-            <Magnetic>
-              <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current - 1)} aria-label="Previous review">
-                <Arrow rotate={180} />
-              </button>
-            </Magnetic>
-            <Magnetic>
-              <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current + 1)} aria-label="Next review">
-                <Arrow />
-              </button>
-            </Magnetic>
-          </div>
+          )}
         </div>
       </div>
 
-      <ol className="v1-testi__list">
-        {testimonials.map((x, i) => (
-          <li key={x.project}>
-            <button type="button" className={i === idx ? 'is-on' : ''} onClick={() => show(i)} aria-current={i === idx}>
-              <span className="mono">{String(i + 1).padStart(2, '0')}</span>
-              {x.project}
-            </button>
-          </li>
-        ))}
-      </ol>
+      {showList && (
+        <ol className="v1-testi__list">
+          {items.map((x, i) => (
+            <li key={x.quote}>
+              <button type="button" className={i === idx ? 'is-on' : ''} onClick={() => show(i)} aria-current={i === idx}>
+                <span className="mono">{String(i + 1).padStart(2, '0')}</span>
+                {x.project}
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
     </section>
   )
 }

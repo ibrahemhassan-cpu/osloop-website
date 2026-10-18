@@ -65,12 +65,12 @@ export async function POST(request: Request): Promise<Response> {
     body: JSON.stringify({
       name: body.name,
       email: body.email,
-      phone: body.phone || '—',
-      company: body.company || '—',
-      needs: body.needs || '—',
+      phone: body.phone || 'Not given',
+      company: body.company || 'Not given',
+      needs: body.needs || 'Not specified',
       budget: body.budget,
       message: body.message,
-      _subject: `New project brief — ${body.name}`,
+      _subject: `New project brief from ${body.name}`,
       _replyto: body.email,
     }),
   })

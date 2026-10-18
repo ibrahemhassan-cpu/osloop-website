@@ -115,7 +115,7 @@ export function Contact() {
     } else if (math === 'empty') {
       e.captcha = 'Please answer the quick check.'
     } else if (math === 'wrong') {
-      e.captcha = 'That’s not quite right — here’s a new one.'
+      e.captcha = 'That’s not quite right. Here’s a new one.'
       setCaptchaRun((n) => n + 1)
     }
     setErrors(e)
@@ -134,13 +134,13 @@ export function Contact() {
 
     const phoneText = phone?.e164 || ''
     if (!contact.formEndpoint) {
-      const subject = `Project brief — ${needs.join(', ') || 'New project'}`
+      const subject = `Project brief: ${needs.join(', ') || 'New project'}`
       const body = [
         `Name: ${form.name}`,
         `Email: ${form.email}`,
         ...(phoneText ? [`Phone: ${phoneText}`] : []),
         ...(form.company ? [`Company: ${form.company}`] : []),
-        `Needs: ${needs.join(', ') || '—'}`,
+        `Needs: ${needs.join(', ') || 'Not specified'}`,
         `Budget: ${budget}`,
         '',
         form.message,
@@ -173,7 +173,7 @@ export function Contact() {
       const data = (await res.json().catch(() => ({}))) as { error?: string }
       setServerError(
         data.error === 'captcha_failed'
-          ? 'The security check failed — please try it again.'
+          ? 'The security check failed. Please try it again.'
           : 'We couldn’t send your message right now.',
       )
       setStatus('error')
@@ -257,7 +257,7 @@ export function Contact() {
                 <p>
                   {status === 'sent'
                     ? 'Your message is on its way. We’ll get back to you with next steps soon.'
-                    : `Your email app should have opened with your brief ready — just hit send. If it didn’t, write to us at ${brand.email}.`}
+                    : `Your email app should have opened with your brief ready. Just hit send. If it didn’t, write to us at ${brand.email}.`}
                 </p>
                 <button type="button" className="cform__again mono" onClick={resetForm}>
                   Send another message
@@ -317,7 +317,7 @@ export function Contact() {
 
                 <div className="cform__row">
                   <div className={`cfield${errors.phone ? ' has-error' : ''}`}>
-                    <span className="mono">Phone number — Optional</span>
+                    <span className="mono">Phone number (optional)</span>
                     <Suspense fallback={<div className="cfield__ph" />}>
                       {near ? (
                         <PhoneField

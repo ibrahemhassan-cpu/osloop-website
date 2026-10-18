@@ -5,11 +5,14 @@
   display: flex;
   align-items: stretch;
   gap: 10px;
-  border-bottom: 1px solid var(--line-2);
-  transition: border-color 0.4s;
+  padding: 0 16px;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  transition: border-color 0.4s, box-shadow 0.4s;
 }
 .phone__row:focus-within {
   border-color: var(--blue-2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-2) 18%, transparent);
 }
 .phone.has-error .phone__row {
   border-color: #ff5d5d;
@@ -24,7 +27,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 10px 2px;
+  padding: 12px 2px;
   font-size: 16px;
   color: var(--fg);
 }
@@ -40,7 +43,7 @@
   background: transparent;
   border: 0;
   outline: none;
-  padding: 10px 0;
+  padding: 12px 0;
 }
 .phone__row input::placeholder {
   color: var(--fg-3);

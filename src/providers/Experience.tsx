@@ -16,8 +16,9 @@ type Ctx = {
 
 const ExperienceCtx = createContext<Ctx>({ ready: false, go: () => {} })
 
+/** the line under the logo on the curtain, per destination ('' = the logo alone) */
 const LABELS: Record<string, string> = {
-  '/': 'Your story, our expertise',
+  '/': '',
 }
 
 export function ExperienceProvider({ children }: { children: ReactNode }) {
