@@ -219,6 +219,7 @@ function ProjectPage({ project: p }: { project: Project }) {
         {p.reviews.length > 0 && (
           <Testimonials
             id="client-review"
+            list={false}
             items={p.reviews.map((r) => ({ quote: r.quote, project: p.name }))}
             title={
               <>

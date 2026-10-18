@@ -305,8 +305,8 @@ export type Project = {
 /** a client's review, shown on the project page like the home page's reviews */
 export type Review = { quote: string }
 
-/** TODO(client): the real review for each project — until then, one of the site's own reviews stands in */
-const review = (i: number): Review[] => [{ quote: testimonials[i].quote }]
+/** TODO(client): the real reviews for each project (two or more). Until then, the site's own reviews stand in */
+const review = (...picks: number[]): Review[] => picks.map((i) => ({ quote: testimonials[i].quote }))
 
 /*
  * TODO(client): titles, categories, years and links are real; the story copy is a first
@@ -337,7 +337,7 @@ export const projects: Project[] = [
       { stage: 'Sound & delivery', text: 'Voice-over, music and sound design were layered in, and the film was delivered in full HD.' },
     ],
     end: 'A full 3D film that makes a service feel tangible: architecture, people and product in one seamless, cinematic story.',
-    reviews: review(0),
+    reviews: review(0, 3),
   },
   {
     // TODO(client): placeholder — swap in the real AI video's title, still, link and story
@@ -362,7 +362,7 @@ export const projects: Project[] = [
       { stage: 'Edit & sound', text: 'The best takes were cut together with music, voice-over and sound design, then graded and delivered.' },
     ],
     end: 'A cinematic AI film delivered in a fraction of the usual time: fresh visuals, one consistent look and a story that stays clear.',
-    reviews: review(1),
+    reviews: review(1, 4),
   },
   {
     slug: 'aiden',
@@ -388,7 +388,7 @@ export const projects: Project[] = [
       { stage: 'Sound & delivery', text: 'Music and sound design added the final polish before delivery.' },
     ],
     end: 'A friendly, clear explainer that gives an AI product a face and makes it easy to understand.',
-    reviews: review(1),
+    reviews: review(1, 5),
   },
   {
     slug: 'headtech',
@@ -413,7 +413,7 @@ export const projects: Project[] = [
       { stage: 'Sound & delivery', text: 'A driving soundtrack and sound design gave every transition its punch.' },
     ],
     end: 'A sharp, energetic product explainer that turns complex technology into clear benefits.',
-    reviews: review(4),
+    reviews: review(4, 3),
   },
   {
     slug: 'mark-before-after',
@@ -438,7 +438,7 @@ export const projects: Project[] = [
       { stage: 'Before & after', text: 'The final edit shows the original and the result side by side.' },
     ],
     end: 'The same footage, transformed: a before & after that shows exactly what careful VFX and grading can do.',
-    reviews: review(2),
+    reviews: review(2, 0),
   },
   {
     slug: 'river-city-recovery',
@@ -486,7 +486,7 @@ export const projects: Project[] = [
       { stage: 'Applications', text: 'Signage, stationery, merchandise, web and mobile: every touchpoint designed and documented in the brand manual.' },
     ],
     end: 'A complete identity system and brand manual (logo, color, type, imagery, iconography, voice and applications), ready for every sign, screen and document. Second chances start here.',
-    reviews: review(5),
+    reviews: review(5, 4),
   },
   {
     slug: 'arvamethod',
@@ -510,6 +510,6 @@ export const projects: Project[] = [
       { stage: 'Motion & polish', text: 'Subtle motion and details made each experience feel alive.' },
     ],
     end: 'Two complete, live website directions, so the decision could be made by experiencing them, not imagining them.',
-    reviews: review(3),
+    reviews: review(3, 1),
   },
 ]

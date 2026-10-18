@@ -9,7 +9,8 @@ type Review = { quote: string; project: string }
 
 /**
  * Client reviews: a big quote that changes on its own while the section is on screen. The home page
- * shows all of them; a project page passes its own (with one review, the arrows, timer and list go).
+ * shows all of them with the list of projects beside; a project page passes its own reviews and no list
+ * (they're all the same project). With a single review, the arrows and timer go too.
  */
 export function Testimonials({
   items = testimonials,
@@ -19,13 +20,16 @@ export function Testimonials({
     </>
   ),
   id = 'testimonials',
+  list = true,
 }: {
   items?: Review[]
   title?: ReactNode
   id?: string
+  list?: boolean
 }) {
   const N = items.length
   const single = N === 1
+  const showList = list && !single
   const root = useRef<HTMLElement>(null)
   // `n` bumps on every change so the entrance replays even when landing back on the same review
   const [view, setView] = useState({ idx: 0, n: 0 })
@@ -123,7 +127,7 @@ export function Testimonials({
   const t = items[idx]
 
   return (
-    <section className={`v1-testi${single ? ' v1-testi--single' : ''}`} id={id} ref={root} data-header-theme="dark" data-theme="dark">
+    <section className={`v1-testi${showList ? '' : ' v1-testi--single'}${single ? ' v1-testi--one' : ''}`} id={id} ref={root} data-header-theme="dark" data-theme="dark">
       <div className="v1-testi__head">
         <h2 className="v1-testi__h" data-reveal="lines">
           {title}
@@ -184,10 +188,10 @@ export function Testimonials({
         </div>
       </div>
 
-      {!single && (
+      {showList && (
         <ol className="v1-testi__list">
           {items.map((x, i) => (
-            <li key={x.project}>
+            <li key={x.quote}>
               <button type="button" className={i === idx ? 'is-on' : ''} onClick={() => show(i)} aria-current={i === idx}>
                 <span className="mono">{String(i + 1).padStart(2, '0')}</span>
                 {x.project}

@@ -770,11 +770,12 @@ html.is-grabbing * {
 }
 
 /* =============== TESTIMONIALS =============== */
-/* a single review (a project page): no list beside it */
+/* a project page: no list of projects beside the quote */
 .v1-testi.v1-testi--single {
   grid-template-columns: 1fr;
 }
-.v1-testi--single .v1-testi__body {
+/* just one review: nothing to switch to, so no room is kept for longer quotes */
+.v1-testi--one .v1-testi__body {
   min-height: 0;
 }
 .v1-testi {
