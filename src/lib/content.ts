@@ -52,9 +52,6 @@ export const videos = {
 }
 
 export const images = {
-  explainer: 'https://agency.osloop.com/images/Rectangle-43.png',
-  handDrawn: 'https://agency.osloop.com/images/Rectangle-44.png',
-  videoRoom: 'https://agency.osloop.com/images/Rectangle-45.png',
   arva1: 'https://arva.osloop.com/stills/v1.webp',
   arva2: 'https://arva.osloop.com/stills/v2.webp',
 }
@@ -62,7 +59,12 @@ export const images = {
 /* ----------------------------------------------------------------- Services */
 export type Service = { id: string; title: string; lead: string; body: string; tags: string[]; images: string[] }
 
-// TODO(client): add more stills per service — 2+ images play as a slow crossfade loop.
+/**
+ * A service's stills, from the client's Figma ("New website 12th assetes"), exported at 2x as WebP:
+ * public/services/<id>/1.webp, 2.webp … 2+ images play as a slow crossfade loop.
+ */
+const stills = (id: string, count = 3) => Array.from({ length: count }, (_, i) => `/services/${id}/${i + 1}.webp`)
+
 export const services: Service[] = [
   {
     id: 'explainer',
@@ -70,7 +72,7 @@ export const services: Service[] = [
     lead: 'Complex ideas, simply told.',
     body: 'Scripted, storyboarded and animated to make your product click, for landing pages, pitches and campaigns.',
     tags: ['Script', 'Character animation', 'Voice-over'],
-    images: [yt(videos.aiden), yt(videos.aiden, 'maxres2'), images.explainer, yt(videos.aiden, 'maxres3')],
+    images: stills('explainer'),
   },
   {
     // TODO(client): swap the illustrations for stills from your AI videos
@@ -79,6 +81,7 @@ export const services: Service[] = [
     lead: 'Bold worlds, made in days.',
     body: 'Generative AI directed by real storytellers: a clear script, one consistent look and every shot edited into a film that feels crafted.',
     tags: ['Generative video', 'AI imagery', 'Edit & sound'],
+    // TODO(client): no AI video stills in the Figma yet; these are placeholder illustrations
     images: ['/services/ai-video.svg', '/services/ai-video-2.svg'],
   },
   {
@@ -87,7 +90,7 @@ export const services: Service[] = [
     lead: 'Information that moves.',
     body: 'Type, icons, data and product UI choreographed into clear, rhythmic motion that holds attention.',
     tags: ['Kinetic type', 'Infographics', 'Product UI'],
-    images: [yt(videos.headtech), yt(videos.headtech, 'maxres1'), yt(videos.headtech, 'maxres2'), yt(videos.headtech, 'maxres3')],
+    images: stills('motion'),
   },
   {
     id: 'editing',
@@ -95,7 +98,7 @@ export const services: Service[] = [
     lead: 'The cut that makes it land.',
     body: 'Editing, color grading and clean-up that turn raw footage into a polished, on-brand film.',
     tags: ['Editing', 'Color grading', 'Clean-up'],
-    images: [yt(videos.mark), yt(videos.mark, 'maxres1'), yt(videos.mark, 'maxres2')],
+    images: stills('editing'),
   },
   {
     id: '3d',
@@ -103,7 +106,7 @@ export const services: Service[] = [
     lead: 'Spaces and products you can almost touch.',
     body: 'Architectural walkthroughs, photoreal products and environments, lit, shaded and animated like a film set.',
     tags: ['Architecture', 'Product 3D', 'Environments'],
-    images: [yt(videos.theCode, 'maxres1'), yt(videos.theCode), yt(videos.theCode, 'maxres3'), images.videoRoom],
+    images: stills('3d'),
   },
   {
     id: 'hand-drawn',
@@ -111,7 +114,7 @@ export const services: Service[] = [
     lead: 'Drawn live, frame by frame.',
     body: 'A real hand, a real pen, and the warmth of hand-drawn storytelling that feels personal and memorable.',
     tags: ['Hand drawing', 'Storytelling', 'Voice-over'],
-    images: [yt(reel.youtubeId, 'maxres1'), images.handDrawn],
+    images: stills('hand-drawn'),
   },
   {
     id: 'whiteboard',
@@ -119,7 +122,7 @@ export const services: Service[] = [
     lead: 'Sketch it. Explain it.',
     body: 'Clean whiteboard sketches that build your message line by line. Perfect for training and education.',
     tags: ['Whiteboard', 'Education', 'Training'],
-    images: ['/services/whiteboard.svg', yt(reel.youtubeId, 'maxres1')],
+    images: stills('whiteboard'),
   },
   {
     id: 'graphic',
@@ -127,7 +130,7 @@ export const services: Service[] = [
     lead: 'Brands that look like they mean it.',
     body: 'Identities, brand manuals and campaign visuals designed as one consistent system.',
     tags: ['Brand identity', 'Brand manuals', 'Campaigns'],
-    images: ['/services/graphic-design.svg', yt(reel.youtubeId)],
+    images: stills('graphic'),
   },
   {
     id: 'web-mobile',
@@ -135,7 +138,7 @@ export const services: Service[] = [
     lead: 'Interfaces people enjoy using.',
     body: 'Websites and mobile apps designed around your audience: clear structure, crafted details, real usability.',
     tags: ['UX/UI', 'Websites', 'Mobile apps'],
-    images: [images.arva1, images.arva2],
+    images: stills('web-mobile'),
   },
   {
     id: 'animated-web',
@@ -143,7 +146,7 @@ export const services: Service[] = [
     lead: 'Sites that move like film.',
     body: 'Scroll-driven storytelling, motion systems and interactive 3D that turn visitors into an audience.',
     tags: ['Scroll stories', 'WebGL', 'Micro-interactions'],
-    images: ['/services/animated-web.svg', images.arva2],
+    images: stills('animated-web', 1),
   },
 ]
 
