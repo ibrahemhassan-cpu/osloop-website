@@ -456,30 +456,41 @@ html.is-grabbing * {
 .v1-services__skip {
   position: absolute;
   left: 50%;
-  bottom: calc(5vh - 24px);
-  width: 48px;
-  height: 48px;
-  margin-left: -24px;
+  bottom: calc(5vh - 26px);
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 7px 0 22px;
+  border-radius: 999px;
+  background: var(--blue-2);
+  color: #fff;
+  box-shadow: 0 18px 40px -14px rgba(44, 91, 255, 0.85);
+  transition: background 0.4s, box-shadow 0.4s, scale 0.5s var(--ease-out);
+}
+.v1-services__skip .mono {
+  font-size: 11.5px;
+}
+.v1-services__skip-icon {
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  border: 1px solid var(--line-2);
-  background: var(--bg);
-  color: var(--fg);
-  box-shadow: var(--shadow);
-  transition: background 0.4s, color 0.4s, border-color 0.4s;
+  background: #fff;
+  color: var(--blue-2);
 }
-.v1-services__skip svg {
+.v1-services__skip-icon svg {
   animation: skipNudge 1.8s var(--ease-io) infinite;
 }
 .v1-services__skip:hover {
-  background: var(--blue-2);
-  border-color: var(--blue-2);
-  color: #fff;
+  scale: 1.05;
+  box-shadow: 0 22px 50px -14px rgba(44, 91, 255, 1);
 }
 @keyframes skipNudge {
   50% {
-    transform: translateY(4px);
+    transform: translateY(3px);
   }
 }
 
@@ -584,11 +595,10 @@ html.is-grabbing * {
   border: 1px solid rgba(157, 183, 255, calc(0.15 + var(--glow) * 0.5));
   box-shadow: 0 30px 80px -30px rgba(44, 91, 255, calc(var(--glow) * 0.9));
 }
+/* the small icon that sat here is gone (the stage's icon is in the background art); the row keeps its
+   height so the number stays where it was */
 .v1-ring__top {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  color: var(--sky);
+  height: 28px;
 }
 .v1-ring__n {
   font-size: 120px;
@@ -760,6 +770,13 @@ html.is-grabbing * {
 }
 
 /* =============== TESTIMONIALS =============== */
+/* a single review (a project page): no list beside it */
+.v1-testi.v1-testi--single {
+  grid-template-columns: 1fr;
+}
+.v1-testi--single .v1-testi__body {
+  min-height: 0;
+}
 .v1-testi {
   position: relative;
   background: var(--blue);

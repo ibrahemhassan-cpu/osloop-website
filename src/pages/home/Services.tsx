@@ -84,7 +84,7 @@ export function Services() {
           </h2>
           <p className="v1-services__p" data-reveal="fade" data-delay="0.2">
             From a two-minute explainer to a full product universe in 3D, every frame is built around the one thing
-            that matters — the message you need people to remember.
+            that matters: the message you need people to remember.
           </p>
           <div className="v1-services__hint mono" data-reveal="fade" data-delay="0.3">
             <span>Keep scrolling</span>
@@ -107,7 +107,7 @@ export function Services() {
               </ul>
             </div>
             <div className="v1-svc__media">
-              <ImageLoop className="v1-svc__loop" images={s.images} alt={`${s.title} — OsLoop work`} offset={(i % 3) * 700} dots />
+              <ImageLoop className="v1-svc__loop" images={s.images} alt={`${s.title}, OsLoop work`} offset={(i % 3) * 700} dots />
             </div>
           </article>
         ))}
@@ -115,10 +115,13 @@ export function Services() {
       <div className="v1-services__bar" aria-hidden>
         <div className="v1-services__bar-fill" />
       </div>
-      <button type="button" className="v1-services__skip" onClick={skip} aria-label="Skip to the next section" data-cursor="Next section">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M12 5v14M6 13l6 6 6-6" />
-        </svg>
+      <button type="button" className="v1-services__skip" onClick={skip} aria-label="Skip to the next section">
+        <span className="mono">Next section</span>
+        <span className="v1-services__skip-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M12 5v14M6 13l6 6 6-6" />
+          </svg>
+        </span>
       </button>
     </section>
   )

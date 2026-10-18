@@ -10,6 +10,7 @@ import { useAutoReveal } from '../../lib/useAutoReveal'
 import { useNavTo } from '../../lib/useNavTo'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../lib/gsap'
 import { projects, type Project } from '../../lib/content'
+import { Testimonials } from '../home/Testimonials'
 import { NAV } from '../../lib/nav'
 import './projects.css'
 
@@ -214,25 +215,17 @@ function ProjectPage({ project: p }: { project: Project }) {
           </div>
         </section>
 
+        {/* what the client said: the same reviews section as the home page */}
         {p.reviews.length > 0 && (
-          <section className="case__chapter case__chapter--reviews" data-header-theme="auto">
-            <div className="case__chapter-head">
-              <h2 data-reveal="lines">
+          <Testimonials
+            id="client-review"
+            items={p.reviews.map((r) => ({ quote: r.quote, project: p.name }))}
+            title={
+              <>
                 What the client <span className="serif">said.</span>
-              </h2>
-            </div>
-            <div className="case__reviews">
-              {p.reviews.map((r) => (
-                <figure className="case__quote" data-reveal="scale" key={r.quote}>
-                  <div className="case__stars" aria-label="Five stars">
-                    ★★★★★
-                  </div>
-                  <blockquote>“{r.quote}”</blockquote>
-                  <figcaption className="mono">{r.by ?? 'Client review'}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </section>
+              </>
+            }
+          />
         )}
 
         <section className="case__next" data-header-theme="dark" data-theme="dark">

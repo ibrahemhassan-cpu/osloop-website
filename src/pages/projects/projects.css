@@ -417,15 +417,6 @@
   opacity: 0.75;
   font-size: 10.5px;
 }
-.case__reviews {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
-  gap: 24px;
-}
-.case__reviews .case__quote:only-child {
-  max-width: 980px;
-  margin-left: auto;
-}
 
 .case__end-copy {
   display: grid;

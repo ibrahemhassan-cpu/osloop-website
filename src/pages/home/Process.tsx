@@ -16,25 +16,28 @@ const icons = [
 ]
 
 /**
- * A card's background art (600 × 780, the card's own shape): the stage's icon, drawn big in a white →
- * sky → orange line with a soft blue glow, on the blue grid the old illustrations had.
+ * A card's background art (600 × 780, the card's own shape): the blue grid the old illustrations had,
+ * with the stage's icon in the top-right corner (beside the number, never over it), drawn in a white →
+ * sky → orange line on a glass disc with a soft blue glow.
  */
 const art = (icon: string) =>
   `url("data:image/svg+xml,${encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 780">
       <defs>
         <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16285f"/><stop offset="1" stop-color="#050b24"/></linearGradient>
-        <radialGradient id="glow" cx="50%" cy="36%" r="55%"><stop offset="0" stop-color="#2c5bff" stop-opacity=".55"/><stop offset="1" stop-color="#2c5bff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="glow"><stop offset="0" stop-color="#2c5bff" stop-opacity=".6"/><stop offset="1" stop-color="#2c5bff" stop-opacity="0"/></radialGradient>
+        <radialGradient id="disc" cx="35%" cy="28%" r="80%"><stop offset="0" stop-color="#2c5bff" stop-opacity=".45"/><stop offset="1" stop-color="#0a1438" stop-opacity=".35"/></radialGradient>
         <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#9db7ff" stroke-opacity=".07"/></pattern>
         <linearGradient id="ink" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#9db7ff"/><stop offset="1" stop-color="#ffb547"/></linearGradient>
         <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation=".8"/></filter>
       </defs>
       <rect width="600" height="780" fill="url(#bg)"/>
       <rect width="600" height="780" fill="url(#grid)"/>
-      <circle cx="300" cy="290" r="320" fill="url(#glow)"/>
-      <g transform="translate(130 120) scale(14.17)" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <g stroke="#2c5bff" stroke-width="2.2" opacity=".75" filter="url(#soft)">${icon}</g>
-        <g stroke="url(#ink)" stroke-width=".8">${icon}</g>
+      <circle cx="438" cy="162" r="230" fill="url(#glow)"/>
+      <circle cx="438" cy="162" r="108" fill="url(#disc)" stroke="#9db7ff" stroke-opacity=".3" stroke-width="2"/>
+      <g transform="translate(372 96) scale(5.5)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <g stroke="#2c5bff" stroke-width="2.4" opacity=".8" filter="url(#soft)">${icon}</g>
+        <g stroke="url(#ink)" stroke-width="1.1">${icon}</g>
       </g>
     </svg>`,
   )}")`
@@ -112,20 +115,8 @@ export function Process() {
                 key={s.title}
                 style={{ '--a': `${i * STEP}deg`, '--bg': art(icons[i]) } as CSSProperties}
               >
-                <div className="v1-ring__top">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="28"
-                    height="28"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                    dangerouslySetInnerHTML={{ __html: icons[i] }}
-                  />
-                </div>
+                {/* the icon is part of the background art; this keeps the number where it always was */}
+                <div className="v1-ring__top" aria-hidden />
                 <div className="v1-ring__n">{s.n}</div>
                 <div>
                   <h3>{s.title}</h3>

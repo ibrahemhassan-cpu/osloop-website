@@ -9,7 +9,7 @@ export function ProjectCover({ project, className = '', eager = false }: { proje
       <img
         className={`pcover pcover--img ${className}`}
         src={project.cover}
-        alt={`${project.title} — OsLoop`}
+        alt={`${project.title}, by OsLoop`}
         loading={eager ? 'eager' : 'lazy'}
         decoding="async"
       />

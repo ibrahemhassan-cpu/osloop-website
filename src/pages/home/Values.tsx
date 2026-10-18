@@ -30,7 +30,7 @@ export function Values() {
           <span className="serif">in the loop.</span>
         </h2>
         <p className="v1-values__p" data-reveal="fade" data-delay="0.15">
-          Four promises we’ve kept on every project — from a single explainer to long-running animation partnerships.
+          Four promises we’ve kept on every project, from a single explainer to long-running animation partnerships.
         </p>
       </div>
 
