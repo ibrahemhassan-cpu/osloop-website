@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import { Header } from '../../components/Header'
 import { Footer } from '../../components/Footer'
@@ -110,11 +110,17 @@ function ProjectPage({ project: p }: { project: Project }) {
           <div className="case__intro">
             <p>{p.summary}</p>
           </div>
-          <dl className="case__meta">
+          <dl className="case__meta" style={{ '--cols': p.duration ? 5 : 4 } as CSSProperties}>
             <div>
               <dt className="mono">Year</dt>
               <dd>{p.year}</dd>
             </div>
+            {p.duration && (
+              <div>
+                <dt className="mono">Duration</dt>
+                <dd>{p.duration}</dd>
+              </div>
+            )}
             <div>
               <dt className="mono">Category</dt>
               <dd>{p.category}</dd>
@@ -189,7 +195,7 @@ function ProjectPage({ project: p }: { project: Project }) {
               <p className="case__end-text">{p.end}</p>
               {p.link.kind === 'youtube' ? (
                 <a className="case__ext mono" href={`https://www.youtube.com/watch?v=${p.link.id}`} target="_blank" rel="noreferrer">
-                  Open on YouTube <Arrow size={12} rotate={-45} />
+                  {p.link.label} <Arrow size={12} rotate={-45} />
                 </a>
               ) : (
                 <a className="case__ext mono" href={p.link.url} target="_blank" rel="noreferrer">
@@ -215,12 +221,13 @@ function ProjectPage({ project: p }: { project: Project }) {
           </div>
         </section>
 
-        {/* what the client said: the same reviews section as the home page */}
-        {p.reviews.length > 0 && (
+        {/* what the client said, in the home page's reviews section; no review, no section */}
+        {p.review && (
           <Testimonials
             id="client-review"
             list={false}
-            items={p.reviews.map((r) => ({ quote: r.quote, project: p.name }))}
+            rating={p.review.rating ?? null}
+            items={[{ quote: p.review.quote, project: p.review.label }]}
             title={
               <>
                 What the client <span className="serif">said.</span>
