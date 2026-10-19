@@ -45,9 +45,10 @@ export const reel = {
 }
 
 export const videos = {
-  theCode: 'sY-HPw9R1u4',
-  aiden: 'vCRLr4DG5EU',
-  headtech: 'gqKvTu3zZdQ',
+  behindTheRender: 'pbxs3DfUQsM',
+  justOneSmallChange: 'a2sQZQgHVgM',
+  explainerShowreel: 'S7Ue-qoUh64',
+  viaEurope: 'qz8AZfPAG7s',
   mark: '7QwmBHm1kyc',
 }
 
@@ -283,8 +284,10 @@ export type Project = {
   name: string
   category: string
   /** filter group on /projects */
-  group: 'Animation' | 'VFX' | 'Branding' | 'Web'
+  group: '3D' | 'AI' | 'Animation' | 'Motion' | 'VFX' | 'Branding' | 'Web'
   year: string
+  /** running time of the film, e.g. '00:51' */
+  duration?: string
   services: string[]
   deliverable: string
   /** null → a designed generative cover is shown */
@@ -293,153 +296,170 @@ export type Project = {
   accent: string
   link: ProjectLink
   summary: string
-  /** Where it started — the brief */
+  /** Where it started: the brief */
   start: string
   /** How it was made */
   journey: { stage: string; text: string }[]
-  /** Where it ended — the result */
+  /** Where it ended: the result */
   end: string
-  /** What the client said — the last chapter of the story */
-  reviews: Review[]
+  /** What the client said. At most one review; without one the section isn't shown at all */
+  review?: Review
 }
 
-/** a client's review, shown on the project page like the home page's reviews */
-export type Review = { quote: string }
+/** `label` stands in for the client's name (never shown); `rating` out of 5, when the client gave one */
+export type Review = { quote: string; label: string; rating?: number }
 
-/** TODO(client): the real reviews for each project (two or more). Until then, the site's own reviews stand in */
-const review = (...picks: number[]): Review[] => picks.map((i) => ({ quote: testimonials[i].quote }))
+/** a project's media from the handoff: public/projects/<slug>/cover.webp + gallery-1..3.webp (1280 × 720) */
+const media = (slug: string) => ({
+  cover: `/projects/${slug}/cover.webp`,
+  gallery: [1, 2, 3].map((i) => `/projects/${slug}/gallery-${i}.webp`),
+})
 
 /*
- * TODO(client): titles, categories, years and links are real; the story copy is a first
- * draft written around each piece of work. Replace with the real brief, process notes and results.
+ * Selected Work, in the client's order (OsLoop_Selected_Work_Content_and_Media.xlsx, 2026-10-19).
+ * River City Recovery and ARVAmethod keep their earlier copy and media.
  */
 export const projects: Project[] = [
   {
-    slug: 'the-code',
-    title: 'THE CODE: Architectural 3D Experience',
-    name: 'THE CODE',
+    slug: 'behind-the-render',
+    title: 'Behind the Render: What We See / What You See',
+    name: 'Behind the Render',
     category: '3D Animation',
-    group: 'Animation',
-    year: '2025',
-    services: ['3D modeling', 'Architectural visualisation', 'Lighting & materials', 'Animation'],
-    deliverable: 'Full 3D animated film',
-    cover: yt(videos.theCode, 'maxres1'),
-    gallery: [yt(videos.theCode), yt(videos.theCode, 'maxres2'), yt(videos.theCode, 'maxres3')],
-    accent: '#c99a6b',
-    link: { kind: 'youtube', id: videos.theCode, label: 'Watch the film' },
-    summary: 'A cinematic 3D film that walks the viewer through architecture, interiors and a premium service, with every space built, lit and animated in 3D.',
+    group: '3D',
+    year: '2026',
+    duration: '00:51',
+    services: ['3D scene setup', 'Lighting & look development', 'Animation', 'Compositing & edit'],
+    deliverable: 'Vertical 3D process film',
+    ...media('behind-the-render'),
+    accent: '#F4B728',
+    link: { kind: 'youtube', id: videos.behindTheRender, label: 'Watch the 3D film' },
+    summary:
+      'A concise 3D process film that turns invisible production work into a simple visual contrast: the technical setup artists build versus the cinematic result audiences experience.',
     start:
-      'THE CODE needed to show a premium, space-saving service in a way that felt as refined as the homes it serves. Real filming couldn’t deliver the scale or control they wanted, so the whole world had to be built in 3D.',
+      'The idea needed to explain 3D craft quickly without relying on a long technical breakdown. The challenge was to make the behind-the-scenes process readable, entertaining and native to a vertical social format.',
     journey: [
-      { stage: 'Script & shot list', text: 'We shaped the message into a short story and planned every camera move before modeling started.' },
-      { stage: 'Architecture & interiors', text: 'Buildings, rooms and furniture were modeled to scale, from the façade down to the bedside lamp.' },
-      { stage: 'Materials & lighting', text: 'Wood, stone, fabric and glass were tuned under warm, cinematic light so every frame feels premium.' },
-      { stage: 'Animation & characters', text: 'Camera paths, product UI and people bring the service to life inside the spaces.' },
-      { stage: 'Sound & delivery', text: 'Voice-over, music and sound design were layered in, and the film was delivered in full HD.' },
+      { stage: 'Concept & structure', text: 'Built the film around a clear “What we see / What you see” device, giving viewers an immediate way into the process.' },
+      { stage: '3D setup', text: 'Revealed the working scene, geometry, nodes and lighting controls behind the finished shot.' },
+      { stage: 'Look development', text: 'Balanced night lighting, material response and atmosphere to turn the technical setup into a believable cinematic environment.' },
+      { stage: 'Edit & finish', text: 'Cut the comparison for fast comprehension, added titles and prepared the final vertical delivery.' },
     ],
-    end: 'A full 3D film that makes a service feel tangible: architecture, people and product in one seamless, cinematic story.',
-    reviews: review(0, 3),
+    end: 'A compact, educational 3D film that makes technical craft easy to understand while keeping the final result visually rewarding.',
+    review: {
+      quote:
+        "Mohamed and his team were a pleasure to work with on this project. They asked a lot of questions in order to clearly understand our goals and objectives. Because of that we only had very minor changes to the final product. We really enjoyed working with them and appreciate their professional approach and going beyond expectations to deliver what we didn't even know we needed!!! We will definitely be using them again in the future.",
+      label: '3D Animation Project',
+      rating: 5,
+    },
   },
   {
-    // TODO(client): placeholder — swap in the real AI video's title, still, link and story
-    slug: 'ai-video',
-    title: 'AI Video: Generative Brand Film',
-    name: 'AI Video',
-    category: 'AI Video Production',
+    slug: 'just-one-small-change',
+    title: 'Just One Small Change: AI Character Film',
+    name: 'Just One Small Change',
+    category: 'AI Video',
+    group: 'AI',
+    year: '2026',
+    duration: '00:46',
+    services: ['Creative concept', 'AI character generation', 'Visual continuity', 'Editing & sound'],
+    deliverable: 'AI-generated short film',
+    ...media('just-one-small-change'),
+    accent: '#15AABF',
+    link: { kind: 'youtube', id: videos.justOneSmallChange, label: 'Watch the film' },
+    summary:
+      'A character-led AI short built around a simple comic beat, using controlled performance, consistent styling and cinematic editing to carry the idea.',
+    start:
+      'AI-generated character work can lose continuity from shot to shot. The challenge was to keep one recognisable character, wardrobe and environment consistent while giving the performance enough variation to feel alive.',
+    journey: [
+      { stage: 'Creative direction', text: 'Defined the visual tone, character styling and comedic rhythm before generating shots.' },
+      { stage: 'Character continuity', text: 'Kept the same face, wardrobe palette and environment across close-ups and wider frames.' },
+      { stage: 'Shot generation', text: 'Produced a focused set of performance variations that supported the line rather than distracting from it.' },
+      { stage: 'Edit & sound', text: 'Selected the strongest takes, shaped the pacing and finished the short as one cohesive scene.' },
+    ],
+    end: 'A concise AI-led film with a consistent lead character and a polished, cinematic flow.',
+  },
+  {
+    slug: 'animated-explainer-showreel',
+    title: 'Animated Explainer Showreel: Stories Made Clear',
+    name: 'Animated Explainer Showreel',
+    category: 'Explainer Videos',
     group: 'Animation',
-    year: '2025',
-    services: ['Concept & script', 'AI image & video generation', 'Editing', 'Sound design'],
-    deliverable: 'AI-generated brand film',
-    cover: null,
-    gallery: [],
-    accent: '#8b5cff',
-    link: { kind: 'youtube', id: reel.youtubeId, label: 'Watch the film' },
-    summary: 'A brand film made with generative AI: worlds and shots that would take weeks to build, directed and edited into one clear story.',
-    start: 'The brief called for a striking, cinematic film on a short timeline. Generative AI let us explore bold visual worlds fast, while the story stayed in human hands.',
+    year: '2021',
+    duration: '02:02',
+    services: ['Script & story structure', 'Storyboarding', 'Illustration', '2D animation & sound'],
+    deliverable: 'B2B animated explainer showreel',
+    ...media('animated-explainer-showreel'),
+    accent: '#E64A75',
+    link: { kind: 'youtube', id: videos.explainerShowreel, label: 'Watch the showreel' },
+    summary:
+      'A fast-moving selection of explainer work that shows how different visual languages can make complex messages clear, memorable and easy to follow.',
+    start:
+      'The reel needed to represent a broad range of industries and illustration styles while still feeling like one coherent presentation of OsLoop’s explainer capabilities.',
     journey: [
-      { stage: 'Concept & script', text: 'We wrote the story first and planned every shot, so the AI served the message, not the other way round.' },
-      { stage: 'Look development', text: 'A consistent visual style was defined and tested until every generated frame felt like the same film.' },
-      { stage: 'Generation', text: 'Shots were generated, refined and regenerated, keeping characters, light and colour consistent.' },
-      { stage: 'Edit & sound', text: 'The best takes were cut together with music, voice-over and sound design, then graded and delivered.' },
+      { stage: 'Selection', text: 'Chose sequences that demonstrate clarity, character, information design and emotional range.' },
+      { stage: 'Flow', text: 'Structured the reel so contrasting styles and subjects transition smoothly without losing momentum.' },
+      { stage: 'Edit', text: 'Balanced shot length and pacing to keep every example readable while maintaining energy.' },
+      { stage: 'Sound & finish', text: 'Unified the reel with a consistent audio bed, transitions and final brand treatment.' },
     ],
-    end: 'A cinematic AI film delivered in a fraction of the usual time: fresh visuals, one consistent look and a story that stays clear.',
-    reviews: review(1, 4),
+    end: 'A concise showcase of 2D explainer storytelling, from hand-drawn character work to bold campaign visuals and narrative scenes.',
   },
   {
-    slug: 'aiden',
-    title: 'Aiden: AI Assistant Explainer',
-    name: 'Aiden',
-    category: 'Animated Explainer',
-    group: 'Animation',
-    year: '2023',
-    services: ['Script', 'Character design', '2D animation', 'Voice-over'],
-    deliverable: 'Animated explainer video',
-    // cover: Aiden's own AI interface (H-26)
-    cover: yt(videos.aiden, 'maxres3'),
-    gallery: [yt(videos.aiden), yt(videos.aiden, 'maxres2'), yt(videos.aiden, 'maxres1')],
-    accent: '#2c5bff',
-    link: { kind: 'youtube', id: videos.aiden, label: 'Watch the explainer' },
-    summary: 'Meet Aiden, an AI assistant introduced through a friendly character and a clean, technology-led visual world.',
-    start: 'AI products are powerful but hard to picture. The goal was to introduce Aiden in a way anyone could understand and remember in a couple of minutes.',
-    journey: [
-      { stage: 'Script', text: 'We turned features into a simple story: a relatable problem, and the moment Aiden makes it easy.' },
-      { stage: 'Character & style', text: 'Aiden got a personality and a look, set against clean interface and data visuals.' },
-      { stage: 'Storyboard', text: 'Every scene was sketched and timed so the flow was approved before animation began.' },
-      { stage: 'Animation & voice', text: 'Smooth 2D character animation and UI motion, carried by a professional voice-over.' },
-      { stage: 'Sound & delivery', text: 'Music and sound design added the final polish before delivery.' },
-    ],
-    end: 'A friendly, clear explainer that gives an AI product a face and makes it easy to understand.',
-    reviews: review(1, 5),
-  },
-  {
-    slug: 'headtech',
-    title: 'Headtech: Animated Product Explainer',
-    name: 'Headtech',
+    slug: 'viaeurope-rfid',
+    title: 'ViaEurope RFID: Supply Chain Made Visible',
+    name: 'ViaEurope RFID',
     category: 'Motion Graphics',
-    group: 'Animation',
-    year: '2022',
-    services: ['Motion graphics', '3D product visuals', 'Kinetic typography', 'Sound design'],
-    deliverable: 'Animated product explainer',
-    // cover: the clean product frame, without captions
-    cover: yt(videos.headtech, 'maxres3'),
-    gallery: [yt(videos.headtech), yt(videos.headtech, 'maxres1'), yt(videos.headtech, 'maxres2')],
-    accent: '#3ddc84',
-    link: { kind: 'youtube', id: videos.headtech, label: 'Watch the explainer' },
-    summary: 'A high-tech headset explained through bold motion graphics, 3D product visuals and kinetic type.',
-    start: 'Headtech’s product packs a lot of technology into one device. The challenge was to show each feature clearly without overwhelming the viewer.',
+    group: 'Motion',
+    year: '2021',
+    duration: '03:35',
+    services: ['Information design', 'Isometric illustration', 'Motion graphics', 'Editing & sound'],
+    deliverable: 'Motion graphics explainer',
+    ...media('viaeurope-rfid'),
+    accent: '#F28A20',
+    link: { kind: 'youtube', id: videos.viaEurope, label: 'Watch the explainer' },
+    summary:
+      'An isometric motion graphics film that visualises how RFID supports shipment receiving, warehouse handling and logistics visibility across a connected supply chain.',
+    start:
+      'The process behind RFID-enabled logistics is operational and technical. The challenge was to turn multiple locations, handoffs and data moments into one clear visual journey.',
     journey: [
-      { stage: 'Feature mapping', text: 'We ranked every feature and built the story around the ones that matter most.' },
-      { stage: 'Design frames', text: 'A dark, futuristic visual language with clean typography set the tone.' },
-      { stage: 'Motion', text: 'Product visuals, callouts and kinetic type were choreographed into a clear rhythm.' },
-      { stage: 'Sound & delivery', text: 'A driving soundtrack and sound design gave every transition its punch.' },
+      { stage: 'Information mapping', text: 'Broke the workflow into a sequence of simple stages, from inbound shipment to warehouse handling.' },
+      { stage: 'Visual system', text: 'Developed a consistent isometric world using ViaEurope’s blue-and-orange palette, vehicles, pallets and facilities.' },
+      { stage: 'Motion design', text: 'Animated each handoff and system interaction so the viewer can follow the process without visual overload.' },
+      { stage: 'Narration & finish', text: 'Timed the visuals to the voice-over and refined transitions, labels and pacing for clarity.' },
     ],
-    end: 'A sharp, energetic product explainer that turns complex technology into clear benefits.',
-    reviews: review(4, 3),
+    end: 'A clean operational explainer that makes an RFID logistics process easier to understand at a glance.',
+    review: {
+      quote:
+        'It was again a great pleasure to work with the OsLoop team. Very professional approach and very patient with the feedback and comments. The responsiveness is excellent. Thank you!',
+      label: 'RFID Motion Graphics Project',
+      rating: 5,
+    },
   },
   {
-    slug: 'mark-before-after',
+    slug: 'mark-vfx-before-after',
     title: 'Mark: VFX Before & After',
     name: 'Mark',
     category: 'VFX & Compositing',
     group: 'VFX',
     year: '2022',
-    services: ['Compositing', 'Color grading', 'Clean-up', 'Editing'],
-    deliverable: 'Before & after VFX edit',
-    // cover: the frame where original vs edited reads clearest
-    cover: yt(videos.mark, 'maxres1'),
-    gallery: [yt(videos.mark), yt(videos.mark, 'maxres2'), yt(videos.mark, 'maxres3')],
-    accent: '#7d9bff',
+    duration: '02:52',
+    services: ['Compositing', 'Clean-up', 'Color grading', 'Video editing'],
+    deliverable: 'Before-and-after VFX edit',
+    ...media('mark-vfx-before-after'),
+    accent: '#4B5D8A',
     link: { kind: 'youtube', id: videos.mark, label: 'Watch the before & after' },
-    summary: 'Raw footage transformed through compositing, grading and clean-up, shown side by side, original against edited.',
-    start: 'The footage was solid but flat. The goal was to make it look cinematic and polished without losing what made it real.',
+    summary: 'Raw footage transformed through compositing, grading and clean-up, shown side by side: original against edited.',
+    start:
+      'The footage was solid but visually flat and inconsistent. The challenge was to improve clarity, depth and polish while keeping the presenter natural and the comparison honest.',
     journey: [
-      { stage: 'Review', text: 'We studied every shot to decide what needed fixing, enhancing or replacing.' },
-      { stage: 'Clean-up & compositing', text: 'Distractions were removed and elements composited in seamlessly.' },
-      { stage: 'Color grading', text: 'A consistent, cinematic grade brought depth and mood to every frame.' },
-      { stage: 'Before & after', text: 'The final edit shows the original and the result side by side.' },
+      { stage: 'Review', text: 'Assessed exposure, color balance, background distractions and the consistency of the source footage.' },
+      { stage: 'Clean-up & compositing', text: 'Removed distractions and refined the frame so the presenter stayed at the centre of attention.' },
+      { stage: 'Color grading', text: 'Built a richer, more consistent look with cleaner skin tones, stronger contrast and controlled highlights.' },
+      { stage: 'Before & after', text: 'Presented the original and finished shots together so every improvement remains visible.' },
     ],
-    end: 'The same footage, transformed: a before & after that shows exactly what careful VFX and grading can do.',
-    reviews: review(2, 0),
+    end: 'The same footage, transformed into a cleaner and more confident final film while preserving a transparent before-and-after comparison.',
+    review: {
+      quote: 'This company always goes above and beyond when it comes to edits. They are very communicative and professional!',
+      label: 'VFX & Video Editing',
+      rating: 5,
+    },
   },
   {
     slug: 'river-city-recovery',
@@ -487,7 +507,7 @@ export const projects: Project[] = [
       { stage: 'Applications', text: 'Signage, stationery, merchandise, web and mobile: every touchpoint designed and documented in the brand manual.' },
     ],
     end: 'A complete identity system and brand manual (logo, color, type, imagery, iconography, voice and applications), ready for every sign, screen and document. Second chances start here.',
-    reviews: review(5, 4),
+    review: { quote: 'This is amazing work and looks great.', label: 'Brand Identity Project' },
   },
   {
     slug: 'arvamethod',
@@ -511,6 +531,5 @@ export const projects: Project[] = [
       { stage: 'Motion & polish', text: 'Subtle motion and details made each experience feel alive.' },
     ],
     end: 'Two complete, live website directions, so the decision could be made by experiencing them, not imagining them.',
-    reviews: review(3, 1),
   },
 ]

@@ -21,11 +21,14 @@ export function Testimonials({
   ),
   id = 'testimonials',
   list = true,
+  rating = 5,
 }: {
   items?: Review[]
   title?: ReactNode
   id?: string
   list?: boolean
+  /** stars out of 5; null when the client gave no rating (no stars shown) */
+  rating?: number | null
 }) {
   const N = items.length
   const single = N === 1
@@ -133,10 +136,12 @@ export function Testimonials({
           {title}
         </h2>
         <div className="v1-testi__rating" data-reveal="fade">
-          <span className="v1-testi__stars" aria-label="5 out of 5 stars">
-            ★★★★★
-          </span>
-          <span className="mono">Client reviews</span>
+          {rating ? (
+            <span className="v1-testi__stars" aria-label={`${rating} out of 5 stars`}>
+              {'★'.repeat(Math.round(rating))}
+            </span>
+          ) : null}
+          <span className="mono">{single ? 'Client review' : 'Client reviews'}</span>
         </div>
       </div>
 
