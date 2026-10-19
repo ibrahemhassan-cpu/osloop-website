@@ -75,14 +75,12 @@ export const services: Service[] = [
     images: stills('explainer'),
   },
   {
-    // TODO(client): swap the illustrations for stills from your AI videos
     id: 'ai-video',
     title: 'AI Videos',
     lead: 'Bold worlds, made in days.',
     body: 'Generative AI directed by real storytellers: a clear script, one consistent look and every shot edited into a film that feels crafted.',
     tags: ['Generative video', 'AI imagery', 'Edit & sound'],
-    // TODO(client): no AI video stills in the Figma yet; these are placeholder illustrations
-    images: ['/services/ai-video.svg', '/services/ai-video-2.svg'],
+    images: stills('ai-video'),
   },
   {
     id: 'motion',
