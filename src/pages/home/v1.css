@@ -762,7 +762,7 @@ html.is-grabbing * {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 24px;
+  gap: 4px;
 }
 .v1-value__right p {
   font-size: clamp(16px, 1.25vw, 20px);
