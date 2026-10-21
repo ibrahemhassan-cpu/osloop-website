@@ -4,7 +4,9 @@
   flex: 1;
   min-height: 180px;
 }
+/* the orbit is sized by its own area, not the screen (see .vv__sat span) */
 .vv--orbit {
+  container-type: size;
   display: grid;
   place-items: center;
 }
@@ -25,10 +27,13 @@
   animation: orbit 16s linear infinite;
   animation-delay: calc(var(--k) * -4s);
 }
-/* the orbit keeps at least 72px of radius so the industry chips never overlap on phones */
+/* The orbit radius follows its own area: half its height less a chip's height, half its width less a
+   chip's width, so the chips never leave it (e.g. onto the copy below on a short laptop screen). At
+   least 72px, so the chips never overlap each other; at most 150px. */
 .vv__sat span {
+  --r: clamp(72px, min(50cqh - 24px, 50cqw - 56px), 150px);
   position: absolute;
-  transform: translate(-50%, -50%) translateX(clamp(72px, 14vw, 150px)) rotate(0deg);
+  transform: translate(-50%, -50%) translateX(var(--r)) rotate(0deg);
   padding: 7px 12px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -45,10 +50,10 @@
 }
 @keyframes counter {
   from {
-    transform: translate(-50%, -50%) translateX(clamp(72px, 14vw, 150px)) rotate(0deg);
+    transform: translate(-50%, -50%) translateX(var(--r)) rotate(0deg);
   }
   to {
-    transform: translate(-50%, -50%) translateX(clamp(72px, 14vw, 150px)) rotate(-360deg);
+    transform: translate(-50%, -50%) translateX(var(--r)) rotate(-360deg);
   }
 }
 .vv--blob {
