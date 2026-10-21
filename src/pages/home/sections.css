@@ -129,9 +129,10 @@
   position: fixed;
   top: 0;
   left: 0;
+  /* 16:9, the projects' own ratio */
   width: 400px;
-  height: 270px;
-  margin: -135px 0 0 -200px;
+  height: 225px;
+  margin: -112px 0 0 -200px;
   pointer-events: none;
   z-index: 30;
 }
@@ -585,8 +586,8 @@
   .work__thumb {
     grid-area: thumb;
     display: block;
-    width: 76px;
-    height: 58px;
+    width: 84px;
+    height: 47px;
     border-radius: 12px;
     overflow: hidden;
   }

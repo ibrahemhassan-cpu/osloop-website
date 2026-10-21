@@ -43,7 +43,7 @@ export function Ribbons() {
 
 const ICONS: Record<string, React.ReactNode> = {
   Healthcare: <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10zM9 11h6M12 8v6" />,
-  Crypto: <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM9.5 9.5h4a1.5 1.5 0 0 1 0 3h-4h4.5a1.5 1.5 0 0 1 0 3h-4.5zM11 8v1.5M11 15.5V17" />,
+  'Real Estate': <path d="M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-5h4v5" />,
   Food: <path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2 1.5-3 4-3 7v3h3" />,
   SaaS: <path d="M4 5h16v11H4zM8 20h8M12 16v4M8 9h5M8 12h8" />,
 }

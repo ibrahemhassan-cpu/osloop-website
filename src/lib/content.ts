@@ -167,7 +167,7 @@ export const values = [
   {
     n: '01',
     title: 'Industry Versatility',
-    body: "Whether you're in healthcare or crypto, food or SaaS, we dive deep into your industry's unique needs. We speak your language and translate it into animations that resonate with your audience.",
+    body: "Whether you're in healthcare or real estate, food or SaaS, we dive deep into your industry's unique needs. We speak your language and translate it into animations that resonate with your audience.",
   },
   {
     n: '02',
@@ -248,7 +248,7 @@ export const contact = {
   budgets: ['Less than $2,800', '$2,800 to $5,600', 'More than $5,600'],
 }
 
-export const industries = ['Healthcare', 'Crypto', 'Food', 'SaaS']
+export const industries = ['Healthcare', 'Real Estate', 'Food', 'SaaS']
 
 /* --------------------------------------------------------------------- Team */
 export type TeamMember = {
@@ -309,10 +309,13 @@ export type Project = {
 /** `label` stands in for the client's name (never shown); `rating` out of 5, when the client gave one */
 export type Review = { quote: string; label: string; rating?: number }
 
-/** a project's media from the handoff: public/projects/<slug>/cover.webp + gallery-1..3.webp (1280 × 720) */
+/**
+ * A project's media (public/projects/<slug>/): cover.webp is the hero and the Work card, stage-1..4.webp
+ * follow the four steps of How it was made. Every file also has a -960 copy; sizes in lib/images.ts.
+ */
 const media = (slug: string) => ({
   cover: `/projects/${slug}/cover.webp`,
-  gallery: [1, 2, 3].map((i) => `/projects/${slug}/gallery-${i}.webp`),
+  gallery: [1, 2, 3, 4].map((i) => `/projects/${slug}/stage-${i}.webp`),
 })
 
 /*
@@ -346,7 +349,7 @@ export const projects: Project[] = [
     end: 'A compact, educational 3D film that makes technical craft easy to understand while keeping the final result visually rewarding.',
     review: {
       quote:
-        "Mohamed and his team were a pleasure to work with on this project. They asked a lot of questions in order to clearly understand our goals and objectives. Because of that we only had very minor changes to the final product. We really enjoyed working with them and appreciate their professional approach and going beyond expectations to deliver what we didn't even know we needed!!! We will definitely be using them again in the future.",
+        "The OsLoop team was a pleasure to work with on this project. They asked a lot of questions in order to clearly understand our goals and objectives. Because of that we only had very minor changes to the final product. We really enjoyed working with them and appreciate their professional approach and going beyond expectations to deliver what we didn't even know we needed!!! We will definitely be using them again in the future.",
       label: '3D Animation Project',
       rating: 5,
     },
@@ -434,8 +437,9 @@ export const projects: Project[] = [
   },
   {
     slug: 'mark-vfx-before-after',
-    title: 'Mark: VFX Before & After',
-    name: 'Mark',
+    // the page keeps its old address for now (video-editing-sfx-project-update.md)
+    title: 'Video Editing & SFX: Before and After',
+    name: 'Video Editing & SFX',
     category: 'VFX & Compositing',
     group: 'VFX',
     year: '2022',

@@ -25,9 +25,10 @@
   animation: orbit 16s linear infinite;
   animation-delay: calc(var(--k) * -4s);
 }
+/* the orbit keeps at least 72px of radius so the industry chips never overlap on phones */
 .vv__sat span {
   position: absolute;
-  transform: translate(-50%, -50%) translateX(min(150px, 14vw)) rotate(0deg);
+  transform: translate(-50%, -50%) translateX(clamp(72px, 14vw, 150px)) rotate(0deg);
   padding: 7px 12px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -44,10 +45,10 @@
 }
 @keyframes counter {
   from {
-    transform: translate(-50%, -50%) translateX(min(150px, 14vw)) rotate(0deg);
+    transform: translate(-50%, -50%) translateX(clamp(72px, 14vw, 150px)) rotate(0deg);
   }
   to {
-    transform: translate(-50%, -50%) translateX(min(150px, 14vw)) rotate(-360deg);
+    transform: translate(-50%, -50%) translateX(clamp(72px, 14vw, 150px)) rotate(-360deg);
   }
 }
 .vv--blob {

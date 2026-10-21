@@ -12,6 +12,7 @@ import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../lib/gsap'
 import { projects, type Project } from '../../lib/content'
 import { Testimonials } from '../home/Testimonials'
 import { NAV } from '../../lib/nav'
+import { imageSizes, responsive } from '../../lib/images'
 import './projects.css'
 
 /** Route wrapper — remounts the page per project so every animation starts fresh. */
@@ -31,6 +32,11 @@ function ProjectPage({ project: p }: { project: Project }) {
   const next = projects[(index + 1) % projects.length]
   // a gallery with one image per stage follows the story; otherwise the cover leads the stills
   const stills = p.gallery.length >= p.journey.length ? p.gallery : [p.cover, ...p.gallery].filter((x): x is string => !!x)
+  // the stage box keeps the stage images' own ratio (when their sizes are known), so none is cropped
+  const ratio = (src: string | null | undefined) => {
+    const size = src ? imageSizes[src] : undefined
+    return size ? ({ '--ratio': `${size[0]} / ${size[1]}` } as CSSProperties) : undefined
+  }
   useAutoReveal(main, ready)
 
   useGSAP(
@@ -53,7 +59,8 @@ function ProjectPage({ project: p }: { project: Project }) {
       gsap.fromTo(
         '.case__cover .pcover',
         { scale: 1.25 },
-        { scale: 1, ease: 'none', scrollTrigger: { trigger: '.case__cover', start: 'top bottom', end: 'bottom top', scrub: true } },
+        // the zoom settles at 100% as the hero opens fully, so the whole image is on screen at rest
+        { scale: 1, ease: 'none', scrollTrigger: { trigger: '.case__cover', start: 'top bottom', end: 'top 10%', scrub: true } },
       )
 
       // "Where it started" — words light up as you read.
@@ -156,10 +163,19 @@ function ProjectPage({ project: p }: { project: Project }) {
           <div className="journey">
             <aside className="journey__aside">
               <div className="journey__sticky">
-                <div className="journey__media">
+                <div className={`journey__media${ratio(stills[0]) ? ' journey__media--whole' : ''}`} style={ratio(stills[0])}>
                   {stills.length ? (
                     stills.map((src, i) => (
-                      <img key={src} src={src} alt="" loading="lazy" className={i === stage % stills.length ? 'is-on' : ''} />
+                      <img
+                        key={src}
+                        src={src}
+                        {...responsive(src)}
+                        sizes="45vw"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                        className={i === stage % stills.length ? 'is-on' : ''}
+                      />
                     ))
                   ) : (
                     <ProjectCover project={p} />
