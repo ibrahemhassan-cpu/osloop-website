@@ -366,16 +366,24 @@ html.is-grabbing * {
   }
 }
 .v1-svc {
+  /* The card is built around its image box: one fixed ratio (574 : 597, the approved stills) on every
+     card and every screen. The box is as tall as the screen allows, never so wide that it crowds the
+     copy, and the card never passes 1000px; the card's height follows the box. */
+  --svc-pad: clamp(26px, 3vw, 48px);
+  --svc-gap: 3vw;
+  --svc-w: min(76vw, 1240px);
+  --svc-media-h: min(
+    calc(100svh - var(--header-h) - 15vh - 2 * var(--svc-pad)),
+    calc(1000px - 2 * var(--svc-pad)),
+    calc((var(--svc-w) - 2 * var(--svc-pad) - var(--svc-gap)) * 0.52 * 597 / 574)
+  );
   flex: none;
-  /* on very tall screens the cards stop growing and sit in the middle */
   align-self: center;
-  height: 100%;
-  max-height: 1000px;
-  width: min(76vw, 1240px);
+  width: var(--svc-w);
   display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  gap: 3vw;
-  padding: clamp(26px, 3vw, 48px);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--svc-gap);
+  padding: var(--svc-pad);
   border-radius: 32px;
   background: var(--card);
   border: 1px solid var(--card-line);
@@ -419,9 +427,10 @@ html.is-grabbing * {
 }
 .v1-svc__media {
   position: relative;
+  height: var(--svc-media-h);
+  aspect-ratio: 574 / 597;
   border-radius: 22px;
   overflow: hidden;
-  min-height: 0;
 }
 /* the crossfading stills sit in one layer (.iloop__track) so the parallax moves them together,
    while the dots stay still */
@@ -1095,8 +1104,10 @@ html.is-grabbing * {
   .v1-svc__title {
     margin-top: 20px;
   }
+  /* stacked: the image box spans the card at the same fixed ratio */
   .v1-svc__media {
-    aspect-ratio: 4 / 3;
+    width: 100%;
+    height: auto;
   }
   .v1-values__head {
     grid-template-columns: 1fr;

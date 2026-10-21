@@ -54,7 +54,7 @@ export function Work() {
             >
               <span className="work__idx mono">{String(i + 1).padStart(2, '0')}</span>
               <span className="work__thumb">
-                <ProjectCover project={p} />
+                <ProjectCover project={p} sizes="84px" />
               </span>
               {/* the official title, split so every row keeps the one-line rhythm of the list */}
               <span className="work__title">
@@ -82,7 +82,7 @@ export function Work() {
           <div className="work__reel" style={{ transform: `translateY(${-(hover ?? 0) * 100}%)` }}>
             {FEATURED.map((p) => (
               <div className="work__frame" key={p.slug}>
-                <ProjectCover project={p} />
+                <ProjectCover project={p} sizes="400px" />
               </div>
             ))}
           </div>
