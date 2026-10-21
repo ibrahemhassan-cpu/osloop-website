@@ -78,19 +78,31 @@ export function Process() {
       }
       paint()
 
-      gsap.to(state, {
-        ry: -STEP * (pipeline.length - 1),
-        ease: 'none',
-        onUpdate: paint,
-        scrollTrigger: {
-          trigger: root.current,
-          start: 'top top',
-          end: () => `+=${window.innerHeight * 3.2}`,
-          pin: true,
-          scrub: 1.2,
-          snap: { snapTo: 1 / (pipeline.length - 1), duration: { min: 0.3, max: 0.9 }, ease: 'power2.inOut', delay: 0.1 },
-        },
-      })
+      // the ring turns through the cards over 3.2 screens of scroll, then the last card holds for a little
+      // more before the pin lets go, so the next section only comes up once it has been seen whole
+      const TURN = 3.2
+      const HOLD = 0.6
+      const turnEnd = TURN / (TURN + HOLD) // where the turn ends, as a share of the pin
+      const step = turnEnd / (pipeline.length - 1)
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: root.current,
+            start: 'top top',
+            end: () => `+=${window.innerHeight * (TURN + HOLD)}`,
+            pin: true,
+            scrub: 1.2,
+            // settle on a card while turning; the hold scrolls freely
+            snap: {
+              snapTo: (v: number) => (v >= turnEnd ? v : Math.round(v / step) * step),
+              duration: { min: 0.3, max: 0.9 },
+              ease: 'power2.inOut',
+              delay: 0.1,
+            },
+          },
+        })
+        .to(state, { ry: -STEP * (pipeline.length - 1), ease: 'none', duration: TURN, onUpdate: paint })
+        .to({}, { duration: HOLD })
     },
     { scope: root },
   )
