@@ -49,11 +49,12 @@ export function Services() {
         gsap.utils.toArray<HTMLElement>('.v1-svc', root.current).forEach((panel) => {
           const media = panel.querySelector('.v1-svc__loop .iloop__track')
           const title = panel.querySelector('.v1-svc__title')
-          gsap.fromTo(media, { xPercent: -12, scale: 1.18 }, {
-            xPercent: 12,
-            scale: 1.05,
+          // a light zoom only (no sideways slide): the stills never pull away from their box's edges, and
+          // they settle at 100%, the exact approved crop, as the card reaches the middle of the screen
+          gsap.fromTo(media, { scale: 1.08 }, {
+            scale: 1,
             ease: 'none',
-            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left right', end: 'right left', scrub: true },
+            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left right', end: 'center center', scrub: true },
           })
           gsap.from(title, {
             xPercent: 25,

@@ -432,7 +432,7 @@ html.is-grabbing * {
   border-radius: 22px;
   overflow: hidden;
 }
-/* the crossfading stills sit in one layer (.iloop__track) so the parallax moves them together,
+/* the crossfading stills sit in one layer (.iloop__track) so the scroll zoom moves them together,
    while the dots stay still */
 .v1-svc__loop {
   position: absolute;
