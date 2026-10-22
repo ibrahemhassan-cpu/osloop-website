@@ -216,6 +216,38 @@ export const testimonials = [
   },
 ]
 
+/* -------------------------------------------------------------------- Reach */
+export type Market = { name: string; code: string; lat: number; lon: number }
+
+/**
+ * The globe of the "Our reach" section: every line starts at the studio and lands in one of the
+ * markets, in this order. `lat`/`lon` place the country's pin (a point well inside it). Adding a
+ * country with another code also needs scripts/globe-land.mjs re-run so its land lights up.
+ */
+export const reach: { studio: Market; markets: Market[] } = {
+  studio: { name: 'Alexandria, Egypt', code: 'EG', lat: 31.2, lon: 29.92 },
+  markets: [
+    { name: 'United States', code: 'US', lat: 39.5, lon: -98.35 },
+    { name: 'United Kingdom', code: 'GB', lat: 53.6, lon: -1.9 },
+    { name: 'Australia', code: 'AU', lat: -25.3, lon: 133.8 },
+    { name: 'United Arab Emirates', code: 'AE', lat: 23.9, lon: 54.3 },
+    { name: 'Qatar', code: 'QA', lat: 25.3, lon: 51.2 },
+    { name: 'Saudi Arabia', code: 'SA', lat: 23.9, lon: 45.1 },
+    { name: 'France', code: 'FR', lat: 46.6, lon: 2.4 },
+    { name: 'Switzerland', code: 'CH', lat: 46.8, lon: 8.2 },
+    { name: 'Germany', code: 'DE', lat: 51.2, lon: 10.4 },
+    { name: 'Spain', code: 'ES', lat: 40.2, lon: -3.7 },
+    { name: 'Canada', code: 'CA', lat: 56.1, lon: -106.3 },
+    { name: 'Oman', code: 'OM', lat: 21.5, lon: 55.9 },
+    { name: 'Ireland', code: 'IE', lat: 53.2, lon: -8.0 },
+    { name: 'Greece', code: 'GR', lat: 39.3, lon: 21.9 },
+    { name: 'South Korea', code: 'KR', lat: 36.4, lon: 127.9 },
+    { name: 'Singapore', code: 'SG', lat: 1.35, lon: 103.82 },
+    { name: 'South Africa', code: 'ZA', lat: -30.6, lon: 22.9 },
+    { name: 'Romania', code: 'RO', lat: 45.9, lon: 25.0 },
+  ],
+}
+
 export const legal = [
   { label: 'Privacy Policy', href: 'https://agency.osloop.com/privacy-policy.html' },
   { label: 'Terms & Conditions', href: 'https://agency.osloop.com/terms-and-conditions.html' },

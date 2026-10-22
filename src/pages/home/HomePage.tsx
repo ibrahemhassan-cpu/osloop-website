@@ -15,6 +15,7 @@ import { Work } from './Work'
 import { Process } from './Process'
 import { Values } from './Values'
 import { Testimonials } from './Testimonials'
+import { Reach } from './Reach'
 import { Contact } from './Contact'
 import './v1.css'
 import './sections.css'
@@ -51,6 +52,7 @@ export default function HomePage() {
           <Process />
           <Values />
           <Testimonials />
+          <Reach />
           {/* the Team section is removed for now (its code is kept in ./Team.tsx) */}
           <Contact />
           <Footer links={NAV} />

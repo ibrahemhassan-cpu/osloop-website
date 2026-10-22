@@ -1,0 +1,214 @@
+/* =============== OUR REACH (3D globe with orbiting markets) =============== */
+.reach {
+  position: relative;
+  background: var(--bg);
+  color: var(--fg);
+  padding: 16vh var(--gutter) 10vh;
+  border-radius: 40px 40px 0 0;
+  margin-top: -40px;
+  overflow: hidden;
+}
+.reach__head {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: end;
+  gap: 24px 40px;
+}
+.reach__h {
+  font-size: clamp(40px, 6vw, 110px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+}
+.reach__h .serif {
+  color: var(--hl);
+}
+.reach__p {
+  max-width: 420px;
+  justify-self: end;
+  color: var(--fg-2);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+/* ---------- the globe's box (the canvas overhangs it so tilted rings aren't cut) ---------- */
+.reach__globe {
+  --globe: 200px;
+  position: relative;
+  height: min(84vh, 54vw);
+  min-height: 420px;
+  margin-top: 4vh;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.reach__canvas,
+.reach__tags {
+  position: absolute;
+  inset: -16% 0;
+  pointer-events: none;
+}
+.reach__canvas > div {
+  position: absolute !important;
+  inset: 0;
+}
+html.has-cursor .reach__globe {
+  cursor: none;
+}
+/* the globe's own disc: a swipe that starts here turns it in any direction */
+.reach__grab {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--globe) * 2);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  translate: -50% -50%;
+  touch-action: none;
+}
+.reach__globe {
+  touch-action: pan-y;
+}
+
+/* ---------- the markets' names, placed beside their satellites by the scene ---------- */
+.reach__tags {
+  list-style: none;
+  z-index: 2;
+}
+.reach__tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.reach__tag-in {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-shadow: 0 0 12px var(--bg), 0 0 4px var(--bg);
+  pointer-events: auto;
+  transform: translate(12px, -50%);
+  transition: background-color 0.5s, border-color 0.5s, color 0.5s;
+}
+.reach__tag.is-left .reach__tag-in {
+  left: auto;
+  right: 0;
+  transform: translate(-12px, -50%);
+}
+.reach__tag-in:hover,
+.reach__tag.is-on .reach__tag-in {
+  background: var(--bg-2);
+  border-color: var(--hl);
+  box-shadow: 0 10px 30px -14px var(--glow);
+}
+.reach__tag-in:focus-visible {
+  outline: 2px solid var(--hl);
+  outline-offset: 2px;
+}
+.reach__flag {
+  font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-size: 17px;
+  line-height: 1;
+  text-shadow: none;
+}
+
+.reach__hint {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 3vh;
+  color: var(--fg-3);
+  font-size: 11px;
+}
+
+@media (max-width: 1100px) {
+  .reach__globe {
+    height: min(70vh, 64vw);
+  }
+  /* only the tapped market's name shows on its ring; the rest are the chips below */
+  .reach__tag:not(.is-on) {
+    visibility: hidden;
+  }
+  .reach__chips {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 2vh;
+  }
+  .reach__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 12px 0 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--fg-2);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    transition: color 0.5s, border-color 0.5s, background-color 0.5s;
+  }
+  .reach__chip.is-on {
+    color: var(--fg);
+    border-color: var(--hl);
+    background: color-mix(in srgb, var(--hl) 14%, var(--card));
+  }
+  .reach__chip .reach__flag {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 760px) {
+  .reach {
+    padding: 12vh var(--gutter) 9vh;
+    border-radius: 28px 28px 0 0;
+    margin-top: -28px;
+  }
+  .reach__head {
+    grid-template-columns: 1fr;
+  }
+  .reach__p {
+    justify-self: start;
+  }
+  .reach__globe {
+    height: 76vw;
+    min-height: 0;
+    margin-inline: calc(var(--gutter) * -1);
+  }
+  .reach__tag-in {
+    gap: 6px;
+    padding: 4px 9px 4px 6px;
+    font-size: 11.5px;
+    transform: translate(7px, -50%);
+  }
+  .reach__tag.is-left .reach__tag-in {
+    transform: translate(-7px, -50%);
+  }
+  .reach__flag {
+    font-size: 14px;
+  }
+}
