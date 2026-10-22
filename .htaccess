@@ -1,0 +1,29 @@
+DirectoryIndex index.html
+Options -MultiViews
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # The original consultation pages are served directly at their existing URLs.
+  RewriteRule ^request-your-video/?$ /?consultation=general&%{QUERY_STRING}#contact [R=301,L,NE]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !\.(?:php|xml|txt|json|js|css|png|jpe?g|webp|svg|ico|woff2?)$ [NC]
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Always fetch the latest pages and machine-readable discovery files.
+  <FilesMatch "\.(?:html?|xml|txt|json)$">
+    Header always set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
+  </FilesMatch>
+
+  # Revalidate styles and scripts so deployments appear immediately.
+  <FilesMatch "\.(?:css|js)$">
+    Header always set Cache-Control "no-cache, must-revalidate, max-age=0"
+  </FilesMatch>
+
+  # Cache large, less frequently changed media for one day.
+  <FilesMatch "\.(?:avif|gif|ico|jpe?g|png|svg|webp|mp4|webm|woff2?)$">
+    Header always set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://agency.osloop.com/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://agency.osloop.com/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://agency.osloop.com/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://agency.osloop.com/" />
+  </url>
+  <url>
+    <loc>https://agency.osloop.com/ar/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://agency.osloop.com/" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://agency.osloop.com/ar/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://agency.osloop.com/" />
+  </url>
+  <url>
+    <loc>https://agency.osloop.com/get-free-consultation.html</loc>
+  </url>
+  <url>
+    <loc>https://agency.osloop.com/get-free-healthcare-consultation.html</loc>
+  </url>
+  <url>
+    <loc>https://agency.osloop.com/get-free-real-estate-consultation.html</loc>
+  </url>
+  <url>
+    <loc>https://agency.osloop.com/privacy-policy.html</loc>
+  </url>
+  <url>
+    <loc>https://agency.osloop.com/terms-and-conditions.html</loc>
+  </url>
+</urlset>

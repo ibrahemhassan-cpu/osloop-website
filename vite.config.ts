@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { staticSite } from './scripts/static-site.ts'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), staticSite()],
   server: { port: 5180, strictPort: true, host: true },
   build: {
     target: 'es2022',

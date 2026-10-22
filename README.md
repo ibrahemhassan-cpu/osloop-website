@@ -46,17 +46,17 @@ The official logo files supplied by OsLoop live in `public/brand/`:
 
 The hero's glass ∞ and its orange play arrow are built in 3D from the **Media logo icon** (`src/pages/home/loopIcon.ts`).
 
-### Contact form + spam protection
+### Contact form and Apache hosting
 
-The form validates every field, includes a hidden honeypot field, and asks a human check before sending.
-Until the Cloudflare Turnstile keys are added, that check is a small sum (e.g. "7 + 4 = ?"); once the site key is set, Turnstile replaces it automatically.
+Run `npm ci`, `npm run typecheck`, and `npm run build`. Upload the contents of `dist`, including `.htaccess`, to the existing PHP/Apache document root.
 
-1. Create a Turnstile widget at dash.cloudflare.com. Put the **site key** in `contact.turnstileSiteKey`, or set the `VITE_TURNSTILE_SITE_KEY` env var.
-2. Create a free form at formspree.io.
-3. On Vercel, set the env vars `TURNSTILE_SECRET_KEY` and `FORMSPREE_ENDPOINT`.
-4. Set `contact.formEndpoint` to `'/api/contact'`. The function in `api/contact.ts` verifies Turnstile on the server (once its secret is set) and then forwards the message to Formspree.
+The English form posts to `/formAction.php`; both Arabic forms post to `/ar/formAction.php`. These use the SMTP configuration and recipients from `dev-1`. The build includes their PHPMailer dependencies, country-context endpoints, Arabic assets, Google tags, sitemap, robots file, LLM discovery file, policy pages and static project metadata.
 
-Until the form endpoint is set, the form opens the visitor's email app with the brief already filled in.
+The English form retains its current validation and quick-check UI. The server retains the original required-field validation, budget allow-list, honeypot and HTML escaping. The quick check is a client-side check. The older Vercel/Formspree endpoint in `api/contact.ts` is not used by this Apache configuration.
+
+Successful delivery returns HTTP 200 with `{ "ok": true }`. Lead conversion events fire only after that response. A failure preserves the form and allows a retry.
+
+See [the migration notes](docs/dev-1-integration.md) for the preserved Google IDs, events and verification details.
 
 ## Where things live
 

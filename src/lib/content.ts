@@ -217,8 +217,8 @@ export const testimonials = [
 ]
 
 export const legal = [
-  { label: 'Privacy Policy', href: 'https://agency.osloop.com/privacy-policy.html' },
-  { label: 'Terms & Conditions', href: 'https://agency.osloop.com/terms-and-conditions.html' },
+  { label: 'Privacy Policy', href: '/privacy-policy.html' },
+  { label: 'Terms & Conditions', href: '/terms-and-conditions.html' },
 ]
 
 export const socials = [
@@ -230,13 +230,8 @@ export const socials = [
 
 /* ------------------------------------------------------------------ Contact */
 export const contact = {
-  /**
-   * Where the form posts. '/api/contact' is the included serverless function (api/contact.ts):
-   * it verifies Cloudflare Turnstile and forwards the message to FORMSPREE_ENDPOINT.
-   * Leave empty to fall back to opening the visitor's email app with the message ready.
-   * TODO(client): set to '/api/contact' once the env vars in README are configured.
-   */
-  formEndpoint: '' as string,
+  /** Same-origin PHP delivery using the existing OsLoop mail configuration. */
+  formEndpoint: '/formAction.php' as string,
   /**
    * TODO(client): your Cloudflare Turnstile site key. While empty, the form asks a small sum
    * ("7 + 4 = ?") as its human check; once set, Turnstile takes over automatically.
