@@ -36,6 +36,7 @@
 }
 .phone__row input {
   flex: 1;
+  width: 100%;
   min-width: 0;
   font: inherit;
   font-size: 16px;

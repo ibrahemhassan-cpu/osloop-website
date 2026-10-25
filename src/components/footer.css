@@ -108,3 +108,9 @@
     flex-wrap: wrap;
   }
 }
+/* the smallest phones: one column, so the email address has room */
+@media (max-width: 350px) {
+  .ftr__grid {
+    grid-template-columns: 1fr;
+  }
+}

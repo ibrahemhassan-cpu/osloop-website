@@ -319,6 +319,24 @@
   }
 }
 
+/* the smallest phones (320px): the menu button keeps only its icon so the bar fits */
+@media (max-width: 350px) {
+  .hdr__bar {
+    gap: 12px;
+    padding: 8px 8px 8px 14px;
+  }
+  .hdr__logo {
+    width: 108px;
+    height: 33px;
+  }
+  .hdr__burger-text {
+    display: none;
+  }
+  .hdr__burger {
+    padding: 0 14px;
+  }
+}
+
 /* ================= MENU OVERLAY ================= */
 .menu {
   position: fixed;

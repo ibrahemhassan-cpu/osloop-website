@@ -987,6 +987,8 @@ html.is-grabbing * {
   will-change: transform;
 }
 .v1-cta__info {
+  /* the email below sizes itself to this column */
+  container-type: inline-size;
   display: grid;
   gap: 22px;
   max-width: 560px;
@@ -1000,7 +1002,9 @@ html.is-grabbing * {
   display: inline-flex;
   align-items: center;
   gap: 16px;
-  font-size: clamp(22px, 2.6vw, 40px);
+  /* the address is ~12.9× its font size wide, plus 46px of arrow and gap: it shrinks only when its
+     column is too narrow for it, so it's never cut off */
+  font-size: min(clamp(22px, 2.6vw, 40px), max(15px, calc(7.7cqi - 3.6px)));
   font-weight: 500;
   letter-spacing: -0.035em;
   padding-bottom: 10px;
