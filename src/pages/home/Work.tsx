@@ -4,6 +4,7 @@ import { projects } from '../../lib/content'
 import { TransitionLink } from '../../providers/Experience'
 import { ProjectCover } from '../../components/ProjectCover'
 import { Arrow } from '../../components/ui'
+import { useMedia } from '../../lib/useMedia'
 
 const FEATURED = projects
 
@@ -12,6 +13,25 @@ export function Work() {
   const root = useRef<HTMLElement>(null)
   const preview = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState<number | null>(null)
+  // the hover preview's stills load once the visitor nears the list, not with the page (~0.5 MB);
+  // touch screens have no hover preview at all
+  const [near, setNear] = useState(false)
+  // the row thumbnails only show on phones; elsewhere they are not rendered, so they don't download
+  const phone = useMedia('(max-width: 760px)')
+
+  useEffect(() => {
+    if (isTouch()) return
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return
+        setNear(true)
+        io.disconnect()
+      },
+      { rootMargin: '800px 0px' },
+    )
+    io.observe(root.current!)
+    return () => io.disconnect()
+  }, [])
 
   useEffect(() => {
     if (isTouch() || !preview.current) return
@@ -53,9 +73,7 @@ export function Work() {
               onMouseEnter={() => setHover(i)}
             >
               <span className="work__idx mono">{String(i + 1).padStart(2, '0')}</span>
-              <span className="work__thumb">
-                <ProjectCover project={p} sizes="84px" />
-              </span>
+              <span className="work__thumb">{phone && <ProjectCover project={p} sizes="84px" />}</span>
               {/* the official title, split so every row keeps the one-line rhythm of the list */}
               <span className="work__title">
                 {p.name}
@@ -80,11 +98,12 @@ export function Work() {
       <div className={`work__preview${hover !== null ? ' is-on' : ''}`} ref={preview} aria-hidden>
         <div className="work__preview-inner">
           <div className="work__reel" style={{ transform: `translateY(${-(hover ?? 0) * 100}%)` }}>
-            {FEATURED.map((p) => (
-              <div className="work__frame" key={p.slug}>
-                <ProjectCover project={p} sizes="400px" />
-              </div>
-            ))}
+            {near &&
+              FEATURED.map((p) => (
+                <div className="work__frame" key={p.slug}>
+                  <ProjectCover project={p} sizes="400px" />
+                </div>
+              ))}
           </div>
         </div>
       </div>
