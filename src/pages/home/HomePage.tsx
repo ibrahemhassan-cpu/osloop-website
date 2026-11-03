@@ -17,26 +17,33 @@ import { Values } from './Values'
 import { Testimonials } from './Testimonials'
 import { Reach } from './Reach'
 import { Contact } from './Contact'
+import { trackForm } from '../../lib/tracking'
 import './v1.css'
 import './sections.css'
 
 export default function HomePage() {
   const { ready } = useExperience()
   const { scrollTo } = useSmoothScroll()
-  const { hash } = useLocation()
+  const { hash, search } = useLocation()
+  const campaignOpened = useRef(false)
+  const contactTarget = hash || (/request-your-video|consultation=/.test(search) ? '#contact' : '')
   const main = useRef<HTMLElement>(null)
   useAutoReveal(main, ready)
 
   // Arriving from another page with a #section — glide to it once the page is revealed.
   useEffect(() => {
-    if (!ready || !hash) return
+    if (!ready || !contactTarget) return
     const id = window.setTimeout(() => {
       ScrollTrigger.refresh()
-      scrollTo(hash, { duration: 2 })
+      scrollTo(contactTarget, { duration: 2 })
+      if (contactTarget === '#contact' && !campaignOpened.current) {
+        campaignOpened.current = true
+        trackForm('form_open', 'webflow-form', { trigger: 'landing_link' })
+      }
     }, 350)
     return () => window.clearTimeout(id)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, hash])
+  }, [ready, contactTarget])
 
   return (
     <>

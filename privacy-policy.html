@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18238858840"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'AW-18238858840');
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy | OsLoop Media Production</title>
+  <meta name="description" content="Privacy Policy for OsLoop Media Production, explaining how agency.osloop.com collects, uses, stores, and protects personal information.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="Privacy Policy | OsLoop Media Production">
+  <meta property="og:description" content="Privacy Policy for OsLoop Media Production, explaining how agency.osloop.com collects, uses, stores, and protects personal information.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://agency.osloop.com/privacy-policy.html">
+  <link rel="canonical" href="https://agency.osloop.com/privacy-policy.html">
+  <link href="images/favicon.png" rel="shortcut icon" type="image/x-icon">
+  <link href="images/webclip.png" rel="apple-touch-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
+  <script type="text/javascript">WebFont.load({ google: { families: ["Montserrat:400,500,600,700,800,900", "Open+Sans:300,400,600,700,800"] } });</script>
+
+  <style>
+    /* ===========================
+       RESET & BASE
+    =========================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; height: 100%; }
+
+    body {
+      background-color: #f8f9fd;
+      font-family: 'Open Sans', Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #39425e;
+      overflow-x: hidden;
+      min-height: 100%;
+    }
+
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ul { padding-left: 1.5rem; }
+    li { margin: 6px 0; }
+
+    /* ===========================
+       NAVBAR
+    =========================== */
+    .lp-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background-color: #f8f9fd;
+      padding: 10px 5vw;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 16px rgba(6, 17, 49, 0.09);
+    }
+
+    .lp-logo { height: 48px; width: auto; }
+
+    .lp-nav-links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2vw;
+    }
+
+    .lp-nav-links a {
+      color: #1940b4;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.5;
+      padding: 4px 6px;
+      overflow: hidden;
+      transition: opacity 0.2s ease;
+    }
+    .lp-nav-links a:hover { opacity: 0.65; }
+
+    .lp-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lp-cta-btn {
+      background-image: linear-gradient(114deg, #0b3cb7, #1e7ec3);
+      color: #fff;
+      border-radius: 16px;
+      padding: 13px 26px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+      display: inline-block;
+      transition: opacity 0.2s ease;
+    }
+    .lp-cta-btn:hover { opacity: 0.85; color: #fff; }
+
+    /* Hamburger */
+    .lp-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px 4px;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .lp-hamburger span {
+      display: block;
+      width: 26px;
+      height: 2.5px;
+      background: #1940b4;
+      border-radius: 2px;
+    }
+
+    /* Mobile overlay menu */
+    .lp-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #061131;
+      z-index: 200;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 10vw;
+      gap: 0;
+    }
+    .lp-mobile-menu.open { display: flex; }
+
+    .lp-mobile-close {
+      position: absolute;
+      top: 22px; right: 6vw;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .lp-mobile-menu a {
+      color: #f8f9fd;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+      width: 100%;
+      display: block;
+    }
+
+    .lp-mobile-cta {
+      margin-top: 32px;
+      background-image: linear-gradient(114deg, #0b3cb7, #1e7ec3) !important;
+      color: #fff !important;
+      border-radius: 16px !important;
+      padding: 14px 28px !important;
+      border-bottom: none !important;
+      width: auto !important;
+      font-weight: 700 !important;
+      font-size: 1rem !important;
+      display: inline-block !important;
+    }
+
+    /* ===========================
+       HERO
+    =========================== */
+    .lp-hero {
+      padding: 136px 5vw 64px;
+      background: linear-gradient(135deg, #f8f9fd 55%, #e4ecff 100%);
+      border-bottom: 1px solid rgba(25, 64, 180, 0.1);
+    }
+
+    .lp-hero-inner { max-width: 1100px; margin: 0 auto; }
+
+    .lp-breadcrumb {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.85rem;
+      color: #515a72;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lp-breadcrumb a { color: #1940b4; }
+    .lp-breadcrumb a:hover { text-decoration: underline; }
+    .lp-breadcrumb .sep { color: #b5b8c3; }
+
+    .lp-hero h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+      font-weight: 800;
+      color: #1940b4;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+
+    .lp-hero-meta {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.95rem;
+      color: #515a72;
+    }
+
+    /* ===========================
+       CONTENT LAYOUT
+    =========================== */
+    .lp-body { padding: 60px 5vw 80px; }
+
+    .lp-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* --- Sidebar --- */
+    .lp-sidebar {
+      position: sticky;
+      top: 82px;
+      background: #fff;
+      border: 1px solid rgba(25, 64, 180, 0.11);
+      border-radius: 20px;
+      padding: 22px 20px;
+      box-shadow: 0 4px 24px rgba(6, 17, 49, 0.06);
+    }
+
+    .lp-sidebar-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #1940b4;
+      margin-bottom: 14px;
+    }
+
+    .lp-toc a {
+      display: block;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.82rem;
+      color: #515a72;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(25, 64, 180, 0.07);
+      transition: color 0.2s ease, padding-left 0.18s ease;
+      line-height: 1.4;
+    }
+    .lp-toc a:last-child { border-bottom: none; }
+    .lp-toc a:hover { color: #1940b4; padding-left: 5px; }
+
+    .lp-sidebar-related {
+      display: block;
+      margin-top: 18px;
+      padding: 10px 14px;
+      background-image: linear-gradient(114deg, #0b3cb7, #1e7ec3);
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border-radius: 12px;
+      text-align: center;
+      transition: opacity 0.2s ease;
+    }
+    .lp-sidebar-related:hover { opacity: 0.85; color: #fff; }
+
+    /* --- Article --- */
+    .lp-article {
+      background: #fff;
+      border: 1px solid rgba(25, 64, 180, 0.1);
+      border-radius: 24px;
+      padding: clamp(28px, 4vw, 52px);
+      box-shadow: 0 4px 32px rgba(6, 17, 49, 0.06);
+    }
+
+    .lp-note {
+      background: linear-gradient(114deg, rgba(11,60,183,0.06), rgba(30,126,195,0.04));
+      border: 1px solid rgba(25, 64, 180, 0.18);
+      border-left: 4px solid #1940b4;
+      border-radius: 0 14px 14px 0;
+      padding: 16px 20px;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.93rem;
+      color: #1940b4;
+      margin-bottom: 38px;
+      line-height: 1.65;
+    }
+
+    .lp-article h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+      font-weight: 700;
+      color: #1940b4;
+      margin: 46px 0 12px;
+      line-height: 1.25;
+      scroll-margin-top: 100px;
+    }
+
+    .lp-article h2:first-of-type { margin-top: 0; }
+
+    .lp-article h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.97rem;
+      font-weight: 700;
+      color: #061131;
+      margin: 24px 0 8px;
+    }
+
+    .lp-article p {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.96rem;
+      color: #39425e;
+      margin-bottom: 14px;
+      line-height: 1.78;
+    }
+
+    .lp-article ul {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 0.96rem;
+      color: #39425e;
+      margin-bottom: 18px;
+      padding-left: 20px;
+    }
+
+    .lp-article li { margin: 5px 0; line-height: 1.72; }
+
+    .lp-article strong { color: #061131; font-weight: 700; }
+
+    .lp-article a {
+      color: #1940b4;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .lp-article a:hover { opacity: 0.75; }
+
+    .lp-divider {
+      border: none;
+      border-top: 1px solid rgba(25, 64, 180, 0.09);
+      margin: 12px 0 40px;
+    }
+
+    /* ===========================
+       FOOTER
+    =========================== */
+    .lp-footer {
+      background-color: #0b3cb7;
+      padding: 80px 5vw 64px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+      gap: 56px;
+    }
+
+    .lp-footer-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 28px;
+    }
+
+    .lp-footer-logo { height: 6rem; width: auto; }
+
+    .lp-footer-copy {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      color: #ccc;
+      line-height: 1.5;
+    }
+
+    .lp-footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .lp-footer-tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: #fff;
+      opacity: 0.6;
+      line-height: 1;
+    }
+
+    .lp-footer-letstalk {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 400;
+      color: #fff;
+      line-height: 1;
+      transition: opacity 0.2s ease;
+    }
+    .lp-footer-letstalk:hover { opacity: 0.75; color: #fff; }
+
+    .lp-footer-col-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+
+    .lp-footer-nav {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lp-footer-nav a {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: #fff;
+      padding: 8px 0;
+      line-height: 1;
+      transition: opacity 0.2s ease;
+    }
+    .lp-footer-nav a:hover { opacity: 0.65; color: #fff; }
+
+    .lp-footer-contacts {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding-left: 8px;
+    }
+
+    .lp-footer-contact-row {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .lp-contact-icon { width: 2rem; height: 2rem; object-fit: contain; }
+
+    .lp-footer-contact-row a {
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1.15rem;
+      color: #fff;
+      transition: opacity 0.2s ease;
+    }
+    .lp-footer-contact-row a:hover { opacity: 0.7; color: #fff; }
+
+    .lp-footer-social {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .lp-footer-social a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      transition: opacity 0.2s ease;
+    }
+    .lp-footer-social a:hover { opacity: 0.7; }
+    .lp-footer-social img { width: 2rem; height: 2rem; object-fit: contain; }
+
+    /* ===========================
+       RESPONSIVE - TABLET
+    =========================== */
+    @media screen and (max-width: 991px) {
+      .lp-nav-links { display: none; }
+      .lp-cta-btn { display: none; }
+      .lp-hamburger { display: flex; }
+      .lp-logo { height: 40px; }
+      .lp-navbar { grid-template-columns: auto auto; justify-content: space-between; }
+
+      .lp-hero { padding: 108px 5vw 52px; }
+
+      .lp-container { grid-template-columns: 1fr; }
+      .lp-sidebar { position: static; }
+
+      .lp-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 40px;
+        padding: 60px 8vw 52px;
+      }
+      .lp-footer-brand { align-items: flex-start; }
+      .lp-footer-logo { height: 5rem; }
+    }
+
+    /* ===========================
+       RESPONSIVE - MOBILE
+    =========================== */
+    @media screen and (max-width: 767px) {
+      .lp-hero h1 { font-size: 2rem; }
+      .lp-hero { padding: 100px 6vw 44px; }
+      .lp-body { padding: 40px 6vw 60px; }
+      .lp-article { padding: 24px 20px; border-radius: 16px; }
+      .lp-sidebar { border-radius: 16px; }
+      .lp-footer-tagline { font-size: 1.8rem; }
+      .lp-footer-letstalk { font-size: 1.8rem; }
+      .lp-footer-col-title { font-size: 1.6rem; }
+      .lp-footer-nav a { font-size: 1.15rem; }
+    }
+
+    /* ===========================
+       RESPONSIVE - SMALL MOBILE
+    =========================== */
+    @media screen and (max-width: 479px) {
+      .lp-navbar { padding: 10px 6vw; }
+      .lp-hero { padding: 94px 6vw 38px; }
+      .lp-article h2 { font-size: 1.1rem; }
+      .lp-footer-logo { height: 4rem; }
+      .lp-footer-social { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <header class="lp-navbar">
+    <a href="index.html" aria-label="OsLoop Media Production home">
+      <img class="lp-logo" src="images/Osloop---LOGO-01-01-1.png" alt="OsLoop Media Production">
+    </a>
+    <nav class="lp-nav-links" aria-label="Main navigation">
+      <a href="index.html#about">About</a>
+      <a href="index.html#reel">Reel</a>
+      <a href="index.html#our-story">Our Story</a>
+      <a href="index.html#testimonials">Testimonials</a>
+    </nav>
+    <div class="lp-nav-right">
+      <a class="lp-cta-btn" href="index.html#about">Request Your Video!</a>
+      <button class="lp-hamburger" id="lp-open-menu" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile menu -->
+  <div class="lp-mobile-menu" id="lp-mobile-menu" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <button class="lp-mobile-close" id="lp-close-menu" aria-label="Close menu">&#10005;</button>
+    <a href="index.html#about">About</a>
+    <a href="index.html#reel">Reel</a>
+    <a href="index.html#our-story">Our Story</a>
+    <a href="index.html#testimonials">Testimonials</a>
+    <a href="index.html#about" class="lp-mobile-cta">Request Your Video!</a>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="lp-hero">
+    <div class="lp-hero-inner">
+      <div class="lp-breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep">&#8250;</span>
+        <span>Privacy Policy</span>
+      </div>
+      <h1>Privacy Policy</h1>
+      <p class="lp-hero-meta">Last updated: 16 June 2026</p>
+    </div>
+  </section>
+
+  <!-- ===== LEGAL CONTENT ===== -->
+  <section class="lp-body">
+    <div class="lp-container">
+
+      <!-- Sidebar TOC -->
+      <aside class="lp-sidebar">
+        <p class="lp-sidebar-label">On This Page</p>
+        <nav class="lp-toc" aria-label="Table of contents">
+          <a href="#who-we-are">1. Who We Are</a>
+          <a href="#information-we-collect">2. Information We Collect</a>
+          <a href="#how-we-use">3. How We Use Your Information</a>
+          <a href="#legal-basis">4. Legal Basis for Processing</a>
+          <a href="#cookies">5. Cookies &amp; Tracking</a>
+          <a href="#analytics">6. Analytics &amp; Third-Party Tools</a>
+          <a href="#sharing">7. Sharing Your Information</a>
+          <a href="#international">8. International Data Transfers</a>
+          <a href="#retention">9. How Long We Keep Information</a>
+          <a href="#security">10. How We Protect Information</a>
+          <a href="#your-rights">11. Your Rights</a>
+          <a href="#marketing">12. Marketing Communications</a>
+          <a href="#children">13. Children&rsquo;s Privacy</a>
+          <a href="#links">14. Links to Other Websites</a>
+          <a href="#changes">15. Changes to This Policy</a>
+          <a href="#contact">16. Contact Us</a>
+        </nav>
+        <a class="lp-sidebar-related" href="terms-and-conditions.html">Terms &amp; Conditions &#8594;</a>
+      </aside>
+
+      <!-- Article -->
+      <article class="lp-article">
+
+        <div class="lp-note">
+          By using our website or sending us your information, you agree to the practices described in this Privacy Policy.
+        </div>
+
+        <h2 id="who-we-are">1. Who We Are</h2>
+        <p>OsLoop Media Production is a media and marketing agency based in Alexandria, Egypt.</p>
+        <p>
+          <strong>Website:</strong> agency.osloop.com<br>
+          <strong>Email:</strong> media.production@osloop.com<br>
+          <strong>Location:</strong> Alexandria, Egypt
+        </p>
+        <p>For privacy-related questions, requests, or concerns, you can contact us at:
+        <strong>media.production@osloop.com</strong></p>
+
+        <hr class="lp-divider">
+
+        <h2 id="information-we-collect">2. Information We Collect</h2>
+        <p>We may collect the following types of information:</p>
+
+        <h3>Information you provide directly</h3>
+        <p>When you contact us, request a quotation, submit a form, or communicate with us by email, WhatsApp, phone, or social media, we may collect:</p>
+        <ul>
+          <li>Name</li>
+          <li>Email address</li>
+          <li>Phone number</li>
+          <li>Company or brand name</li>
+          <li>Project details</li>
+          <li>Message content</li>
+          <li>Files, briefs, references, or materials you send to us</li>
+          <li>Any other information you choose to provide</li>
+        </ul>
+
+        <h3>Information collected automatically</h3>
+        <p>When you visit our website, we may automatically collect limited technical information, such as:</p>
+        <ul>
+          <li>IP address</li>
+          <li>Browser type</li>
+          <li>Device type</li>
+          <li>Pages visited</li>
+          <li>Date and time of visit</li>
+          <li>Referring website</li>
+          <li>Approximate location based on technical data</li>
+          <li>Website usage and interaction data</li>
+        </ul>
+        <p>This information helps us understand how visitors use our website and how we can improve it.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="how-we-use">3. How We Use Your Information</h2>
+        <p>We use collected information for the following purposes:</p>
+        <ul>
+          <li>To respond to your messages, requests, and inquiries</li>
+          <li>To discuss your project requirements</li>
+          <li>To prepare quotations, proposals, or service recommendations</li>
+          <li>To provide media production, marketing, design, advertising, or related services</li>
+          <li>To communicate with you about ongoing or potential projects</li>
+          <li>To improve our website, services, user experience, and marketing</li>
+          <li>To manage business records and internal operations</li>
+          <li>To protect our website, business, clients, and users from misuse or security risks</li>
+          <li>To comply with legal, tax, accounting, or regulatory obligations</li>
+        </ul>
+        <p>We do not sell your personal information.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="legal-basis">4. Legal Basis for Processing</h2>
+        <p>Where applicable privacy laws require a legal basis, we process your information based on one or more of the following:</p>
+        <ul>
+          <li><strong>Your consent,</strong> when you submit information voluntarily or agree to specific uses</li>
+          <li><strong>Contractual necessity,</strong> when we need your information to provide requested services or prepare a proposal</li>
+          <li><strong>Legitimate business interests,</strong> such as responding to inquiries, improving our services, securing our website, and managing client relationships</li>
+          <li><strong>Legal obligations,</strong> where we must keep or process certain information for tax, accounting, legal, or compliance reasons</li>
+        </ul>
+
+        <hr class="lp-divider">
+
+        <h2 id="cookies">5. Cookies and Tracking Technologies</h2>
+        <p>Our website may use cookies and similar technologies to improve functionality, understand website usage, and support analytics or marketing activities.</p>
+        <p>Cookies are small files stored on your device when you visit a website. They may help us:</p>
+        <ul>
+          <li>Keep the website working properly</li>
+          <li>Understand how visitors use the website</li>
+          <li>Improve website performance</li>
+          <li>Measure marketing performance</li>
+          <li>Remember certain preferences</li>
+        </ul>
+        <p>Some cookies may be essential for the website to function. Others, such as analytics or advertising cookies, may depend on your consent where required by law. You can control or disable cookies through your browser settings. Please note that disabling cookies may affect some parts of the website.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="analytics">6. Analytics and Third-Party Tools</h2>
+        <p>We may use third-party tools such as analytics, hosting, security, communication, advertising, or social media tools to operate and improve our website and services. These third-party providers may process limited personal or technical data on our behalf or according to their own privacy policies. Examples may include:</p>
+        <ul>
+          <li>Website hosting providers</li>
+          <li>Analytics tools</li>
+          <li>Email providers</li>
+          <li>Contact form tools</li>
+          <li>Social media platforms</li>
+          <li>Advertising or remarketing platforms</li>
+          <li>Project communication tools</li>
+        </ul>
+        <p>We only share information with third parties when necessary for business operations, service delivery, website functionality, legal compliance, or with your consent.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="sharing">7. Sharing Your Information</h2>
+        <p>We may share your information with:</p>
+        <ul>
+          <li>Our internal team members</li>
+          <li>Freelancers, contractors, or production partners involved in delivering your project</li>
+          <li>Technology and hosting providers</li>
+          <li>Email, communication, analytics, or business service providers</li>
+          <li>Legal, accounting, or professional advisors</li>
+          <li>Authorities, regulators, or legal bodies if required by law</li>
+        </ul>
+        <p>When we work with third parties, we aim to share only the information reasonably necessary for the relevant purpose.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="international">8. International Data Transfers</h2>
+        <p>Because we may use online tools, cloud services, hosting providers, communication platforms, or international service providers, your information may be processed or stored outside Egypt. Where required, we take reasonable steps to ensure that your information is handled securely and in line with applicable data protection standards.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="retention">9. How Long We Keep Your Information</h2>
+        <p>We keep personal information only for as long as reasonably necessary for the purposes described in this Privacy Policy. Typical retention periods may include:</p>
+        <ul>
+          <li>Inquiry and contact form data: as long as needed to respond and follow up</li>
+          <li>Client and project records: for the duration of the project and a reasonable business record period afterward</li>
+          <li>Accounting, invoice, and legal records: as required by applicable law</li>
+          <li>Marketing communication records: until you opt out or request deletion, where applicable</li>
+          <li>Technical and analytics data: according to the retention settings of the relevant tools</li>
+        </ul>
+        <p>When information is no longer needed, we will delete it, anonymize it, or securely archive it where appropriate.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="security">10. How We Protect Your Information</h2>
+        <p>We take reasonable technical and organizational measures to protect your personal information from unauthorized access, loss, misuse, alteration, or disclosure.</p>
+        <p>However, no website, email system, or online transmission method is completely secure. You should avoid sending highly sensitive information through website forms or unsecured communication channels unless necessary.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="your-rights">11. Your Rights</h2>
+        <p>Depending on applicable laws, you may have the right to:</p>
+        <ul>
+          <li>Request access to the personal information we hold about you</li>
+          <li>Request correction of inaccurate or incomplete information</li>
+          <li>Request deletion of your personal information</li>
+          <li>Object to certain processing activities</li>
+          <li>Request restriction of processing</li>
+          <li>Withdraw consent where processing is based on consent</li>
+          <li>Request a copy of certain information in a portable format</li>
+          <li>Opt out of marketing communications</li>
+        </ul>
+        <p>To make a privacy request, contact us at: <strong>media.production@osloop.com</strong><br>
+        We may need to verify your identity before responding to certain requests.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="marketing">12. Marketing Communications</h2>
+        <p>If you choose to receive marketing communications from us, we may contact you about our services, updates, offers, or agency news.</p>
+        <p>You can opt out of marketing communications at any time by contacting us at: <strong>media.production@osloop.com</strong></p>
+
+        <hr class="lp-divider">
+
+        <h2 id="children">13. Children&rsquo;s Privacy</h2>
+        <p>Our website and services are not directed to children under the age of 13, and we do not knowingly collect personal information from children. If you believe that a child has provided us with personal information, please contact us so we can take appropriate action.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="links">14. Links to Other Websites</h2>
+        <p>Our website may contain links to third-party websites, platforms, or social media pages. We are not responsible for the privacy practices, content, or security of third-party websites. We encourage you to review their privacy policies before providing any personal information.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="changes">15. Changes to This Privacy Policy</h2>
+        <p>We may update this Privacy Policy from time to time to reflect changes in our website, services, legal requirements, or business practices. The updated version will be posted on this page with a revised &ldquo;Last updated&rdquo; date.</p>
+
+        <hr class="lp-divider">
+
+        <h2 id="contact">16. Contact Us</h2>
+        <p>For any questions about this Privacy Policy or how we handle personal information, please contact us:</p>
+        <p>
+          <strong>OsLoop Media Production</strong><br>
+          Alexandria, Egypt<br>
+          <strong>Email:</strong> <a href="mailto:media.production@osloop.com">media.production@osloop.com</a>
+        </p>
+
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="lp-footer">
+    <div class="lp-footer-brand">
+      <img class="lp-footer-logo" src="images/Osloop---LOGO-WHITE.png" alt="OsLoop Media Production">
+      <div class="lp-footer-copy">&copy; 2025 OsLoop Media Production. All rights reserved.</div>
+    </div>
+
+    <div class="lp-footer-content">
+      <div>
+        <div class="lp-footer-tagline">How Can we help you!</div>
+        <a class="lp-footer-letstalk" href="index.html#about">Let&rsquo;s Talk.</a>
+      </div>
+
+      <div>
+        <div class="lp-footer-col-title">Site map</div>
+        <nav class="lp-footer-nav" aria-label="Footer navigation">
+          <a href="index.html#about">About</a>
+          <a href="index.html#reel">Reel</a>
+          <a href="index.html#our-story">Our Story</a>
+          <a href="index.html#testimonials">Testimonials</a>
+          <a href="privacy-policy.html">Privacy Policy</a>
+          <a href="terms-and-conditions.html">Terms &amp; Conditions</a>
+        </nav>
+      </div>
+
+      <div>
+        <div class="lp-footer-col-title">Contacts</div>
+        <div class="lp-footer-contacts">
+          <div class="lp-footer-contact-row">
+            <img class="lp-contact-icon" src="images/Vectors-Wrapper.svg" alt="">
+            <a href="mailto:media.production@osloop.com">media.production@osloop.com</a>
+          </div>
+          <div class="lp-footer-contact-row">
+            <img class="lp-contact-icon" src="images/Vectors-Wrapper_5.svg" alt="">
+            <a href="https://goo.gl/maps/ou6TEmMqB5Xh9jE1A" target="_blank" rel="noopener">Alexandria, Egypt</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="lp-footer-social">
+        <a href="https://www.facebook.com/osloop.media.production/" target="_blank" rel="noopener" aria-label="Facebook">
+          <img src="images/Vectors-Wrapper_3.svg" alt="Facebook">
+        </a>
+        <a href="https://www.linkedin.com/company/osloop/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <img src="images/Vectors-Wrapper_1.svg" alt="LinkedIn">
+        </a>
+        <a href="https://www.youtube.com/@OsLoopMediaProduction" target="_blank" rel="noopener" aria-label="YouTube">
+          <img src="images/Vectors-Wrapper_2.svg" alt="YouTube">
+        </a>
+        <a href="https://www.instagram.com/osloopmedia/" target="_blank" rel="noopener" aria-label="Instagram">
+          <img src="images/Vectors-Wrapper_4.svg" alt="Instagram">
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var openBtn = document.getElementById('lp-open-menu');
+      var closeBtn = document.getElementById('lp-close-menu');
+      var menu = document.getElementById('lp-mobile-menu');
+      openBtn.addEventListener('click', function () {
+        menu.classList.add('open');
+        openBtn.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      });
+      function closeMenu() {
+        menu.classList.remove('open');
+        openBtn.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+      closeBtn.addEventListener('click', closeMenu);
+      menu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', closeMenu);
+      });
+    })();
+  </script>
+
+</body>
+</html>

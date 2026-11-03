@@ -6,7 +6,10 @@ import { useTheme } from '../../providers/Theme'
 import { Arrow, Magnetic, RollText } from '../../components/ui'
 import { Turnstile, turnstileKey } from '../../components/Turnstile'
 import { MathCheck, type MathState } from '../../components/MathCheck'
+import { makeQuestion } from '../../lib/math-question'
 import type { PhoneValue } from '../../components/PhoneField'
+import { trackForm, trackLead } from '../../lib/tracking'
+import { loadSiteContext, siteContext } from '../../lib/site-context'
 
 // The phone field carries country metadata — load it only when the form is near.
 const PhoneField = lazy(() => import('../../components/PhoneField').then((m) => ({ default: m.PhoneField })))
@@ -18,6 +21,9 @@ export function Contact() {
   const root = useRef<HTMLElement>(null)
   const orb = useRef<HTMLDivElement>(null)
   const done = useRef<HTMLDivElement>(null)
+  const started = useRef(false)
+  const submitting = useRef(false)
+  const opened = useRef(false)
   const time = useClock(brand.timeZone)
   const { theme } = useTheme()
 
@@ -27,17 +33,45 @@ export function Contact() {
   const [phone, setPhone] = useState<PhoneValue | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [math, setMath] = useState<MathState>('empty')
+  const [mathQuestion, setMathQuestion] = useState(() => makeQuestion())
   const [captchaRun, setCaptchaRun] = useState(0)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<Status>('idle')
   const [serverError, setServerError] = useState('')
   const [near, setNear] = useState(false)
 
+  const refreshCaptcha = () => {
+    setMathQuestion((previous) => makeQuestion(previous.text))
+    setMath('empty')
+    setCaptchaRun((n) => n + 1)
+  }
+
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => e.isIntersecting && setNear(true), { rootMargin: '900px 0px' })
     io.observe(root.current!)
     return () => io.disconnect()
   }, [])
+
+  useEffect(() => {
+    if (near) loadSiteContext()
+  }, [near])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !opened.current) {
+        opened.current = true
+        trackForm('form_view')
+      }
+    }, { threshold: 0.2 })
+    observer.observe(root.current!)
+    return () => observer.disconnect()
+  }, [])
+
+  const startForm = () => {
+    if (started.current) return
+    started.current = true
+    trackForm('form_start')
+  }
 
   useGSAP(
     () => {
@@ -90,13 +124,14 @@ export function Contact() {
 
   /** "Send another message": back to a clean, untouched form. */
   const resetForm = () => {
+    started.current = false
     setForm(EMPTY_FORM)
     setNeeds([contact.needs[0]])
     setBudget('')
     setPhone(null) // the phone field remounts empty, so its value has to go too
     setToken(null)
     setMath('empty')
-    setCaptchaRun((n) => n + 1) // fresh quick-check question / security check
+    refreshCaptcha()
     setErrors({})
     setServerError('')
     setStatus('idle')
@@ -116,7 +151,7 @@ export function Contact() {
       e.captcha = 'Please answer the quick check.'
     } else if (math === 'wrong') {
       e.captcha = 'That’s not quite right. Here’s a new one.'
-      setCaptchaRun((n) => n + 1)
+      refreshCaptcha()
     }
     setErrors(e)
     return Object.keys(e).length === 0
@@ -124,13 +159,18 @@ export function Contact() {
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
+    if (submitting.current) return
     setServerError('')
     // Honeypot: a hidden field only bots fill in — quietly "succeed" without sending.
     if (form.website) {
       setStatus('sent')
       return
     }
-    if (!validate()) return
+    startForm()
+    if (!validate()) {
+      trackForm('form_validation_error')
+      return
+    }
 
     const phoneText = phone?.e164 || ''
     if (!contact.formEndpoint) {
@@ -150,38 +190,49 @@ export function Contact() {
       return
     }
     try {
+      submitting.current = true
       setStatus('sending')
+      trackForm('form_submit_attempt')
+      const body = new FormData()
+      const fields = {
+        name: form.name.trim(),
+        Email: form.email.trim(),
+        Phone: phoneText,
+        Company: form.company.trim(),
+        Needs: needs.join(', '),
+        Budget: budget,
+        field: form.message.trim(),
+        dummy: form.website,
+        time: new Date().toISOString(),
+        ...siteContext(),
+      }
+      for (const [key, value] of Object.entries(fields)) if (value) body.set(key, value)
       const res = await fetch(contact.formEndpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: phoneText,
-          company: form.company,
-          needs: needs.join(', '),
-          budget,
-          message: form.message,
-          token,
-          website: form.website,
-        }),
+        headers: { Accept: 'application/json' },
+        body,
       })
-      if (res.ok) {
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
+      if (res.status === 200 && data.ok === true) {
         setStatus('sent')
+        trackLead()
         return
       }
-      const data = (await res.json().catch(() => ({}))) as { error?: string }
+      trackForm('form_error', 'webflow-form', { error_type: 'server', status_code: res.status })
       setServerError(
         data.error === 'captcha_failed'
           ? 'The security check failed. Please try it again.'
           : 'We couldn’t send your message right now.',
       )
       setStatus('error')
-      setCaptchaRun((n) => n + 1)
+      refreshCaptcha()
     } catch {
+      trackForm('form_error', 'webflow-form', { error_type: 'network' })
       setServerError('We couldn’t send your message right now.')
       setStatus('error')
-      setCaptchaRun((n) => n + 1)
+      refreshCaptcha()
+    } finally {
+      submitting.current = false
     }
   }
 
@@ -264,7 +315,10 @@ export function Contact() {
                 </button>
               </div>
             ) : (
-              <form className="cform" onSubmit={submit} noValidate>
+              <form id="webflow-form" name="webflow-form" action={contact.formEndpoint} method="post" className="cform" onSubmit={submit} onFocusCapture={startForm} onClickCapture={startForm} noValidate>
+                <input type="hidden" name="Budget" value={budget} />
+                <input type="hidden" name="Needs" value={needs.join(', ')} />
+                <input type="hidden" name="Phone" value={phone?.e164 || ''} />
                 <fieldset className="cform__group">
                   <legend className="mono">What do you need?</legend>
                   {contact.needs.map((n) => (
@@ -305,12 +359,12 @@ export function Contact() {
                 <div className="cform__row">
                   <label className={`cfield${errors.name ? ' has-error' : ''}`}>
                     <span className="mono">Name *</span>
-                    <input value={form.name} onChange={set('name')} autoComplete="name" placeholder="Your name" />
+                    <input name="name" maxLength={256} value={form.name} onChange={set('name')} autoComplete="name" placeholder="Your name" />
                     {errors.name && <em>{errors.name}</em>}
                   </label>
                   <label className={`cfield${errors.email ? ' has-error' : ''}`}>
                     <span className="mono">Email *</span>
-                    <input value={form.email} onChange={set('email')} type="email" autoComplete="email" placeholder="you@company.com" />
+                    <input name="Email" maxLength={256} value={form.email} onChange={set('email')} type="email" autoComplete="email" placeholder="you@company.com" />
                     {errors.email && <em>{errors.email}</em>}
                   </label>
                 </div>
@@ -335,13 +389,15 @@ export function Contact() {
                   </div>
                   <label className="cfield">
                     <span className="mono">Company</span>
-                    <input value={form.company} onChange={set('company')} autoComplete="organization" placeholder="Optional" />
+                    <input name="Company" maxLength={256} value={form.company} onChange={set('company')} autoComplete="organization" placeholder="Optional" />
                   </label>
                 </div>
 
                 <label className={`cfield${errors.message ? ' has-error' : ''}`}>
                   <span className="mono">Tell us about the project *</span>
                   <textarea
+                    name="field"
+                    maxLength={5000}
                     value={form.message}
                     onChange={set('message')}
                     rows={4}
@@ -355,7 +411,7 @@ export function Contact() {
                 <div className="cform__hp" aria-hidden>
                   <label>
                     Website
-                    <input tabIndex={-1} autoComplete="off" value={form.website} onChange={set('website')} />
+                    <input name="dummy" tabIndex={-1} autoComplete="off" value={form.website} onChange={set('website')} />
                   </label>
                 </div>
 
@@ -373,7 +429,9 @@ export function Contact() {
                   </>
                 ) : (
                   <MathCheck
-                    key={captchaRun}
+                    key={mathQuestion.text}
+                    question={mathQuestion}
+                    onRefresh={refreshCaptcha}
                     error={errors.captcha}
                     onChange={(s) => {
                       setMath(s)
@@ -384,7 +442,7 @@ export function Contact() {
 
                 <div className="cform__foot">
                   <Magnetic strength={0.2}>
-                    <button type="submit" className="btn btn--blue roll-host" disabled={status === 'sending'}>
+                    <button id="submit-button" type="submit" className="btn btn--blue roll-host" disabled={status === 'sending'}>
                       <RollText text={status === 'sending' ? 'Sending…' : 'Send message'} />
                       <span className="btn__icon">
                         <Arrow />
