@@ -4,32 +4,26 @@
 /** the camera's vertical field of view (degrees); its distance is fitted to the box */
 export const GLOBE_FOV = 30
 
-/**
- * The rings the markets sit on, round a globe of radius 1: their radius and tilt about x and z
- * (degrees). Market i sits on ring i % ORBITS.length, where its name reads best. The rings and the
- * markets hold still; only the globe turns.
- */
-export const ORBITS = [
-  { r: 1.36, x: 4, z: -5 },
-  { r: 1.53, x: -6, z: 4 },
-  { r: 1.7, x: 7, z: 6 },
-  { r: 1.86, x: -3, z: -7 },
-  { r: 2.02, x: 6, z: -3 },
-  { r: 2.18, x: -7, z: 7 },
-]
+/** a small seeded random, so the stars and the lights are the same on every visit */
+export function random(seed: number) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
 
 /** how the section and the scene talk without re-rendering the canvas */
 export type GlobeBridge = {
-  /** the market pointed at (index into reach.markets), or null */
+  /** the market picked (index into reach.markets), or null */
   active: number | null
-  /** 0 → 1 as the section comes into view: the globe and its rings come in */
+  /** 0 → 1 as the section comes into view: the globe and its pins come in */
   reveal: number
   /** the element the globe is dragged on */
   surface: HTMLElement | null
-  /** each market's name tag, placed beside its satellite every frame */
-  labels: (HTMLElement | null)[]
-  /** turn the globe to this market; `n` counts the clicks, so the same market can be asked for again */
+  /** each market's pin, placed over its country every frame */
+  pins: (HTMLElement | null)[]
+  /** turn and zoom the globe to this market; `n` counts the picks, so the same one can be asked for again */
   focus: { i: number; n: number } | null
-  /** the visitor grabbed the globe */
-  onGrab: () => void
 }

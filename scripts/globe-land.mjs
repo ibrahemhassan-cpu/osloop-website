@@ -135,35 +135,119 @@ for (let i = 0; i < ids.length; ) {
   i = j
 }
 
-// The globe's surface: an equirectangular land mask (white land on black), west → east from -180°,
-// north at the top. Rings crossing the antimeridian are unwrapped and drawn a turn either side too.
+// The globe's surface: equirectangular maps, west → east from -180°, north at the top. Rings crossing
+// the antimeridian are unwrapped and drawn a turn either side too.
 const W = 4096
 const H = W / 2
-const paths = []
-for (const f of land.features ?? [land]) {
-  const g = f.geometry
-  for (const poly of g.type === 'Polygon' ? [g.coordinates] : g.coordinates) {
-    let d = ''
-    for (const ring of poly) {
+/** a polygon's rings as one SVG path */
+const polygonPath = (poly) => {
+  let d = ''
+  for (const ring of poly) {
+    let off = 0
+    const pts = ring.map(([x, y], i) => {
+      if (i && Math.abs(x - ring[i - 1][0]) > 180) off += x < ring[i - 1][0] ? 360 : -360
+      return [x + off, y]
+    })
+    // Antarctica: its ring goes once round the pole, so close it over the bottom edge
+    if (Math.abs(pts.at(-1)[0] - pts[0][0]) > 300) pts.push([pts.at(-1)[0], -90], [pts[0][0], -90])
+    d += 'M' + pts.map(([x, y]) => `${(((x + 180) / 360) * W).toFixed(1)},${(((90 - y) / 180) * H).toFixed(1)}`).join('L') + 'Z'
+  }
+  return d
+}
+const polygons = (g) => (g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [])
+/** paths drawn three times, a turn apart, so whatever crosses the antimeridian shows on both sides */
+const wrapped = (inner) => [-W, 0, W].map((dx) => `<g transform="translate(${dx} 0)">${inner}</g>`).join('')
+const sharp = require('sharp')
+mkdirSync(join(root, 'public/globe'), { recursive: true })
+
+// the land: white on black
+const landPaths = (land.features ?? [land]).flatMap((f) => polygons(f.geometry).map(polygonPath))
+const landSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#000"/><g fill="#fff" fill-rule="evenodd">${wrapped(
+  landPaths.map((d) => `<path d="${d}"/>`).join(''),
+)}</g></svg>`
+const info = await sharp(Buffer.from(landSvg)).greyscale().webp({ quality: 82 }).toFile(join(root, 'public/globe/land.webp'))
+console.log(`public/globe/land.webp ${W}×${H}, ${(info.size / 1024).toFixed(0)} KB`)
+
+// which of our countries each point is in, for lighting a picked one: grey (index + 1) * ID_STEP,
+// black anywhere else. No anti-aliasing, so every pixel is an exact id (the shader smooths the edges).
+const ID_STEP = 12
+/** a country's polygons, only the parts inside its box if it has one (mainland France) */
+const countryPolygons = (code) => {
+  const box = BOX[code]
+  return shapes
+    .filter((f) => f.id === COUNTRIES[code] && f.properties.name !== 'Ashmore and Cartier Is.')
+    .flatMap((f) => polygons(f.geometry))
+    .filter((poly) => !box || poly[0].some(([x, y]) => x >= box[0] && y >= box[1] && x <= box[2] && y <= box[3]))
+}
+const countryPaths = codes
+  .map((code, k) => {
+    const d = countryPolygons(code).map(polygonPath).join('')
+    return d && `<path fill="rgb(${(k + 1) * ID_STEP},${(k + 1) * ID_STEP},${(k + 1) * ID_STEP})" d="${d}"/>`
+  })
+  .join('')
+const idSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" shape-rendering="crispEdges"><rect width="${W}" height="${H}" fill="#000"/><g fill-rule="evenodd">${wrapped(
+  countryPaths,
+)}</g></svg>`
+const idInfo = await sharp(Buffer.from(idSvg)).removeAlpha().greyscale().png({ compressionLevel: 9, palette: false }).toFile(join(root, 'public/globe/countries.png'))
+const { data: idPixels } = await sharp(join(root, 'public/globe/countries.png')).extractChannel(0).raw().toBuffer({ resolveWithObject: true })
+const stray = [...new Set(idPixels)].filter((v) => v % ID_STEP !== 0)
+console.log(`public/globe/countries.png ${W}×${H}, ${(idInfo.size / 1024).toFixed(0)} KB, ${stray.length ? `STRAY VALUES ${stray}` : 'every pixel an exact id'}`)
+
+// Each country's outline as shapes, so a picked one can be drawn sharp at any zoom:
+// { code: [ring, ...] }, a ring being [lon, lat, lon, lat, ...] in hundredths of a degree. Every ring of
+// a country is unwrapped onto the same side of the antimeridian as its biggest one (the Aleutians sit
+// beside Alaska, past -180°). Rings are simplified (Douglas-Peucker) to within 0.02°, a third of a pixel
+// at the closest zoom, and islets smaller than 0.005 square degrees are dropped.
+const area = (r) => Math.abs(r.reduce((s, [x, y], i) => s + x * r[(i + 1) % r.length][1] - r[(i + 1) % r.length][0] * y, 0)) / 2
+const simplify = (pts, tolerance) => {
+  const keep = new Uint8Array(pts.length)
+  keep[0] = keep[pts.length - 1] = 1
+  const stack = [[0, pts.length - 1]]
+  while (stack.length) {
+    const [a, b] = stack.pop()
+    const [ax, ay] = pts[a]
+    const [bx, by] = pts[b]
+    const len = Math.hypot(bx - ax, by - ay)
+    let far = -1
+    let worst = tolerance
+    for (let i = a + 1; i < b; i++) {
+      // a closed ring starts and ends on the same point: measure from that point instead of a line
+      const d = len < 1e-9 ? Math.hypot(pts[i][0] - ax, pts[i][1] - ay) : Math.abs((bx - ax) * (ay - pts[i][1]) - (ax - pts[i][0]) * (by - ay)) / len
+      if (d > worst) {
+        worst = d
+        far = i
+      }
+    }
+    if (far >= 0) {
+      keep[far] = 1
+      stack.push([a, far], [far, b])
+    }
+  }
+  return pts.filter((_, i) => keep[i])
+}
+const outlines = {}
+for (const code of codes) {
+  const rings = countryPolygons(code).flatMap((poly) =>
+    poly.map((ring) => {
       let off = 0
-      const pts = ring.map(([x, y], i) => {
+      return ring.map(([x, y], i) => {
         if (i && Math.abs(x - ring[i - 1][0]) > 180) off += x < ring[i - 1][0] ? 360 : -360
         return [x + off, y]
       })
-      // Antarctica: its ring goes once round the pole, so close it over the bottom edge
-      if (Math.abs(pts.at(-1)[0] - pts[0][0]) > 300) pts.push([pts.at(-1)[0], -90], [pts[0][0], -90])
-      d += 'M' + pts.map(([x, y]) => `${(((x + 180) / 360) * W).toFixed(1)},${(((90 - y) / 180) * H).toFixed(1)}`).join('L') + 'Z'
-    }
-    paths.push(d)
-  }
+    }),
+  )
+  const middle = (r) => r.reduce((s, [x]) => s + x, 0) / r.length
+  const main = middle(rings.reduce((a, r) => (r.length > a.length ? r : a), []))
+  // (a country small enough to be all islets, like Singapore, keeps them)
+  const big = rings.filter((r) => area(r) >= 0.005)
+  outlines[code] = (big.length ? big : rings).map((r) => {
+    const shift = Math.round((main - middle(r)) / 360) * 360
+    return simplify(r, 0.02).flatMap(([x, y]) => [Math.round((x + shift) * 100), Math.round(y * 100)])
+  })
 }
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#000"/><g fill="#fff" fill-rule="evenodd">${[-W, 0, W]
-  .map((dx) => `<g transform="translate(${dx} 0)">${paths.map((d) => `<path d="${d}"/>`).join('')}</g>`)
-  .join('')}</g></svg>`
-const sharp = require('sharp')
-mkdirSync(join(root, 'public/globe'), { recursive: true })
-const info = await sharp(Buffer.from(svg)).greyscale().webp({ quality: 82 }).toFile(join(root, 'public/globe/land.webp'))
-console.log(`public/globe/land.webp ${W}×${H}, ${(info.size / 1024).toFixed(0)} KB`)
+const outlineJson = JSON.stringify(outlines)
+writeFileSync(join(root, 'public/globe/outlines.json'), outlineJson)
+console.log(`public/globe/outlines.json ${(outlineJson.length / 1024).toFixed(0)} KB, ${codes.map((c) => `${c} ${outlines[c].reduce((s, r) => s + r.length / 2, 0)}`).join(', ')} points`)
 
 const b64 = (a) => Buffer.from(a).toString('base64')
 const counts = codes.map((c, k) => `${c} ${ids.filter((x) => x === k + 1).length}`).join(', ')

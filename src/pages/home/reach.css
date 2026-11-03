@@ -1,16 +1,76 @@
-/* =============== OUR REACH (3D globe with orbiting markets) =============== */
+/* =============== OUR REACH (3D globe in space, a pin on each market) =============== */
 .reach {
   position: relative;
-  background: var(--bg);
+  /* the black of space, with the faintest wash of distant nebulae */
+  background:
+    radial-gradient(60% 45% at 78% 30%, rgba(60, 90, 200, 0.07), transparent 70%),
+    radial-gradient(50% 40% at 12% 85%, rgba(120, 70, 170, 0.05), transparent 70%),
+    #010207;
   color: var(--fg);
   padding: 16vh var(--gutter) 10vh;
   border-radius: 40px 40px 0 0;
   margin-top: -40px;
   overflow: hidden;
 }
+
+/* ---------- space behind everything: the far sky, and two fields of stars drifting past ---------- */
+.reach__space {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+/* each depth overhangs the section by as far as it travels with the scroll */
+.reach__depth {
+  position: absolute;
+  inset: calc(var(--travel) * -1) 0;
+}
+.reach__depth canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.reach__twinkle {
+  animation: reach-twinkle 5s ease-in-out infinite alternate;
+}
+.reach__twinkle--late {
+  animation-duration: 6.5s;
+  animation-delay: -3s;
+}
+@keyframes reach-twinkle {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/* a repeated tile of stars, one tile bigger than its depth, sliding exactly one tile's diagonal per loop */
+.reach__drift {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: calc(100% + var(--tile) * 2);
+  height: calc(100% + var(--tile));
+  background-size: var(--tile) var(--tile);
+  will-change: transform;
+  animation: reach-drift var(--period) linear infinite;
+}
+@keyframes reach-drift {
+  to {
+    transform: translate3d(calc(var(--tile) * -2), calc(var(--tile) * -1), 0);
+  }
+}
+.reach__space[data-away] .reach__drift,
+.reach__space[data-away] .reach__twinkle {
+  animation-play-state: paused;
+}
+
+/* above the stage, so a close-up of the globe passes behind the words */
 .reach__head {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: end;
@@ -33,19 +93,29 @@
   line-height: 1.55;
 }
 
-/* ---------- the globe's box (the canvas overhangs it so tilted rings aren't cut) ---------- */
+/* ---------- the stage: the globe, with the list beside it ---------- */
+.reach__stage {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  align-items: center;
+  gap: 3vw;
+  margin-top: 6vh;
+}
+
+/* ---------- the globe's box (the canvas overhangs it so flags over the globe aren't cut) ---------- */
 .reach__globe {
   --globe: 200px;
   position: relative;
   height: min(84vh, 54vw);
   min-height: 420px;
-  margin-top: 4vh;
   user-select: none;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 .reach__canvas,
-.reach__tags {
+.reach__pins {
   position: absolute;
   inset: -16% 0;
   pointer-events: none;
@@ -53,6 +123,20 @@
 .reach__canvas > div {
   position: absolute !important;
   inset: 0;
+}
+/* when the camera comes in close the globe outgrows its box: its edges fade into space, never a hard line */
+.reach__canvas {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, transparent, #000 15%, #000 87%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent),
+    linear-gradient(to bottom, transparent, #000 15%, #000 87%, transparent);
+  mask-composite: intersect;
+}
+/* the canvas overhangs its box: it takes no pointer (the box handles the drag), so nothing under
+   the overhang is blocked */
+.reach__canvas * {
+  pointer-events: none !important;
 }
 html.has-cursor .reach__globe {
   cursor: none;
@@ -72,12 +156,13 @@ html.has-cursor .reach__globe {
   touch-action: pan-y;
 }
 
-/* ---------- the markets' names, placed beside their satellites by the scene ---------- */
-.reach__tags {
+/* ---------- a pin on each market's country, placed by the scene ---------- */
+.reach__pins {
   list-style: none;
   z-index: 2;
 }
-.reach__tag {
+.reach__pin {
+  --lift: 14;
   position: absolute;
   left: 0;
   top: 0;
@@ -86,41 +171,153 @@ html.has-cursor .reach__globe {
   opacity: 0;
   will-change: transform, opacity;
 }
-.reach__tag-in {
+/* the stem from the country up to its flag (1px tall, stretched to the lift) */
+.reach__pin-stem {
   position: absolute;
-  top: 0;
+  left: -0.5px;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  transform-origin: bottom;
+  transform: scaleY(var(--lift));
+  background: linear-gradient(to top, rgba(157, 183, 255, 0.9), rgba(157, 183, 255, 0.2));
+  transition: opacity 0.5s;
+}
+.reach__pin-in {
+  position: absolute;
   left: 0;
+  top: 0;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px 6px 8px;
+  height: 26px;
+  min-width: 26px;
+  padding: 0 4px;
   border-radius: 999px;
-  border: 1px solid transparent;
-  color: var(--fg);
-  font-size: 14px;
+  border: 1px solid rgba(157, 183, 255, 0.4);
+  background: rgba(4, 10, 32, 0.82);
+  color: var(--white);
+  font-size: 13px;
   font-weight: 500;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  text-shadow: 0 0 12px var(--bg), 0 0 4px var(--bg);
   pointer-events: auto;
-  transform: translate(12px, -50%);
-  transition: background-color 0.5s, border-color 0.5s, color 0.5s;
+  /* the flag's circle sits right over the stem; a name opens out to the right */
+  transform: translate(-13px, calc(-100% - var(--lift) * 1px));
+  transition: border-color 0.5s, background-color 0.5s, box-shadow 0.5s, opacity 0.5s;
 }
-.reach__tag[data-side='left'] .reach__tag-in {
-  left: auto;
-  right: 0;
-  transform: translate(-12px, -50%);
+.reach__pin-in .reach__flag {
+  width: 16px;
+  font-size: 15px;
+  text-align: center;
 }
-.reach__tag-in:hover,
-.reach__tag.is-on .reach__tag-in {
-  background: var(--bg-2);
+.reach__pin-name {
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-width 0.7s var(--ease-out), opacity 0.4s, padding 0.7s var(--ease-out);
+}
+.reach__pin-in:hover .reach__pin-name,
+.reach__pin.is-on .reach__pin-name {
+  max-width: 200px;
+  opacity: 1;
+  padding: 0 6px 0 7px;
+}
+.reach__pin-in:hover {
+  border-color: rgba(157, 183, 255, 0.8);
+}
+.reach__pin.is-on .reach__pin-in {
   border-color: var(--hl);
-  box-shadow: 0 10px 30px -14px var(--glow);
+  background: rgba(25, 64, 180, 0.92);
+  box-shadow: 0 0 0 4px rgba(44, 91, 255, 0.18), 0 10px 30px -10px rgba(44, 91, 255, 0.8);
 }
-.reach__tag-in:focus-visible {
+/* one picked: the others step back */
+.reach__pins.has-active .reach__pin:not(.is-on) .reach__pin-in,
+.reach__pins.has-active .reach__pin:not(.is-on) .reach__pin-stem {
+  opacity: 0.25;
+}
+
+/* back out from a picked market to the whole globe */
+.reach__out {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px 0 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line-2);
+  background: rgba(4, 10, 32, 0.8);
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.6s, visibility 0.6s, transform 0.8s var(--ease-out), border-color 0.4s, background-color 0.4s;
+}
+.reach__out.is-on {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+.reach__out:hover {
+  border-color: var(--hl);
+  background: rgba(25, 64, 180, 0.6);
+}
+.reach__out:focus-visible {
   outline: 2px solid var(--hl);
   outline-offset: 2px;
 }
+
+/* ---------- every market listed beside the globe ---------- */
+.reach__list {
+  list-style: none;
+  display: grid;
+  gap: 2px;
+  max-height: min(84vh, 54vw);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+.reach__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  color: var(--fg-2);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-align: left;
+  transition: color 0.4s, background-color 0.4s, border-color 0.4s;
+}
+.reach__item:hover {
+  color: var(--fg);
+  background: var(--chip);
+}
+.reach__item.is-on {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--hl) 14%, transparent);
+  border-color: color-mix(in srgb, var(--hl) 50%, transparent);
+}
+.reach__item:focus-visible {
+  outline: 2px solid var(--hl);
+  outline-offset: -2px;
+}
+.reach__item .reach__flag {
+  font-size: 18px;
+}
+
 .reach__flag {
   font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
   font-size: 17px;
@@ -141,12 +338,11 @@ html.has-cursor .reach__globe {
 }
 
 @media (max-width: 1100px) {
+  .reach__stage {
+    display: block;
+  }
   .reach__globe {
     height: min(70vh, 64vw);
-  }
-  /* only the tapped market's name shows on its ring; the rest are the chips below */
-  .reach__tag:not(.is-on) {
-    visibility: hidden;
   }
   .reach__chips {
     position: relative;
@@ -194,21 +390,33 @@ html.has-cursor .reach__globe {
   .reach__p {
     justify-self: start;
   }
+  .reach__stage {
+    margin-top: 4vh;
+  }
   .reach__globe {
     height: 76vw;
     min-height: 0;
     margin-inline: calc(var(--gutter) * -1);
   }
-  .reach__tag-in {
-    gap: 6px;
-    padding: 4px 9px 4px 6px;
+  .reach__pin-in {
+    height: 18px;
+    min-width: 18px;
+    padding: 0 2px;
     font-size: 11.5px;
-    transform: translate(7px, -50%);
+    transform: translate(-9px, calc(-100% - var(--lift) * 1px));
   }
-  .reach__tag[data-side='left'] .reach__tag-in {
-    transform: translate(-7px, -50%);
+  .reach__pin-in .reach__flag {
+    width: 12px;
+    font-size: 11px;
   }
   .reach__flag {
     font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reach__twinkle,
+  .reach__drift {
+    animation: none;
   }
 }
