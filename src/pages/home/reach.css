@@ -106,7 +106,7 @@ html.has-cursor .reach__globe {
   transform: translate(12px, -50%);
   transition: background-color 0.5s, border-color 0.5s, color 0.5s;
 }
-.reach__tag.is-left .reach__tag-in {
+.reach__tag[data-side='left'] .reach__tag-in {
   left: auto;
   right: 0;
   transform: translate(-12px, -50%);
@@ -205,7 +205,7 @@ html.has-cursor .reach__globe {
     font-size: 11.5px;
     transform: translate(7px, -50%);
   }
-  .reach__tag.is-left .reach__tag-in {
+  .reach__tag[data-side='left'] .reach__tag-in {
     transform: translate(-7px, -50%);
   }
   .reach__flag {

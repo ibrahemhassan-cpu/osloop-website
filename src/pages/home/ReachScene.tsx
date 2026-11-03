@@ -787,7 +787,8 @@ function System({ bridge, mobile, theme }: { bridge: Bridge; mobile: boolean; th
       else if (!left && x + 20 + width > w - 4) left = true
       if (sides.current[i] !== left) {
         sides.current[i] = left
-        el.classList.toggle('is-left', left)
+        // an attribute, not a class: React rewrites the tag's className when it lights up
+        el.dataset.side = left ? 'left' : 'right'
       }
       const on = i === active
       el.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`
