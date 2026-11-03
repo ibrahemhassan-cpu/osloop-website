@@ -1,14 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AsYouType, getCountries, getCountryCallingCode, isValidPhoneNumber, parsePhoneNumberFromString, type CountryCode } from 'libphonenumber-js/max'
-import { polyfillCountryFlagEmojis } from 'country-flag-emoji-polyfill'
+import { flag } from '../lib/flags'
 import './phone-field.css'
 
-// Windows has no flag emoji — load a tiny self-hosted flag font only where needed.
-polyfillCountryFlagEmojis('Twemoji Country Flags', '/fonts/TwemojiCountryFlags.woff2')
-
 export type PhoneValue = { country: CountryCode; label: string; national: string; e164: string; valid: boolean }
-
-const flag = (cc: string) => String.fromCodePoint(...[...cc].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
 
 const names = new Intl.DisplayNames(['en'], { type: 'region' })
 const COUNTRIES = getCountries()

@@ -1,0 +1,100 @@
+{
+  "source_branch": "dev-1",
+  "source_commit": "e29b006d656e87e49f3f4409ad051aca4631719f",
+  "files": {
+    "get-free-consultation.html": {
+      "source_matches_dev_1": true,
+      "sha256": "ac4d51360f5cabc7b01ff4ee80c0f8d0586f1d89e937684d579999a42b636b4a",
+      "build_matches_original": true
+    },
+    "get-free-healthcare-consultation.html": {
+      "source_matches_dev_1": true,
+      "sha256": "940fed1b4721fb31933998801787d3f05eb90ab468ebd6084b5782c65b21cc61",
+      "build_matches_original": true
+    },
+    "get-free-real-estate-consultation.html": {
+      "source_matches_dev_1": true,
+      "sha256": "4fabd9ff93e51c6411253efe02311b26962b46d77885e37610b8e1f2b05f0785",
+      "build_matches_original": true
+    },
+    "privacy-policy.html": {
+      "source_matches_dev_1": true,
+      "sha256": "6d16a92109cfb2fd5a60ab7a4ce74ae84d59ef63e7b4f0ee878f2da046cbabcb",
+      "build_matches_original": true
+    },
+    "terms-and-conditions.html": {
+      "source_matches_dev_1": true,
+      "sha256": "561a4d291e4cfc274bfe24c3daebb5fbff2cae5274b0fb9c8836639cedbfca53",
+      "build_matches_original": true
+    },
+    "sitemap.xml": {
+      "source_matches_dev_1": true,
+      "sha256": "539cc0c3250e75c6ea4ddc265eb78ae5c09bf65ba95349a3e322989838ec2726",
+      "build_matches_original": false,
+      "build_difference": "The build preserves all original URLs and language alternates and adds seven current project URLs."
+    }
+  },
+  "google": {
+    "original_ids_and_destinations": [
+      "AW-11360409165",
+      "AW-11360409165/RhPZCMbrwesYEM2siKkq",
+      "AW-18238858840",
+      "AW-18238858840/IT81CO2X-r8cENjM-_hD",
+      "G-D459YHGKXM"
+    ],
+    "missing_ids_or_destinations": [],
+    "restored_page_scripts_match_original": true
+  },
+  "sitemap": {
+    "original_entries_preserved": 7,
+    "built_entries": 14,
+    "language_alternates_preserved": true
+  },
+  "browser_checks": [
+    {
+      "file": "get-free-consultation.html",
+      "status": 200,
+      "title": "Get Free Consultation Osloop",
+      "originalGoogleConfigMatches": true,
+      "calendlyIframePresent": true,
+      "localMissingAssets": [],
+      "runtimeErrors": []
+    },
+    {
+      "file": "get-free-healthcare-consultation.html",
+      "status": 200,
+      "title": "Get Free Healthcare Consultation Osloop",
+      "originalGoogleConfigMatches": true,
+      "calendlyIframePresent": true,
+      "localMissingAssets": [],
+      "runtimeErrors": []
+    },
+    {
+      "file": "get-free-real-estate-consultation.html",
+      "status": 200,
+      "title": "Get Free Real Estate Consultation Osloop",
+      "originalGoogleConfigMatches": true,
+      "calendlyIframePresent": true,
+      "localMissingAssets": [],
+      "runtimeErrors": []
+    },
+    {
+      "file": "privacy-policy.html",
+      "status": 200,
+      "title": "Privacy Policy | OsLoop Media Production",
+      "originalGoogleConfigMatches": true,
+      "calendlyIframePresent": false,
+      "localMissingAssets": [],
+      "runtimeErrors": []
+    },
+    {
+      "file": "terms-and-conditions.html",
+      "status": 200,
+      "title": "Terms & Conditions | OsLoop Media Production",
+      "originalGoogleConfigMatches": true,
+      "calendlyIframePresent": false,
+      "localMissingAssets": [],
+      "runtimeErrors": []
+    }
+  ]
+}
