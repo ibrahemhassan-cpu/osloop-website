@@ -20,7 +20,12 @@ const loadArabic = () =>
 export const arabicCopy = () => arabic
 
 /** the faces the Arabic pages show first, so their first layout measures the real letters */
-const FACES = ['1em TROX', '300 1em Dubai', '400 1em Dubai', '500 1em Dubai', '700 1em Dubai']
+const FACES = [
+  ['1em TROX', 'ع'],
+  ['1em Cairo', 'ع'],
+  ['1em Cairo', '.'],
+  ['1em "Inter Tight Variable"', 'a'],
+]
 let preparing: Promise<unknown> | null = null
 
 /** Fetches what an Arabic page needs: its copy, and its fonts (a slow connection isn't kept waiting for those). */
@@ -28,7 +33,7 @@ export const prepareArabic = () =>
   (preparing ??= Promise.all([
     loadArabic(),
     Promise.race([
-      Promise.all(FACES.map((face) => document.fonts.load(face, 'ع'))),
+      Promise.all(FACES.map(([face, letter]) => document.fonts.load(face, letter))),
       new Promise((resolve) => window.setTimeout(resolve, 1200)),
     ]).catch(() => {}),
   ]))
