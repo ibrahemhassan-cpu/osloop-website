@@ -89,7 +89,7 @@ export function Reach() {
   )
 
   return (
-    <section className="reach" id="reach" ref={root} data-header-theme="dark" data-theme="dark">
+    <section className="reach" id="reach" ref={root} data-header-theme="dark" data-theme="dark" data-cursor-off>
       <Space />
       <div className="reach__head">
         <h2 className="reach__h" data-reveal="lines">

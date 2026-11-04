@@ -11,6 +11,7 @@ export function setCursorLabel(label: string | null) {
 /**
  * Two-part cursor: a precise dot + a lagging ring.
  * Add `data-cursor="Label"` to any element to morph the ring into a labelled bubble.
+ * Add `data-cursor-off` to a section that keeps the visitor's own pointer instead.
  */
 export function Cursor() {
   const dot = useRef<HTMLDivElement>(null)
@@ -45,8 +46,10 @@ export function Cursor() {
       ry(e.clientY)
     }
     const over = (e: PointerEvent) => {
-      if (forced) return
       const t = e.target as HTMLElement
+      // marked on the page's root: the section's own mark can't be used, or the root would match itself from then on
+      document.documentElement.toggleAttribute('data-cursor-native', !!t.closest('[data-cursor-off]'))
+      if (forced) return
       const labelled = t.closest<HTMLElement>('[data-cursor]')
       const interactive = t.closest('a, button, [role="button"], input, textarea, label')
       if (labelled) {
@@ -81,6 +84,7 @@ export function Cursor() {
     return () => {
       window.removeEventListener('cursor:label', onLabel)
       document.documentElement.classList.remove('has-cursor')
+      document.documentElement.removeAttribute('data-cursor-native')
       window.removeEventListener('pointermove', move)
       document.removeEventListener('pointerover', over)
       document.documentElement.removeEventListener('pointerleave', leave)
