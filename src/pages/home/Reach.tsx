@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { gsap, prefersReducedMotion, useGSAP } from '../../lib/gsap'
-import { reach } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 import { flag } from '../../lib/flags'
 import { useMedia } from '../../lib/useMedia'
 import { useExperience } from '../../providers/Experience'
@@ -21,6 +22,8 @@ const keepOffGlobe = (e: PointerEvent) => e.stopPropagation()
  */
 export function Reach() {
   const { ready } = useExperience()
+  const { t, c, rtl } = useI18n()
+  const { reach } = c
   const mobile = useMedia('(max-width: 760px)')
   // below laptops the markets are listed as chips under the globe
   const compact = useMedia('(max-width: 1100px)')
@@ -80,7 +83,7 @@ export function Reach() {
         .from('.reach__hint', { autoAlpha: 0, y: 20, duration: 1.2 }, 1.2)
       // the list beside the globe is only there on wide screens
       const items = gsap.utils.toArray<HTMLElement>('.reach__list li', root.current)
-      if (items.length) tl.from(items, { autoAlpha: 0, x: 24, duration: 1.1, stagger: 0.04 }, 0.6)
+      if (items.length) tl.from(items, { autoAlpha: 0, x: rtl ? -24 : 24, duration: 1.1, stagger: 0.04 }, 0.6)
     },
     { scope: root, dependencies: [ready] },
   )
@@ -90,11 +93,10 @@ export function Reach() {
       <Space />
       <div className="reach__head">
         <h2 className="reach__h" data-reveal="lines">
-          Our reach across <br />
-          <span className="serif">local &amp; global markets.</span>
+          {rich(t.reach.title)}
         </h2>
         <p className="reach__p" data-reveal="fade" data-delay="0.15">
-          From our studio in Alexandria, we create for brands in {reach.markets.length} countries across five continents.
+          {t.reach.text(reach.markets.length)}
         </p>
       </div>
 
@@ -141,12 +143,12 @@ export function Reach() {
               <circle cx="11" cy="11" r="6.5" />
               <path d="M8 11h6M16 16l4 4" />
             </svg>
-            Whole globe
+            {t.reach.whole}
           </button>
         </div>
 
         {!compact && (
-          <ol className="reach__list" aria-label="Countries we work with" data-lenis-prevent>
+          <ol className="reach__list" aria-label={t.reach.countries} data-lenis-prevent>
             {reach.markets.map((m, i) => (
               <li key={m.code}>
                 <button type="button" className={`reach__item${active === i ? ' is-on' : ''}`} aria-pressed={active === i} onClick={() => pick(i)}>
@@ -163,7 +165,7 @@ export function Reach() {
 
       {/* phones and tablets: the markets as chips under the globe */}
       {compact && (
-        <div className="reach__chips" role="group" aria-label="Countries we work with">
+        <div className="reach__chips" role="group" aria-label={t.reach.countries}>
           {reach.markets.map((m, i) => (
             <button key={m.code} type="button" className={`reach__chip${active === i ? ' is-on' : ''}`} aria-pressed={active === i} onClick={() => pick(i)}>
               <span className="reach__flag" aria-hidden>
@@ -179,7 +181,7 @@ export function Reach() {
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
           <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4.4h-4.4" />
         </svg>
-        {mobile ? 'Swipe the globe to spin it, tap a country' : compact ? 'Drag the globe to spin it, tap a country' : 'Drag the globe to spin it, click a country'}
+        {mobile ? t.reach.hintPhone : compact ? t.reach.hintTablet : t.reach.hintDesktop}
       </p>
     </section>
   )

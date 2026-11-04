@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { useLocation } from 'react-router-dom'
 import { gsap, ScrollTrigger } from '../lib/gsap'
-import { brand } from '../lib/content'
+import { useI18n } from '../lib/i18n'
+import { isHome } from '../lib/lang'
 import { useNavTo } from '../lib/useNavTo'
 import { useExperience } from '../providers/Experience'
 import { useScrollListener, useSmoothScroll } from '../providers/SmoothScroll'
 import { useTheme } from '../providers/Theme'
 import { Magnetic, RollText } from './ui'
 import { MenuOverlay } from './MenuOverlay'
+import { LangSwitch } from './LangSwitch'
 import { MediaLogo, MediaLogoWhite } from './Logo'
 import './header.css'
 
@@ -19,6 +21,7 @@ export function Header({ links }: { links: NavLink[] }) {
   const { pathname } = useLocation()
   const { scrollTo, lenis } = useSmoothScroll()
   const navTo = useNavTo()
+  const { t, path } = useI18n()
   const { theme: globalTheme, toggle } = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
   const [hidden, setHidden] = useState(false)
@@ -129,13 +132,13 @@ export function Header({ links }: { links: NavLink[] }) {
       >
         <div className="hdr__bar">
           <a
-            href="/"
+            href={path('/')}
             className="hdr__logo"
-            aria-label={`${brand.name} home`}
+            aria-label={t.header.home}
             onClick={(e) => {
               e.preventDefault()
               setMenuOpen(false)
-              if (pathname === '/') scrollTo(0, { duration: 2.2 })
+              if (isHome(pathname)) scrollTo(0, { duration: 2.2 })
               else navTo('/')
             }}
           >
@@ -143,11 +146,11 @@ export function Header({ links }: { links: NavLink[] }) {
             <MediaLogo small className="hdr__logo-img hdr__logo-img--color" hidden />
           </a>
 
-          <nav className="hdr__nav" aria-label="Primary" onMouseLeave={() => setHovered(null)}>
+          <nav className="hdr__nav" aria-label={t.header.primary} onMouseLeave={() => setHovered(null)}>
             {links.map((l) => (
               <a
                 key={l.label}
-                href={l.target.startsWith('#') ? `/${l.target}` : l.target}
+                href={l.target.startsWith('#') ? `${path('/')}${l.target}` : path(l.target)}
                 className={`hdr__link roll-host${active === l.label ? ' is-active' : ''}`}
                 onMouseEnter={() => setHovered(l.label)}
                 onFocus={() => setHovered(l.label)}
@@ -170,14 +173,15 @@ export function Header({ links }: { links: NavLink[] }) {
           </nav>
 
           <div className="hdr__right">
+            <LangSwitch className="hdr__lang" />
             <button
               className={`hdr__theme${globalTheme === 'dark' ? ' is-dark' : ''}`}
               onClick={(e) => {
                 const r = e.currentTarget.getBoundingClientRect()
                 toggle({ x: r.left + r.width / 2, y: r.top + r.height / 2 })
               }}
-              aria-label={`Switch to ${globalTheme === 'dark' ? 'light' : 'dark'} mode`}
-              title={`Switch to ${globalTheme === 'dark' ? 'light' : 'dark'} mode`}
+              aria-label={globalTheme === 'dark' ? t.header.toLight : t.header.toDark}
+              title={globalTheme === 'dark' ? t.header.toLight : t.header.toDark}
             >
               <span className="hdr__theme-knob">
                 <svg className="hdr__sun" viewBox="0 0 24 24" aria-hidden>
@@ -193,14 +197,14 @@ export function Header({ links }: { links: NavLink[] }) {
             </button>
             <Magnetic strength={0.3} className="hdr__cta-wrap">
               <a
-                href="/#contact"
+                href={path('/#contact')}
                 className="hdr__cta roll-host"
                 onClick={(e) => {
                   e.preventDefault()
                   goTo('#contact')
                 }}
               >
-                <RollText text="Let’s talk" />
+                <RollText text={t.header.talk} />
                 <span className="hdr__cta-dot" aria-hidden />
               </a>
             </Magnetic>
@@ -209,11 +213,11 @@ export function Header({ links }: { links: NavLink[] }) {
                 className="hdr__burger roll-host"
                 aria-expanded={menuOpen}
                 aria-controls="site-menu"
-                aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+                aria-label={menuOpen ? t.header.closeMenu : t.header.openMenu}
                 onClick={() => setMenuOpen((o) => !o)}
               >
                 <span className="hdr__burger-text">
-                  <RollText text={menuOpen ? 'Close' : 'Menu'} key={menuOpen ? 'c' : 'm'} />
+                  <RollText text={menuOpen ? t.header.close : t.header.menu} key={menuOpen ? 'c' : 'm'} />
                 </span>
                 <span className="hdr__burger-lines" aria-hidden>
                   <i />

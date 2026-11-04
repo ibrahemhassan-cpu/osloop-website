@@ -3,7 +3,9 @@ import { gsap, isTouch } from '../lib/gsap'
 
 /** Text that rolls to a duplicate of itself on hover of the closest `.roll-host`. */
 export function RollText({ text, className = '' }: { text: string; className?: string }) {
-  const chars = Array.from(text)
+  // Arabic letters join up, so an Arabic label rolls as one piece
+  const arabic = /[\u0600-\u06ff]/.test(text)
+  const chars = arabic ? [text] : Array.from(text)
   const row = (clone: boolean) => (
     <span className={`roll__row${clone ? ' roll__row--clone' : ''}`} aria-hidden>
       {chars.map((c, i) => (
@@ -14,7 +16,7 @@ export function RollText({ text, className = '' }: { text: string; className?: s
     </span>
   )
   return (
-    <span className={`roll ${className}`}>
+    <span className={`roll ${className}`} dir={arabic ? 'rtl' : 'ltr'}>
       <span className="visually-hidden">{text}</span>
       {row(false)}
       {row(true)}
@@ -65,7 +67,7 @@ export function Magnetic({
 
 export function Arrow({ size = 14, rotate = 0 }: { size?: number; rotate?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 14 14" fill="none" style={{ transform: `rotate(${rotate}deg)` }} aria-hidden>
+    <svg className="arrow" width={size} height={size} viewBox="0 0 14 14" fill="none" style={{ transform: `rotate(${rotate}deg)` }} aria-hidden>
       <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )

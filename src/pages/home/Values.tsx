@@ -1,10 +1,12 @@
 import { useRef, type CSSProperties } from 'react'
 import { ValueVisual as Visual } from '../../components/ValueVisual'
 import { gsap, useGSAP } from '../../lib/gsap'
-import { values } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 
 export function Values() {
   const root = useRef<HTMLElement>(null)
+  const { t, c } = useI18n()
 
   useGSAP(
     () => {
@@ -26,16 +28,15 @@ export function Values() {
     <section className="v1-values" id="story" ref={root} data-header-theme="auto">
       <div className="v1-values__head">
         <h2 className="v1-values__h" data-reveal="lines">
-          Why brands stay <br />
-          <span className="serif">in the loop.</span>
+          {rich(t.values.title)}
         </h2>
         <p className="v1-values__p" data-reveal="fade" data-delay="0.15">
-          Four promises we’ve kept on every project, from a single explainer to long-running animation partnerships.
+          {t.values.text}
         </p>
       </div>
 
       <div className="v1-values__stack">
-        {values.map((v, i) => (
+        {c.values.map((v, i) => (
           <div className="v1-value" key={v.n} style={{ '--i': i } as CSSProperties}>
             <div className={`v1-value__card v1-value__card--${i}`}>
               <div className="v1-value__left">

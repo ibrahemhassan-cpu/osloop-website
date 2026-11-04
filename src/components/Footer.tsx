@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { gsap, useGSAP } from '../lib/gsap'
-import { brand, legal, socials } from '../lib/content'
+import { useI18n } from '../lib/i18n'
+import { rich } from '../lib/rich'
 import { useClock } from '../lib/useClock'
 import { useNavTo } from '../lib/useNavTo'
 import { useSmoothScroll } from '../providers/SmoothScroll'
@@ -31,6 +32,8 @@ export function Footer({ links }: { links: NavLink[] }) {
   const root = useRef<HTMLElement>(null)
   const { scrollTo } = useSmoothScroll()
   const navTo = useNavTo()
+  const { t, c, path } = useI18n()
+  const { brand, legal, socials } = c
   const time = useClock(brand.timeZone)
 
   useGSAP(
@@ -49,7 +52,7 @@ export function Footer({ links }: { links: NavLink[] }) {
   const link = (target: string, label: string) => (
     <a
       key={label}
-      href={target.startsWith('#') ? `/${target}` : target}
+      href={target.startsWith('#') ? `${path('/')}${target}` : path(target)}
       className="roll-host"
       onClick={(e) => {
         e.preventDefault()
@@ -66,19 +69,18 @@ export function Footer({ links }: { links: NavLink[] }) {
         <div className="ftr__grid">
           <div className="ftr__col ftr__col--lead">
             <p className="ftr__lead">
-              Animation & video production studio crafting explainer videos, 3D productions and animated websites
-              <span className="serif"> for brands with a story.</span>
+              {rich(t.footer.lead)}
             </p>
             <Magnetic strength={0.2}>
               <a
                 className="btn btn--blue roll-host"
-                href="/#contact"
+                href={path('/#contact')}
                 onClick={(e) => {
                   e.preventDefault()
                   navTo('#contact')
                 }}
               >
-                <RollText text="Start a project" />
+                <RollText text={t.footer.start} />
                 <span className="btn__icon">
                   <Arrow />
                 </span>
@@ -86,21 +88,21 @@ export function Footer({ links }: { links: NavLink[] }) {
             </Magnetic>
           </div>
           <div className="ftr__col">
-            <p className="mono ftr__kicker">Explore</p>
+            <p className="mono ftr__kicker">{t.footer.explore}</p>
             {links.map((l) => link(l.target, l.label))}
           </div>
           <div className="ftr__col">
-            <p className="mono ftr__kicker">Contact</p>
+            <p className="mono ftr__kicker">{t.footer.contact}</p>
             <a href={`mailto:${brand.email}`} className="roll-host">
               <RollText text={brand.email} />
             </a>
             <a href={brand.mapUrl} target="_blank" rel="noreferrer" className="roll-host">
               <RollText text={brand.location} />
             </a>
-            <span className="ftr__muted">Local time {time}</span>
+            <span className="ftr__muted">{t.localTime} {time}</span>
           </div>
           <div className="ftr__col">
-            <p className="mono ftr__kicker">Follow</p>
+            <p className="mono ftr__kicker">{t.footer.follow}</p>
             {socials.map((s) => (
               <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="roll-host">
                 <RollText text={s.label} />
@@ -117,7 +119,7 @@ export function Footer({ links }: { links: NavLink[] }) {
 
         <div className="ftr__bottom mono">
           <span>
-            © {new Date().getFullYear()} {brand.fullName}. All rights reserved.
+            © {new Date().getFullYear()} {brand.fullName}. {t.footer.rights}
           </span>
           <span className="ftr__legal">
             {legal.map((l) => (
@@ -127,7 +129,7 @@ export function Footer({ links }: { links: NavLink[] }) {
             ))}
           </span>
           <Magnetic strength={0.4}>
-            <button className="ftr__top" onClick={() => scrollTo(0, { duration: 2.6 })} aria-label="Back to top">
+            <button className="ftr__top" onClick={() => scrollTo(0, { duration: 2.6 })} aria-label={t.footer.top}>
               <Arrow rotate={-90} />
             </button>
           </Magnetic>

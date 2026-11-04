@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { gsap, useGSAP, prefersReducedMotion } from '../lib/gsap'
 import { brand } from '../lib/content'
 import { useTheme } from '../providers/Theme'
+import { useI18n } from '../lib/i18n'
 import { ARROW_CENTRE_PDF, ARROW_D, ARROW_HOME_SVG, ARROW_POINTING_SVG, ARROW_SCALE, RT, iconSvg } from '../lib/loopShape'
 import type { LoaderProps } from './types'
 import './press-play.css'
@@ -49,6 +50,7 @@ const ease = (x: number) => x * x * (3 - 2 * x)
 export function PressPlay({ onReveal, onDone }: LoaderProps) {
   const root = useRef<HTMLDivElement>(null)
   const { theme } = useTheme()
+  const { t, c } = useI18n()
   const stacked = STACKED[theme]
   const art = theme === 'dark' ? brand.mediaIconWhite : brand.mediaIcon
 
@@ -213,21 +215,21 @@ export function PressPlay({ onReveal, onDone }: LoaderProps) {
         <span className="pre__hud-item pre__hud-item--tl">
           <span className="pre__hud-in pre__hud-rec">
             <i className="pre__rec" />
-            Rec
+            {t.loader.rec}
           </span>
           {/* swaps in when the arrow is pressed */}
           <span className="pre__hud-play">
             <svg viewBox="0 0 10 11" width="8" height="9" aria-hidden>
               <path d="M1 1.2v8.6c0 .5.5.8.9.5l7.2-4.3c.4-.2.4-.8 0-1L1.9.7C1.5.4 1 .7 1 1.2z" />
             </svg>
-            Play
+            {t.loader.play}
           </span>
         </span>
         <span className="pre__hud-item pre__hud-item--tr">
-          <span className="pre__hud-in">{brand.fullName}</span>
+          <span className="pre__hud-in">{c.brand.fullName}</span>
         </span>
         <span className="pre__hud-item pre__hud-item--bl">
-          <span className="pre__hud-in">{brand.tagline}</span>
+          <span className="pre__hud-in">{c.brand.tagline}</span>
         </span>
         <span className="pre__hud-item pre__hud-item--br">
           <span className="pre__hud-in">

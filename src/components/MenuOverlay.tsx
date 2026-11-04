@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { gsap, useGSAP } from '../lib/gsap'
-import { brand, socials } from '../lib/content'
+import { useI18n } from '../lib/i18n'
 import type { NavLink } from './Header'
 import { Arrow, RollText } from './ui'
+import { LangSwitch } from './LangSwitch'
 
 type Props = {
   open: boolean
@@ -14,7 +15,10 @@ type Props = {
 export function MenuOverlay({ open, links, onNavigate }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const tl = useRef<gsap.core.Timeline | null>(null)
-  const items = [...links, { label: 'Contact', target: '#contact' }]
+  const { t, c, rtl, path } = useI18n()
+  const { brand, socials } = c
+  const items = [...links, { label: t.menu.contact, target: '#contact' }]
+  const side = rtl ? -1 : 1
 
   useGSAP(
     () => {
@@ -22,9 +26,9 @@ export function MenuOverlay({ open, links, onNavigate }: Props) {
         .timeline({ paused: true, defaults: { ease: 'silk' } })
         .set(root.current, { visibility: 'visible' })
         .fromTo('.menu__panel', { yPercent: -100 }, { yPercent: 0, duration: 1.05, ease: 'drift', stagger: 0.1 })
-        .fromTo('.menu__label-inner', { yPercent: 120, rotate: 4 }, { yPercent: 0, rotate: 0, duration: 1.2, stagger: 0.06 }, '-=0.45')
-        .fromTo('.menu__idx', { autoAlpha: 0, x: -12 }, { autoAlpha: 1, x: 0, duration: 0.8, stagger: 0.06 }, '<+0.15')
-        .fromTo('.menu__rule', { scaleX: 0 }, { scaleX: 1, duration: 1.2, stagger: 0.06, transformOrigin: 'left' }, '<')
+        .fromTo('.menu__label-inner', { yPercent: 120, rotate: 4 * side }, { yPercent: 0, rotate: 0, duration: 1.2, stagger: 0.06 }, '-=0.45')
+        .fromTo('.menu__idx', { autoAlpha: 0, x: -12 * side }, { autoAlpha: 1, x: 0, duration: 0.8, stagger: 0.06 }, '<+0.15')
+        .fromTo('.menu__rule', { scaleX: 0 }, { scaleX: 1, duration: 1.2, stagger: 0.06, transformOrigin: rtl ? 'right' : 'left' }, '<')
         .fromTo('.menu__fade', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 1, stagger: 0.06 }, '<+0.2')
     },
     { scope: root },
@@ -49,7 +53,7 @@ export function MenuOverlay({ open, links, onNavigate }: Props) {
           {items.map((l, i) => (
             <a
               key={l.label}
-              href={l.target.startsWith('#') ? `/${l.target}` : l.target}
+              href={l.target.startsWith('#') ? `${path('/')}${l.target}` : path(l.target)}
               className="menu__link"
               onClick={(e) => {
                 e.preventDefault()
@@ -71,7 +75,7 @@ export function MenuOverlay({ open, links, onNavigate }: Props) {
 
         <aside className="menu__aside">
           <div className="menu__block menu__fade">
-            <p className="mono menu__kicker">Say hello</p>
+            <p className="mono menu__kicker">{t.menu.hello}</p>
             <a className="menu__mail roll-host" href={`mailto:${brand.email}`} tabIndex={open ? 0 : -1}>
               <RollText text={brand.email} />
             </a>
@@ -80,7 +84,7 @@ export function MenuOverlay({ open, links, onNavigate }: Props) {
             </a>
           </div>
           <div className="menu__block menu__fade">
-            <p className="mono menu__kicker">Follow</p>
+            <p className="mono menu__kicker">{t.menu.follow}</p>
             <div className="menu__socials">
               {socials.map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="roll-host" tabIndex={open ? 0 : -1}>
@@ -88,6 +92,10 @@ export function MenuOverlay({ open, links, onNavigate }: Props) {
                 </a>
               ))}
             </div>
+          </div>
+          <div className="menu__block menu__fade">
+            <p className="mono menu__kicker">{t.menu.language}</p>
+            <LangSwitch className="menu__lang" full tabIndex={open ? 0 : -1} />
           </div>
         </aside>
       </div>

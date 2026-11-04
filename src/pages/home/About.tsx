@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 import { gsap, SplitText, useGSAP } from '../../lib/gsap'
-import { industries, marqueeA, marqueeB } from '../../lib/content'
+import { industries as INDUSTRIES } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 import { useNavTo } from '../../lib/useNavTo'
 import { Button } from '../../components/ui'
 import { Marquee } from '../../components/Marquee'
@@ -15,11 +17,12 @@ function Star() {
 }
 
 export function Ribbons() {
+  const { t, c } = useI18n()
   return (
-    <section className="v1-ribbons" data-header-theme="auto" aria-label="Our craft">
+    <section className="v1-ribbons" data-header-theme="auto" aria-label={t.about.craft}>
       <div className="v1-ribbon v1-ribbon--blue">
         <Marquee speed={2}>
-          {marqueeA.map((w) => (
+          {c.marqueeA.map((w) => (
             <span className="v1-ribbon__item" key={w}>
               {w}
               <Star />
@@ -29,7 +32,7 @@ export function Ribbons() {
       </div>
       <div className="v1-ribbon v1-ribbon--ink">
         <Marquee speed={1.6} reverse>
-          {marqueeB.map((w) => (
+          {c.marqueeB.map((w) => (
             <span className="v1-ribbon__item" key={w}>
               {w}
               <Star />
@@ -52,6 +55,7 @@ export function About() {
   const root = useRef<HTMLElement>(null)
   const { ready } = useExperience()
   const navTo = useNavTo()
+  const { t, c } = useI18n()
 
   useGSAP(
     () => {
@@ -82,30 +86,28 @@ export function About() {
   return (
     <section className="v1-about" id="about" ref={root} data-header-theme="auto">
       <p className="v1-about__statement">
-        We are OsLoop, an animation & video production studio. We turn complex ideas into stories people actually feel,{' '}
-        <span className="serif">frame by frame,</span> loop after loop.
+        {rich(t.about.statement)}
       </p>
 
       <div className="v1-about__row">
         <div className="v1-about__info" data-reveal="fade">
           <p className="v1-about__text">
-            From our studio in Alexandria, Egypt, we script, design, animate and sound-design videos for brands in every
-            industry, and we learn your world before we tell your story.
+            {t.about.text}
           </p>
           <ul className="v1-about__inds">
-            {industries.map((x) => (
+            {c.industries.map((x, i) => (
               <li key={x}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  {ICONS[x]}
+                  {ICONS[INDUSTRIES[i]]}
                 </svg>
                 {x}
               </li>
             ))}
-            <li className="v1-about__more">& more</li>
+            <li className="v1-about__more">{t.about.more}</li>
           </ul>
         </div>
         <div className="v1-about__ctas" data-reveal="fade" data-delay="0.15">
-          <Button label="See our work" variant="light" onClick={() => navTo('#work')} />
+          <Button label={t.about.cta} variant="light" onClick={() => navTo('#work')} />
         </div>
       </div>
     </section>

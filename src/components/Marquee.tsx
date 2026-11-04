@@ -1,6 +1,7 @@
 import { useEffect, useRef, type ReactNode } from 'react'
 import { gsap } from '../lib/gsap'
 import { useScrollListener } from '../providers/SmoothScroll'
+import { useI18n } from '../lib/i18n'
 
 /**
  * Infinite marquee whose speed and direction react to scroll velocity.
@@ -19,6 +20,9 @@ export function Marquee({
   className?: string
   skew?: boolean
 }) {
+  const { rtl } = useI18n()
+  // Arabic runs the other way: the next word comes in from the side the eye is heading to
+  const backwards = rtl ? !reverse : reverse
   const track = useRef<HTMLDivElement>(null)
   const target = useRef(1)
   const vel = useRef(0)
@@ -40,7 +44,7 @@ export function Marquee({
       const settle = Math.sign(target.current) || 1
       target.current += (settle - target.current) * 0.04 // ease boost back to base speed
       current += (target.current - current) * 0.08
-      x = wrap(x - (reverse ? -1 : 1) * speed * current * (dt / 1000) * 0.5)
+      x = wrap(x - (backwards ? -1 : 1) * speed * current * (dt / 1000) * 0.5)
       setX(x)
       if (skew) {
         sk += (gsap.utils.clamp(-8, 8, -vel.current * 0.35) - sk) * 0.1
@@ -50,7 +54,7 @@ export function Marquee({
     }
     gsap.ticker.add(tick)
     return () => gsap.ticker.remove(tick)
-  }, [speed, reverse, skew])
+  }, [speed, backwards, skew])
 
   return (
     <div className={`marquee ${className}`}>

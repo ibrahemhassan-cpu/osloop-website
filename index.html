@@ -15,6 +15,10 @@
       } catch (e) {
         document.documentElement.dataset.theme = 'light'
       }
+      if (/^\/ar(\/|$)/.test(location.pathname)) {
+        document.documentElement.lang = 'ar'
+        document.documentElement.dir = 'rtl'
+      }
     </script>
       <meta content="Video Production &amp; Animation Agency | Osloop" property="og:title">
   <meta content="Osloop creates explainer videos, motion graphics, 3D animation, product videos, VFX, UI/UX design, and animated websites that bring brand stories to life." property="og:description">

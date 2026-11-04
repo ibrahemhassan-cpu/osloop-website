@@ -1,13 +1,15 @@
 import { useRef } from 'react'
 import { gsap, useGSAP, type ScrollTrigger } from '../../lib/gsap'
 import { useSmoothScroll } from '../../providers/SmoothScroll'
-import { services } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 import { ImageLoop } from '../../components/ImageLoop'
 
 export function Services() {
   const root = useRef<HTMLElement>(null)
   const pin = useRef<ScrollTrigger | null>(null)
   const { scrollTo } = useSmoothScroll()
+  const { t, c, rtl } = useI18n()
 
   /** straight down to the next section — the cards don't slide past on the way */
   const skip = () => {
@@ -30,8 +32,9 @@ export function Services() {
       mm.add('(min-width: 981px)', () => {
         const track = root.current!.querySelector<HTMLElement>('.v1-services__track')!
         const distance = () => track.scrollWidth - window.innerWidth
+        // the track starts at the side the language reads from, and slides the other way
         const move = gsap.to(track, {
-          x: () => -distance(),
+          x: () => (rtl ? distance() : -distance()),
           ease: 'none',
           scrollTrigger: {
             trigger: root.current,
@@ -54,19 +57,19 @@ export function Services() {
           gsap.fromTo(media, { scale: 1.08 }, {
             scale: 1,
             ease: 'none',
-            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left right', end: 'center center', scrub: true },
+            scrollTrigger: { trigger: panel, containerAnimation: move, start: rtl ? 'right left' : 'left right', end: 'center center', scrub: true },
           })
           gsap.from(title, {
-            xPercent: 25,
+            xPercent: rtl ? -25 : 25,
             ease: 'none',
-            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left right', end: 'left 30%', scrub: true },
+            scrollTrigger: { trigger: panel, containerAnimation: move, start: rtl ? 'right left' : 'left right', end: rtl ? 'right 70%' : 'left 30%', scrub: true },
           })
           gsap.from(panel.querySelectorAll('.v1-svc__tags li'), {
             y: 30,
             autoAlpha: 0,
             stagger: 0.06,
             duration: 1,
-            scrollTrigger: { trigger: panel, containerAnimation: move, start: 'left 60%' },
+            scrollTrigger: { trigger: panel, containerAnimation: move, start: rtl ? 'right 40%' : 'left 60%' },
           })
         })
       })
@@ -79,21 +82,18 @@ export function Services() {
       <div className="v1-services__track">
         <div className="v1-services__intro">
           <h2 className="v1-services__h" data-reveal="lines">
-            Ten services. <br />
-            <span className="serif">One obsession:</span> <br />
-            your story.
+            {rich(t.services.title)}
           </h2>
           <p className="v1-services__p" data-reveal="fade" data-delay="0.2">
-            From a two-minute explainer to a full product universe in 3D, every frame is built around the one thing
-            that matters: the message you need people to remember.
+            {t.services.text}
           </p>
           <div className="v1-services__hint mono" data-reveal="fade" data-delay="0.3">
-            <span>Keep scrolling</span>
-            <span className="v1-services__hint-arrow">→</span>
+            <span>{t.services.keep}</span>
+            <span className="v1-services__hint-arrow">{t.services.arrow}</span>
           </div>
         </div>
 
-        {services.map((s, i) => (
+        {c.services.map((s, i) => (
           <article className="v1-svc" key={s.id}>
             <div className="v1-svc__text">
               <h3 className="v1-svc__title">{s.title}</h3>
@@ -108,7 +108,7 @@ export function Services() {
               </ul>
             </div>
             <div className="v1-svc__media">
-              <ImageLoop className="v1-svc__loop" images={s.images} alt={`${s.title}, OsLoop work`} offset={(i % 3) * 700} dots />
+              <ImageLoop className="v1-svc__loop" images={s.images} alt={t.services.alt(s.title)} offset={(i % 3) * 700} dots />
             </div>
           </article>
         ))}
@@ -116,8 +116,8 @@ export function Services() {
       <div className="v1-services__bar" aria-hidden>
         <div className="v1-services__bar-fill" />
       </div>
-      <button type="button" className="v1-services__skip" onClick={skip} aria-label="Skip to the next section">
-        <span className="mono">Next section</span>
+      <button type="button" className="v1-services__skip" onClick={skip} aria-label={t.services.skip}>
+        <span className="mono">{t.services.next}</span>
         <span className="v1-services__skip-icon">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M12 5v14M6 13l6 6 6-6" />

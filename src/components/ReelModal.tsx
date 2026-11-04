@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { gsap } from '../lib/gsap'
 import { reel } from '../lib/content'
+import { useI18n } from '../lib/i18n'
 
 // The popup always plays from 0:00: the iframe is created on open and destroyed on close,
 // so nothing resumes from a previous position.
@@ -11,6 +12,7 @@ import './reel-modal.css'
 export function ReelModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const root = useRef<HTMLDivElement>(null)
   const { lenis } = useSmoothScroll()
+  const { t } = useI18n()
 
   useEffect(() => {
     if (!open) return
@@ -31,17 +33,17 @@ export function ReelModal({ open, onClose }: { open: boolean; onClose: () => voi
 
   if (!open) return null
   return createPortal(
-    <div className="reel-modal" ref={root} role="dialog" aria-modal aria-label="Showreel" onClick={onClose}>
+    <div className="reel-modal" ref={root} role="dialog" aria-modal aria-label={t.reel.dialog} onClick={onClose}>
       <div className="reel-modal__frame" onClick={(e) => e.stopPropagation()}>
         <iframe
           src={`https://www.youtube-nocookie.com/embed/${reel.youtubeId}?autoplay=1&start=0&rel=0&modestbranding=1&playsinline=1`}
-          title="OsLoop showreel"
+          title={t.reel.frame}
           allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           allowFullScreen
         />
       </div>
       <button className="reel-modal__close mono" onClick={onClose}>
-        Close ✕
+        {t.reel.close}
       </button>
     </div>,
     document.body,

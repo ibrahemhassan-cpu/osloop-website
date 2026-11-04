@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from 'react'
 import { gsap, SplitText, useGSAP, isTouch } from '../../lib/gsap'
-import { brand, contact, socials } from '../../lib/content'
+import { contact } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 import { useClock } from '../../lib/useClock'
 import { useTheme } from '../../providers/Theme'
 import { Arrow, Magnetic, RollText } from '../../components/ui'
@@ -24,6 +26,8 @@ export function Contact() {
   const started = useRef(false)
   const submitting = useRef(false)
   const opened = useRef(false)
+  const { t, c, rtl } = useI18n()
+  const { brand, socials } = c
   const time = useClock(brand.timeZone)
   const { theme } = useTheme()
 
@@ -77,8 +81,9 @@ export function Contact() {
     () => {
       const title = root.current!.querySelector('.v1-cta__title')!
       gsap.set(title, { visibility: 'visible' })
-      const split = SplitText.create(title, { type: 'chars', charsClass: 'v1-cta__char' })
-      gsap.from(split.chars, {
+      // Arabic letters join up, so its title rises word by word
+      const split = SplitText.create(title, rtl ? { type: 'words', wordsClass: 'v1-cta__char' } : { type: 'chars', charsClass: 'v1-cta__char' })
+      gsap.from(rtl ? split.words : split.chars, {
         yPercent: 110,
         rotateX: -70,
         transformOrigin: '50% 100%',
@@ -139,18 +144,19 @@ export function Contact() {
 
   const validate = () => {
     const e: Record<string, string> = {}
-    if (!form.name.trim()) e.name = 'Please tell us your name.'
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = 'Please enter a valid email address.'
-    if (!budget) e.budget = 'Please choose a budget range.'
-    if (phone && phone.national && !phone.valid) e.phone = `This number doesn’t look valid for ${phone.label}.`
-    if (form.message.trim().length < 10) e.message = 'A few words about the project, please.'
+    const m = t.contact.errors
+    if (!form.name.trim()) e.name = m.name
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = m.email
+    if (!budget) e.budget = m.budget
+    if (phone && phone.national && !phone.valid) e.phone = m.phone(phone.label)
+    if (form.message.trim().length < 10) e.message = m.message
     // Human check: Cloudflare Turnstile once its key is set, a small sum until then.
     if (turnstileKey) {
-      if (!token) e.captcha = 'Please complete the security check below.'
+      if (!token) e.captcha = m.security
     } else if (math === 'empty') {
-      e.captcha = 'Please answer the quick check.'
+      e.captcha = m.mathEmpty
     } else if (math === 'wrong') {
-      e.captcha = 'That’s not quite right. Here’s a new one.'
+      e.captcha = m.mathWrong
       refreshCaptcha()
     }
     setErrors(e)
@@ -221,14 +227,14 @@ export function Contact() {
       trackForm('form_error', 'webflow-form', { error_type: 'server', status_code: res.status })
       setServerError(
         data.error === 'captcha_failed'
-          ? 'The security check failed. Please try it again.'
-          : 'We couldn’t send your message right now.',
+          ? t.contact.errors.securityFailed
+          : t.contact.errors.server,
       )
       setStatus('error')
       refreshCaptcha()
     } catch {
       trackForm('form_error', 'webflow-form', { error_type: 'network' })
-      setServerError('We couldn’t send your message right now.')
+      setServerError(t.contact.errors.server)
       setStatus('error')
       refreshCaptcha()
     } finally {
@@ -243,19 +249,18 @@ export function Contact() {
       <div className="v1-cta__orb" ref={orb} aria-hidden />
       <div className="v1-cta__inner">
         <span className="v1-cta__kicker" data-reveal="fade">
-          How can we help you?
+          {t.contact.kicker}
         </span>
         <h2 className="v1-cta__title">
-          Let’s <span className="serif">talk.</span>
+          {rich(t.contact.title)}
         </h2>
 
         <div className="v1-cta__grid">
           <div className="v1-cta__info" data-reveal="fade">
             <p>
-              Tell us about your product, your audience and your deadline. We’ll come back with a creative direction and a
-              clear plan to bring it to life.
+              {t.contact.text}
             </p>
-            <a className="v1-cta__mail roll-host" href={`mailto:${brand.email}?subject=Video%20request`}>
+            <a className="v1-cta__mail roll-host" href={`mailto:${brand.email}?subject=${encodeURIComponent(t.contact.mailSubject)}`}>
               <RollText text={brand.email} />
               <Arrow size={22} rotate={-45} />
             </a>
@@ -263,10 +268,10 @@ export function Contact() {
               <a href={brand.mapUrl} target="_blank" rel="noreferrer">
                 {brand.location}
               </a>
-              <span>Local time {time}</span>
+              <span>{t.localTime} {time}</span>
               {whatsapp && (
                 <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer">
-                  WhatsApp {contact.whatsapp}
+                  {t.contact.whatsapp} {contact.whatsapp}
                 </a>
               )}
             </div>
@@ -286,7 +291,7 @@ export function Contact() {
                   </defs>
                   <text>
                     <textPath href="#badge-circle" startOffset="0">
-                      REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦ REQUEST YOUR VIDEO ✦
+                      {t.contact.badge}
                     </textPath>
                   </text>
                 </svg>
@@ -304,14 +309,14 @@ export function Contact() {
                   <circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" strokeWidth="2" opacity="0.25" />
                   <path d="M15 27l7 7 15-16" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="60" />
                 </svg>
-                <h3>{status === 'sent' ? `Thanks, ${form.name.split(' ')[0] || 'friend'}!` : 'Almost there…'}</h3>
+                <h3>{status === 'sent' ? t.contact.thanks(form.name.split(' ')[0]) : t.contact.almost}</h3>
                 <p>
                   {status === 'sent'
-                    ? 'Your message is on its way. We’ll get back to you with next steps soon.'
-                    : `Your email app should have opened with your brief ready. Just hit send. If it didn’t, write to us at ${brand.email}.`}
+                    ? t.contact.sent
+                    : t.contact.mailed(brand.email)}
                 </p>
                 <button type="button" className="cform__again mono" onClick={resetForm}>
-                  Send another message
+                  {t.contact.again}
                 </button>
               </div>
             ) : (
@@ -320,8 +325,9 @@ export function Contact() {
                 <input type="hidden" name="Needs" value={needs.join(', ')} />
                 <input type="hidden" name="Phone" value={phone?.e164 || ''} />
                 <fieldset className="cform__group">
-                  <legend className="mono">What do you need?</legend>
-                  {contact.needs.map((n) => (
+                  <legend className="mono">{t.contact.need}</legend>
+                  {/* the server gets the English value of each choice, in either language */}
+                  {contact.needs.map((n, i) => (
                     <button
                       type="button"
                       key={n}
@@ -330,14 +336,14 @@ export function Contact() {
                       onClick={() => toggleNeed(n)}
                     >
                       <span className="cchip__dot" aria-hidden />
-                      {n}
+                      {c.contact.needs[i]}
                     </button>
                   ))}
                 </fieldset>
 
                 <fieldset className={`cform__group${errors.budget ? ' has-error' : ''}`} role="radiogroup" aria-required>
-                  <legend className="mono">What is your budget? *</legend>
-                  {contact.budgets.map((b) => (
+                  <legend className="mono">{t.contact.budget}</legend>
+                  {contact.budgets.map((b, i) => (
                     <button
                       type="button"
                       key={b}
@@ -350,7 +356,7 @@ export function Contact() {
                       }}
                     >
                       <span className="cchip__dot" aria-hidden />
-                      {b}
+                      {c.contact.budgets[i]}
                     </button>
                   ))}
                   {errors.budget && <em className="cform__msg">{errors.budget}</em>}
@@ -358,20 +364,20 @@ export function Contact() {
 
                 <div className="cform__row">
                   <label className={`cfield${errors.name ? ' has-error' : ''}`}>
-                    <span className="mono">Name *</span>
-                    <input name="name" maxLength={256} value={form.name} onChange={set('name')} autoComplete="name" placeholder="Your name" />
+                    <span className="mono">{t.contact.name}</span>
+                    <input name="name" maxLength={256} value={form.name} onChange={set('name')} autoComplete="name" placeholder={t.contact.namePlaceholder} />
                     {errors.name && <em>{errors.name}</em>}
                   </label>
                   <label className={`cfield${errors.email ? ' has-error' : ''}`}>
-                    <span className="mono">Email *</span>
-                    <input name="Email" maxLength={256} value={form.email} onChange={set('email')} type="email" autoComplete="email" placeholder="you@company.com" />
+                    <span className="mono">{t.contact.email}</span>
+                    <input name="Email" maxLength={256} value={form.email} onChange={set('email')} type="email" dir="ltr" autoComplete="email" placeholder="you@company.com" />
                     {errors.email && <em>{errors.email}</em>}
                   </label>
                 </div>
 
                 <div className="cform__row">
                   <div className={`cfield${errors.phone ? ' has-error' : ''}`}>
-                    <span className="mono">Phone number (optional)</span>
+                    <span className="mono">{t.contact.phone}</span>
                     <Suspense fallback={<div className="cfield__ph" />}>
                       {near ? (
                         <PhoneField
@@ -388,20 +394,20 @@ export function Contact() {
                     {errors.phone && <em>{errors.phone}</em>}
                   </div>
                   <label className="cfield">
-                    <span className="mono">Company</span>
-                    <input name="Company" maxLength={256} value={form.company} onChange={set('company')} autoComplete="organization" placeholder="Optional" />
+                    <span className="mono">{t.contact.company}</span>
+                    <input name="Company" maxLength={256} value={form.company} onChange={set('company')} autoComplete="organization" placeholder={t.contact.optional} />
                   </label>
                 </div>
 
                 <label className={`cfield${errors.message ? ' has-error' : ''}`}>
-                  <span className="mono">Tell us about the project *</span>
+                  <span className="mono">{t.contact.project}</span>
                   <textarea
                     name="field"
                     maxLength={5000}
                     value={form.message}
                     onChange={set('message')}
                     rows={4}
-                    placeholder="What are you launching, who is it for, and when do you need it?"
+                    placeholder={t.contact.projectPlaceholder}
                     data-lenis-prevent
                   />
                   {errors.message && <em>{errors.message}</em>}
@@ -443,16 +449,16 @@ export function Contact() {
                 <div className="cform__foot">
                   <Magnetic strength={0.2}>
                     <button id="submit-button" type="submit" className="btn btn--blue roll-host" disabled={status === 'sending'}>
-                      <RollText text={status === 'sending' ? 'Sending…' : 'Send message'} />
+                      <RollText text={status === 'sending' ? t.contact.sending : t.contact.send} />
                       <span className="btn__icon">
                         <Arrow />
                       </span>
                     </button>
                   </Magnetic>
-                  {Object.values(errors).some(Boolean) && <span className="cform__error">Please check the highlighted fields.</span>}
+                  {Object.values(errors).some(Boolean) && <span className="cform__error">{t.contact.checkFields}</span>}
                   {status === 'error' && (
                     <span className="cform__error">
-                      {serverError} You can also email us at <a href={`mailto:${brand.email}`}>{brand.email}</a>.
+                      {serverError} {t.contact.emailUs} <a href={`mailto:${brand.email}`}>{brand.email}</a>.
                     </span>
                   )}
                 </div>
