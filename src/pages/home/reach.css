@@ -138,8 +138,9 @@
 .reach__canvas * {
   pointer-events: none !important;
 }
-html.has-cursor .reach__globe {
-  cursor: none;
+/* the visitor's own pointer in this section: the site's big cursor would sit over the flags and names */
+.reach__globe {
+  cursor: grab;
 }
 /* the globe's own disc: a swipe that starts here turns it in any direction */
 .reach__grab {

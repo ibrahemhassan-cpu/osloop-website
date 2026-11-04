@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'rea
 import * as THREE from 'three'
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { PerformanceMonitor } from '@react-three/drei'
-import { setCursorLabel } from '../../components/Cursor'
 import { reach } from '../../lib/content'
 import { prefersReducedMotion } from '../../lib/gsap'
 import { GLOBE_FOV, random, type GlobeBridge } from './globe'
@@ -526,7 +525,7 @@ function Globe({ bridge, mobile }: { bridge: Bridge; mobile: boolean }) {
   /** the flight to a picked market: its turn, its zoom (from, to, and how far it pulls back on the way) and how far along */
   const focus = useRef<{ from: THREE.Quaternion; to: THREE.Quaternion; zFrom: number; zTo: number; dip: number; p: number; n: number } | null>(null)
   const focused = useRef(0)
-  const drag = useRef({ active: false, hover: false, id: -1, lx: 0, ly: 0, lt: 0, wx: 0, wy: 0, last: 0 })
+  const drag = useRef({ active: false, id: -1, lx: 0, ly: 0, lt: 0, wx: 0, wy: 0, last: 0 })
   const turn = useMemo(() => {
     const d = new THREE.Quaternion()
     return (ax: number, ay: number) => {
@@ -538,10 +537,6 @@ function Globe({ bridge, mobile }: { bridge: Bridge; mobile: boolean }) {
     const el = bridge.current.surface
     if (!el) return
     const d = drag.current
-    let label: string | null = null
-    const cursor = (next: string | null) => {
-      if (next !== label) setCursorLabel((label = next))
-    }
     const move = (e: PointerEvent) => {
       if (e.pointerId !== d.id) return
       const now = performance.now()
@@ -566,7 +561,6 @@ function Globe({ bridge, mobile }: { bridge: Bridge; mobile: boolean }) {
       d.wx *= k * cap
       d.wy *= k * cap
       document.documentElement.classList.remove('is-grabbing')
-      cursor(d.hover ? 'Drag' : null)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
       window.removeEventListener('pointercancel', up)
@@ -582,34 +576,18 @@ function Globe({ bridge, mobile }: { bridge: Bridge; mobile: boolean }) {
       d.wy = 0
       // the visitor takes over from any flight to a market (its zoom carries on easing in)
       if (focus.current) focus.current = null
-      cursor('Spin')
       document.documentElement.classList.add('is-grabbing')
       window.addEventListener('pointermove', move)
       window.addEventListener('pointerup', up)
       window.addEventListener('pointercancel', up)
     }
-    const enter = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return
-      d.hover = true
-      if (!d.active) cursor('Drag')
-    }
-    const leave = (e: PointerEvent) => {
-      if (e.pointerType !== 'mouse') return
-      d.hover = false
-      if (!d.active) cursor(null)
-    }
     el.addEventListener('pointerdown', down)
-    el.addEventListener('pointerenter', enter)
-    el.addEventListener('pointerleave', leave)
     return () => {
       el.removeEventListener('pointerdown', down)
-      el.removeEventListener('pointerenter', enter)
-      el.removeEventListener('pointerleave', leave)
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
       window.removeEventListener('pointercancel', up)
       document.documentElement.classList.remove('is-grabbing')
-      if (label) setCursorLabel(null)
     }
   }, [bridge, turn])
 

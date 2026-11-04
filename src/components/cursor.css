@@ -60,7 +60,9 @@
   transform: scale(1);
 }
 .has-cursor[data-cursor-hidden] .cursor-dot,
-.has-cursor[data-cursor-hidden] .cursor-ring {
+.has-cursor[data-cursor-hidden] .cursor-ring,
+.has-cursor[data-cursor-native] .cursor-dot,
+.has-cursor[data-cursor-native] .cursor-ring {
   display: none;
 }
 @media (hover: none), (pointer: coarse) {
