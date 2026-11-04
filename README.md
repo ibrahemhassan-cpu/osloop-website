@@ -48,7 +48,7 @@ The hero's glass ∞ and its orange play arrow are built in 3D from the **Media 
 
 ### Arabic site
 
-The Arabic version lives under `/ar/` and mirrors every English page. All its words are in `src/lib/arabic.ts` (interface words in English are in `src/lib/strings.ts`, in the same shape), loaded only on Arabic pages. Right-to-left rules and the two Arabic fonts (TROX for headings, Dubai for everything else) are in `src/styles/rtl.css`; every rule there starts from the page's language or direction, so none of them can reach the English site. The privacy, terms and consultation pages are in English only.
+The Arabic version lives under `/ar/` and mirrors every English page. All its words are in `src/lib/arabic.ts` (interface words in English are in `src/lib/strings.ts`, in the same shape), loaded only on Arabic pages. Right-to-left rules and the two Arabic fonts (TROX for headings, Cairo for everything else) are in `src/styles/rtl.css`. Neither covers Latin letters or digits, so English words such as project names, which stay untranslated, use the English font; every rule there starts from the page's language or direction, so none of them can reach the English site. The privacy, terms and consultation pages are in English only.
 
 ### Contact form and Apache hosting
 

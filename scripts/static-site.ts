@@ -8,7 +8,7 @@ import { pageSeo, pageSchema, SITE } from '../src/lib/seo.ts'
 const escape = (value: string) => value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!)
 
 /** the faces an Arabic page shows first, requested as early as the page itself */
-const ARABIC_FONTS = ['trox', 'dubai-400', 'dubai-500', 'dubai-700']
+const ARABIC_FONTS = ['trox', 'cairo-arabic', 'cairo-latin']
   .map((file) => `<link rel="preload" href="/fonts/ar/${file}.woff2" as="font" type="font/woff2" crossorigin>`)
   .join('')
 

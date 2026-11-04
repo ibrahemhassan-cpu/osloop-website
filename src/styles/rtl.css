@@ -2,42 +2,37 @@
    Its fonts, and everything that reads the other way. Every rule here starts from the page's language or
    direction, so nothing in this file can touch the English site. The fonts are only fetched on pages that
    use them. */
+/* Neither Arabic font covers Latin letters or digits (see unicode-range), so every English word on the Arabic
+   site, like a project's name, falls through to the English site's own font. */
 @font-face {
   font-family: 'TROX';
   src: url('/fonts/ar/trox.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+0020-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A0-00BF, U+2000-206F;
+}
+/* Cairo (SIL Open Font License, public/fonts/ar/cairo-OFL.txt): one variable file per script, every weight in it */
+@font-face {
+  font-family: 'Cairo';
+  src: url('/fonts/ar/cairo-arabic.woff2') format('woff2');
+  font-weight: 200 1000;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0897-08E1, U+08E3-08FF, U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC, U+200C-200E, U+2010-2011, U+204F, U+2E41;
 }
 @font-face {
-  font-family: 'Dubai';
-  src: url('/fonts/ar/dubai-300.woff2') format('woff2');
-  font-weight: 300;
+  font-family: 'Cairo';
+  src: url('/fonts/ar/cairo-latin.woff2') format('woff2');
+  font-weight: 200 1000;
   font-display: swap;
-}
-@font-face {
-  font-family: 'Dubai';
-  src: url('/fonts/ar/dubai-400.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Dubai';
-  src: url('/fonts/ar/dubai-500.woff2') format('woff2');
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Dubai';
-  src: url('/fonts/ar/dubai-700.woff2') format('woff2');
-  font-weight: 700;
-  font-display: swap;
+  unicode-range: U+0020-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A0-00BF, U+2000-206F, U+2212, U+FEFF;
 }
 
 :root[lang='ar'] {
-  --f-sans: 'Dubai', 'Segoe UI', Tahoma, sans-serif;
+  --f-en: 'Inter Tight Variable', 'Inter Tight', system-ui, sans-serif;
+  --f-sans: 'Cairo', var(--f-en);
   --f-mono: var(--f-sans);
   --f-serif: var(--f-sans);
-  --f-head: 'TROX', 'Dubai', 'Segoe UI', Tahoma, sans-serif;
+  --f-head: 'TROX', var(--f-en);
   font-synthesis: none;
 }
 
@@ -61,13 +56,30 @@
   font-style: normal;
 }
 
-/* the headings' font; it comes in one weight */
-:root[lang='ar'] :is(h1, h2, h3, .v1-reel__word, .v1-reel__badge strong, .v1-ribbon__item, .v1-ribbon--ink .v1-ribbon__item, .work__title, .nextp__title, .menu__label-inner, .v1-process__step-title, .journey__stage) {
+/* the headings' font; it comes in one weight, and the weight here is for any English word among its letters */
+:root[lang='ar'] :is(h1, h2, h3, .v1-reel__word, .v1-reel__badge strong, .v1-ribbon__item, .v1-ribbon--ink .v1-ribbon__item, .nextp__title, .menu__label-inner, .v1-process__step-title, .journey__stage) {
   font-family: var(--f-head);
-  font-weight: 400;
+  font-weight: 600;
+}
+
+/* a project's name is the English site's type, tight spacing and all */
+:root[lang='ar'] .work__title,
+:root[lang='ar'] .pname {
+  font-family: var(--f-en);
+  letter-spacing: -0.05em !important;
 }
 :root[lang='ar'] .work__sub {
   font-family: var(--f-sans);
+}
+:root[lang='ar'] .curtain__label {
+  font-family: 'JetBrains Mono Variable', ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em !important;
+}
+/* so are the labels and fields that only hold English: an address, a phone number */
+:root[lang='ar'] .roll[dir='ltr'],
+:root[lang='ar'] input[dir='ltr'] {
+  font-family: var(--f-en);
 }
 
 /* the heading font is far wider than the English one, and its letters need taller lines */
@@ -108,10 +120,6 @@
 :root[lang='ar'] .work__h {
   font-size: clamp(40px, 5.4vw, 104px);
   line-height: 1.25;
-}
-:root[lang='ar'] .work__title {
-  font-size: clamp(22px, 3.2vw, 60px);
-  line-height: 1.3;
 }
 :root[lang='ar'] .work__sub {
   font-size: clamp(15px, 1.2vw, 20px);
@@ -196,7 +204,7 @@
   max-width: 15em;
 }
 
-/* body copy: the Arabic face reads smaller than the English one at the same size, and needs more air */
+/* body copy: Arabic needs more air between its lines */
 :root[lang='ar'] .v1-hero__lede,
 :root[lang='ar'] .v1-services__p,
 :root[lang='ar'] .v1-svc__body,
@@ -209,14 +217,12 @@
 :root[lang='ar'] .cform--done p {
   line-height: 1.8;
 }
-:root[lang='ar'] .v1-hero__lede,
-:root[lang='ar'] .v1-services__p,
-:root[lang='ar'] .v1-svc__body {
-  font-size: 17px;
-}
 :root[lang='ar'] .v1-ring__card p {
-  font-size: 15px;
   line-height: 1.65;
+}
+/* Cairo's 600 looks no heavier than its 400, so what the design sets at 600 takes its 700 */
+:root[lang='ar'] :is(.btn, .hdr__cta, .v1-prism__face, .case__link-label) {
+  font-weight: 700;
 }
 
 /* the small labels: Arabic is unreadable at the size the English capitals work at */
@@ -460,7 +466,7 @@
 /* its letters are laid along the circle in the order they're seen, whichever way they read */
 [dir='rtl'] .v1-badge__ring {
   direction: ltr;
-  font-size: 16px;
+  font-size: 15.4px;
 }
 [dir='rtl'] .phone__menu li button {
   text-align: right;

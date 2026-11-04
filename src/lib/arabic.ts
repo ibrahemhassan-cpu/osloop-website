@@ -98,30 +98,25 @@ const VALUES = [
   },
 ]
 
+/** the project each review is for stays under its English name */
 const TESTIMONIALS = [
   {
     quote: 'فريق رائع! نفّذوا كل ما احتجته، تمامًا كما احتجته. عملت مع كثير من المستقلين خلال السنوات العشر الماضية، وهذا الفريق من القلائل الذين يلتزمون بالتعليمات بدقة ويقدمون نتائج ممتازة دون عناء.',
-    project: 'تحريك 3D واقعي لمنتج',
   },
   {
     quote: 'أبطال خارقون! فاقوا كل التوقعات. لن تخطئ أبدًا بالعمل مع هذا الفريق، ولا أملّ من التوصية بهم.',
-    project: 'فيديو متحرك',
   },
   {
     quote: 'تولّى الفريق أعمال المؤثرات البصرية الخاصة بي، وكانت طموحة في حجمها وضيقة في وقتها. فهموا رؤيتي وسلّموا ما احتجته تمامًا للفيلم.',
-    project: 'مؤثرات بصرية: عناصر وحيوانات وخلفيات',
   },
   {
     quote: 'عمل رائع، والفريق كان مركزًا في كل التفاصيل. سعيد جدًا بالنتيجة وسأعمل معهم مرة أخرى.',
-    project: 'منتجات وعناصر 3D وفيديوهات متحركة',
   },
   {
     quote: 'من أروع تجارب العمل التي مررت بها، وفاقت كل ما تمنيته بكثير. أصبح هذا الفريق فريق أحلامي في العمل.',
-    project: 'موشن جرافيك وإنتاج رسوم متحركة',
   },
   {
     quote: 'واحد في المليون. بصراحة من أفضل من عملت معهم، وسأعمل معهم كلما أتيحت لي الفرصة.',
-    project: 'فيديو توضيحي لأطباء الأسنان',
   },
 ]
 
@@ -146,15 +141,16 @@ const COUNTRIES: Record<string, string> = {
   RO: 'رومانيا',
 }
 
-type ProjectCopy = Pick<Project, 'title' | 'name' | 'category' | 'services' | 'deliverable' | 'summary' | 'start' | 'journey' | 'end'> & {
+/** a project's name isn't translated: its title here is the English name, then this subtitle */
+type ProjectCopy = Pick<Project, 'category' | 'services' | 'deliverable' | 'summary' | 'start' | 'journey' | 'end'> & {
+  subtitle: string
   link: string
-  review?: { quote: string; label: string }
+  review?: { quote: string }
 }
 
 const PROJECTS: Record<string, ProjectCopy> = {
   'behind-the-render': {
-    title: 'خلف الرندر: ما نراه وما تراه',
-    name: 'خلف الرندر',
+    subtitle: 'ما نراه وما تراه',
     category: 'تحريك 3D',
     services: ['إعداد المشهد 3D', 'الإضاءة وتطوير الشكل', 'التحريك', 'الدمج والمونتاج'],
     deliverable: 'فيلم 3D رأسي عن مراحل العمل',
@@ -170,12 +166,10 @@ const PROJECTS: Record<string, ProjectCopy> = {
     end: 'فيلم 3D مكثف وتعليمي يجعل الحرفة التقنية سهلة الفهم، مع نتيجة نهائية ممتعة بصريًا.',
     review: {
       quote: 'كان العمل مع فريق أسلوب في هذا المشروع ممتعًا. طرحوا كثيرًا من الأسئلة لفهم أهدافنا بوضوح، ولهذا لم نحتج إلا إلى تعديلات طفيفة جدًا على المنتج النهائي. استمتعنا بالعمل معهم ونقدّر أسلوبهم المهني وتجاوزهم للتوقعات ليقدموا لنا ما لم نكن نعرف أننا نحتاجه! سنعمل معهم بالتأكيد مرة أخرى.',
-      label: 'مشروع تحريك 3D',
     },
   },
   'just-one-small-change': {
-    title: 'تغيير واحد صغير: فيلم شخصية بالذكاء الاصطناعي',
-    name: 'تغيير واحد صغير',
+    subtitle: 'فيلم شخصية بالذكاء الاصطناعي',
     category: 'فيديو ذكاء اصطناعي',
     services: ['الفكرة الإبداعية', 'توليد الشخصية بالذكاء الاصطناعي', 'الاستمرارية البصرية', 'المونتاج والصوت'],
     deliverable: 'فيلم قصير مولّد بالذكاء الاصطناعي',
@@ -191,8 +185,7 @@ const PROJECTS: Record<string, ProjectCopy> = {
     end: 'فيلم مكثف بالذكاء الاصطناعي بشخصية رئيسية ثابتة وتدفق سينمائي متقن.',
   },
   'animated-explainer-showreel': {
-    title: 'شوريل الفيديوهات التوضيحية: قصص بوضوح',
-    name: 'شوريل الفيديوهات التوضيحية',
+    subtitle: 'قصص بوضوح',
     category: 'فيديوهات توضيحية',
     services: ['السيناريو وبنية القصة', 'الستوري بورد', 'الرسوم', 'تحريك 2D والصوت'],
     deliverable: 'شوريل فيديوهات توضيحية للشركات',
@@ -208,8 +201,7 @@ const PROJECTS: Record<string, ProjectCopy> = {
     end: 'عرض مكثف لحكايات الفيديو التوضيحي 2D، من الشخصيات المرسومة يدويًا إلى مرئيات الحملات الجريئة والمشاهد القصصية.',
   },
   'viaeurope-rfid': {
-    title: 'ViaEurope RFID: سلسلة إمداد مرئية',
-    name: 'ViaEurope RFID',
+    subtitle: 'سلسلة إمداد مرئية',
     category: 'موشن جرافيك',
     services: ['تصميم المعلومات', 'الرسوم الأيزومترية', 'موشن جرافيك', 'المونتاج والصوت'],
     deliverable: 'فيديو موشن جرافيك توضيحي',
@@ -225,12 +217,10 @@ const PROJECTS: Record<string, ProjectCopy> = {
     end: 'فيديو توضيحي نظيف يجعل عملية RFID اللوجستية أسهل في الفهم من النظرة الأولى.',
     review: {
       quote: 'كان العمل مع فريق أسلوب متعة مرة أخرى. أسلوب مهني جدًا وصبر كبير مع الملاحظات والتعليقات، وسرعة استجابة ممتازة. شكرًا لكم!',
-      label: 'مشروع موشن جرافيك RFID',
     },
   },
   'mark-vfx-before-after': {
-    title: 'المونتاج والمؤثرات الصوتية: قبل وبعد',
-    name: 'المونتاج والمؤثرات الصوتية',
+    subtitle: 'قبل وبعد',
     category: 'المؤثرات البصرية والدمج',
     services: ['الدمج', 'تنقية اللقطات', 'تصحيح الألوان', 'مونتاج الفيديو'],
     deliverable: 'مونتاج مؤثرات بصرية قبل وبعد',
@@ -246,12 +236,10 @@ const PROJECTS: Record<string, ProjectCopy> = {
     end: 'اللقطات نفسها، وقد تحولت إلى فيلم نهائي أنقى وأكثر ثقة، مع الحفاظ على مقارنة صادقة بين قبل وبعد.',
     review: {
       quote: 'هذه الشركة تتجاوز التوقعات دائمًا في المونتاج. تواصلهم ممتاز ومهنيتهم عالية!',
-      label: 'مؤثرات بصرية ومونتاج فيديو',
     },
   },
   'river-city-recovery': {
-    title: 'River City Recovery: نظام هوية بصرية',
-    name: 'River City Recovery',
+    subtitle: 'نظام هوية بصرية',
     category: 'الهوية البصرية',
     services: ['تصميم الشعار', 'نظام الألوان', 'الخطوط', 'دليل العلامة'],
     deliverable: 'هوية بصرية ودليل علامة',
@@ -266,11 +254,10 @@ const PROJECTS: Record<string, ProjectCopy> = {
       { stage: 'التطبيقات', text: 'اللافتات والمطبوعات والمنتجات الترويجية والويب والجوال: كل نقطة تواصل مصممة وموثقة في دليل العلامة.' },
     ],
     end: 'نظام هوية ودليل علامة متكاملان (الشعار، الألوان، الخطوط، الصور، الأيقونات، النبرة، التطبيقات)، جاهزان لكل لافتة وشاشة ومستند. الفرص الثانية تبدأ هنا.',
-    review: { quote: 'عمل مذهل ويبدو رائعًا.', label: 'مشروع هوية بصرية' },
+    review: { quote: 'عمل مذهل ويبدو رائعًا.' },
   },
   arvamethod: {
-    title: 'ARVAmethod: تصميم تجربة رقمية',
-    name: 'ARVAmethod',
+    subtitle: 'تصميم تجربة رقمية',
     category: 'تصميم وتطوير المواقع',
     services: ['تصميم UX/UI', 'تطوير الويب', 'الحركة', 'التصميم المتجاوب'],
     deliverable: 'موقع باتجاهين تصميميين',
@@ -288,10 +275,11 @@ const PROJECTS: Record<string, ProjectCopy> = {
 }
 
 const localProjects: Project[] = projects.map((p) => {
-  const { link, review, ...copy } = PROJECTS[p.slug]
+  const { subtitle, link, review, ...copy } = PROJECTS[p.slug]
   return {
     ...p,
     ...copy,
+    title: `${p.name}: ${subtitle}`,
     link: { ...p.link, label: link },
     review: p.review && review ? { ...p.review, ...review } : p.review,
   }

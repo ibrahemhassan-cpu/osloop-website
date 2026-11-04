@@ -16,6 +16,20 @@ import { Testimonials } from '../home/Testimonials'
 import { imageSizes, responsive } from '../../lib/images'
 import './projects.css'
 
+/** In Arabic a title is the project's English name in the English type, with the Arabic subtitle on the line below. */
+function Title({ project: p, rtl }: { project: Project; rtl: boolean }) {
+  if (!rtl) return p.title
+  return (
+    <>
+      <span className="pname" dir="ltr">
+        {p.name}
+      </span>
+      <br />
+      {p.title.split(': ')[1]}
+    </>
+  )
+}
+
 /** Route wrapper — remounts the page per project so every animation starts fresh. */
 export default function ProjectRoute() {
   const { slug } = useParams()
@@ -118,7 +132,9 @@ function ProjectPage({ project: p }: { project: Project }) {
           <TransitionLink to="/#work" className="case__back mono">
             <Arrow rotate={180} size={12} /> {t.project.back}
           </TransitionLink>
-          <h1 className="case__title">{p.title}</h1>
+          <h1 className="case__title">
+            <Title project={p} rtl={rtl} />
+          </h1>
           <div className="case__intro">
             <p>{p.summary}</p>
           </div>
@@ -259,7 +275,9 @@ function ProjectPage({ project: p }: { project: Project }) {
               <ProjectCover project={next} />
             </span>
             <span className="nextp__k mono">{t.project.next}</span>
-            <span className="nextp__title">{next.title}</span>
+            <span className="nextp__title">
+              <Title project={next} rtl={rtl} />
+            </span>
             <span className="nextp__go">
               <Arrow size={26} rotate={-45} />
             </span>
