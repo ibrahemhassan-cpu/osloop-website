@@ -5,6 +5,7 @@ import { useSmoothScroll } from './SmoothScroll'
 import { Preloader } from '../components/Preloader'
 import { MediaLogoWhite } from '../components/Logo'
 import { brand } from '../lib/content'
+import { langOf, localize, tidy } from '../lib/lang'
 import './experience.css'
 
 type Ctx = {
@@ -19,6 +20,7 @@ const ExperienceCtx = createContext<Ctx>({ ready: false, go: () => {} })
 /** the line under the logo on the curtain, per destination ('' = the logo alone) */
 const LABELS: Record<string, string> = {
   '/': '',
+  '/ar': '',
 }
 
 export function ExperienceProvider({ children }: { children: ReactNode }) {
@@ -37,7 +39,7 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
     (to: string, text?: string) => {
       if (busy.current) return
       const path = to.split('#')[0] || '/'
-      if (path === location.pathname) {
+      if (tidy(path) === tidy(location.pathname)) {
         const hash = to.includes('#') ? '#' + to.split('#')[1] : ''
         lenis?.scrollTo(hash || 0, { duration: 1.8 })
         return
@@ -46,7 +48,7 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
       lenis?.stop()
       const el = curtain.current!
       const layers = el.querySelectorAll('.curtain__layer')
-      if (label.current) label.current.textContent = text ?? LABELS[path] ?? brand.name
+      if (label.current) label.current.textContent = text ?? LABELS[tidy(path)] ?? brand.name
       gsap
         .timeline({
           onComplete: () => {
@@ -129,9 +131,9 @@ export function ExperienceProvider({ children }: { children: ReactNode }) {
 
 export const useExperience = () => useContext(ExperienceCtx)
 
-/** Anchor that plays the curtain transition for internal routes. */
+/** Anchor that plays the curtain transition for internal routes, in the page's language. */
 export function TransitionLink({
-  to,
+  to: route,
   label,
   children,
   className,
@@ -142,6 +144,7 @@ export function TransitionLink({
   'href' | 'onClick'
 >) {
   const { go } = useExperience()
+  const to = localize(route, langOf(useLocation().pathname))
   return (
     <a
       href={to}

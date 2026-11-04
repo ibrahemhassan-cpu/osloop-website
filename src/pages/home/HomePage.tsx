@@ -6,7 +6,7 @@ import { useExperience } from '../../providers/Experience'
 import { useSmoothScroll } from '../../providers/SmoothScroll'
 import { useAutoReveal } from '../../lib/useAutoReveal'
 import { ScrollTrigger } from '../../lib/gsap'
-import { NAV } from '../../lib/nav'
+import { useI18n } from '../../lib/i18n'
 import { Hero } from './Hero'
 import { About, Ribbons } from './About'
 import { Reel } from './Reel'
@@ -24,6 +24,7 @@ import './sections.css'
 export default function HomePage() {
   const { ready } = useExperience()
   const { scrollTo } = useSmoothScroll()
+  const { t } = useI18n()
   const { hash, search } = useLocation()
   const campaignOpened = useRef(false)
   const contactTarget = hash || (/request-your-video|consultation=/.test(search) ? '#contact' : '')
@@ -47,7 +48,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Header links={NAV} />
+      <Header links={t.nav} />
       <main className="v1" ref={main}>
         <Hero />
         <div className="v1-sheet">
@@ -62,7 +63,7 @@ export default function HomePage() {
           <Reach />
           {/* the Team section is removed for now (its code is kept in ./Team.tsx) */}
           <Contact />
-          <Footer links={NAV} />
+          <Footer links={t.nav} />
         </div>
       </main>
     </>

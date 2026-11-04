@@ -1,14 +1,15 @@
 import type { CSSProperties } from 'react'
-import { industries } from '../lib/content'
+import { useI18n } from '../lib/i18n'
 import './value-visual.css'
 
 /** Small looping illustrations for the four OsLoop values (0–3). */
 export function ValueVisual({ i }: { i: number }) {
+  const { t, c } = useI18n()
   if (i === 0)
     return (
       <div className="vv vv--orbit" aria-hidden>
-        <div className="vv__core">Your industry</div>
-        {industries.map((w, k) => (
+        <div className="vv__core">{t.values.yourIndustry}</div>
+        {c.industries.map((w, k) => (
           <span key={w} className="vv__sat" style={{ '--k': k } as CSSProperties}>
             <span>{w}</span>
           </span>

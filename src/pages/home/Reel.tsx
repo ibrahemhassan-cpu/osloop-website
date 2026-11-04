@@ -3,9 +3,11 @@ import { gsap, useGSAP } from '../../lib/gsap'
 import { reel } from '../../lib/content'
 import { ReelModal } from '../../components/ReelModal'
 import { YouTubeBackground } from '../../components/YouTubeBackground'
+import { useI18n } from '../../lib/i18n'
 import './reel.css'
 
-export function Reel({ label = 'Showreel', title = 'Stories we’ve set in motion' }: { label?: string; title?: string }) {
+export function Reel() {
+  const { t } = useI18n()
   const root = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
   const close = useCallback(() => setOpen(false), [])
@@ -43,8 +45,8 @@ export function Reel({ label = 'Showreel', title = 'Stories we’ve set in motio
   return (
     <section className="v1-reel" id="reel" ref={root} data-header-theme="dark" data-theme="dark">
       <div className="v1-reel__stage">
-        <div className="v1-reel__frame" data-cursor="Play reel" onClick={() => setOpen(true)} role="button" tabIndex={0}
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setOpen(true)} aria-label="Play showreel">
+        <div className="v1-reel__frame" data-cursor={t.reel.cursor} onClick={() => setOpen(true)} role="button" tabIndex={0}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setOpen(true)} aria-label={t.reel.aria}>
           <div className="v1-reel__media">
             {reel.loopMp4 ? (
               <video src={reel.loopMp4} poster={reel.poster} autoPlay muted loop playsInline />
@@ -59,8 +61,8 @@ export function Reel({ label = 'Showreel', title = 'Stories we’ve set in motio
               </svg>
             </span>
             <span>
-              <span className="mono">{label}</span>
-              <strong>{title}</strong>
+              <span className="mono">{t.reel.label}</span>
+              <strong>{t.reel.title}</strong>
             </span>
           </div>
           <div className="v1-reel__sound mono">
@@ -70,14 +72,14 @@ export function Reel({ label = 'Showreel', title = 'Stories we’ve set in motio
               <i />
               <i />
             </span>
-            Click for sound
+            {t.reel.sound}
           </div>
         </div>
         <div className="v1-reel__word v1-reel__word--l" aria-hidden>
-          Play
+          {t.reel.wordLeft}
         </div>
         <div className="v1-reel__word v1-reel__word--r" aria-hidden>
-          Reel
+          {t.reel.wordRight}
         </div>
       </div>
       <ReelModal open={open} onClose={close} />

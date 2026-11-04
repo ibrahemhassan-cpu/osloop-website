@@ -5,14 +5,15 @@ import { useSmoothScroll } from '../../providers/SmoothScroll'
 import { useMedia } from '../../lib/useMedia'
 import { useTheme } from '../../providers/Theme'
 import { Button } from '../../components/ui'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 
 const HeroScene = lazy(() => import('./HeroScene'))
-
-const WORDS = ['Explainer Videos', '3D Production', 'Animated Websites']
 
 export function Hero() {
   const { ready } = useExperience()
   const { scrollTo } = useSmoothScroll()
+  const { t } = useI18n()
   const root = useRef<HTMLElement>(null)
   const progress = useRef(0)
   const intro = useRef(0)
@@ -99,15 +100,14 @@ export function Hero() {
       <div className="v1-hero__content">
         <div className="v1-hero__bottom">
           <h1 className="v1-hero__title">
-            Your story, <br />
-            <span className="serif">our</span> expertise.
+            {rich(t.hero.title)}
           </h1>
           <div className="v1-hero__aside">
-            <div className="v1-prism" aria-label={WORDS.join(', ')}>
+            <div className="v1-prism" aria-label={t.hero.words.join(t.hero.wordsSeparator)}>
               <span className="v1-prism__dot" />
               <div className="v1-prism__view">
                 <div className="v1-prism__inner">
-                  {WORDS.map((w, i) => (
+                  {t.hero.words.map((w, i) => (
                     <span key={w} className="v1-prism__face" style={{ ['--f' as string]: i }}>
                       {w}
                     </span>
@@ -116,12 +116,11 @@ export function Hero() {
               </div>
             </div>
             <p className="v1-hero__lede">
-              Prioritizing client collaboration and satisfaction: strong partnerships, tailored services, and animation
-              that makes people feel something.
+              {t.hero.lede}
             </p>
             <div className="v1-hero__ctas">
-              <Button label="Request your video" variant="light" onClick={() => scrollTo('#contact', { duration: 2.4 })} />
-              <Button label="Watch reel" variant="ghost" onClick={() => scrollTo('#reel', { duration: 2 })} />
+              <Button label={t.hero.request} variant="light" onClick={() => scrollTo('#contact', { duration: 2.4 })} />
+              <Button label={t.hero.watch} variant="ghost" onClick={() => scrollTo('#reel', { duration: 2 })} />
             </div>
           </div>
         </div>
@@ -131,7 +130,7 @@ export function Hero() {
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
           <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4.4h-4.4" />
         </svg>
-        <span>{mobile ? 'Swipe the loop to spin it' : 'Grab the loop & spin it'}</span>
+        <span>{mobile ? t.hero.hintTouch : t.hero.hintDrag}</span>
         </div>
       </div>
       <div className="v1-hero__shade" aria-hidden />

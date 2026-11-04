@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import { useI18n } from '../lib/i18n'
 import type { MathQuestion } from '../lib/math-question'
 import './math-check.css'
 
@@ -18,6 +19,7 @@ export function MathCheck({ question: q, error, onChange, onRefresh }: {
   onChange: (state: MathState) => void
   onRefresh: () => void
 }) {
+  const { t, rtl } = useI18n()
   const id = useId()
   const [value, setValue] = useState('')
   const cb = useRef(onChange)
@@ -31,7 +33,7 @@ export function MathCheck({ question: q, error, onChange, onRefresh }: {
   return (
     <div className={`cfield cmath${error ? ' has-error' : ''}`}>
       <label className="mono" htmlFor={id}>
-        Quick check *
+        {t.check.label}
       </label>
       <div className="cmath__row">
         <span className="cmath__q" aria-hidden>
@@ -44,12 +46,12 @@ export function MathCheck({ question: q, error, onChange, onRefresh }: {
           autoComplete="off"
           maxLength={3}
           placeholder="?"
-          aria-label={`What is ${q.spoken}?`}
+          aria-label={t.check.aria(rtl ? q.text : q.spoken)}
           aria-invalid={!!error}
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        <button type="button" className="cmath__new" onClick={onRefresh} aria-label="Give me a different question" title="New question">
+        <button type="button" className="cmath__new" onClick={onRefresh} aria-label={t.check.newAria} title={t.check.newTitle}>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M20 11a8 8 0 1 0-2.3 5.7" />
             <path d="M20 4v7h-7" />

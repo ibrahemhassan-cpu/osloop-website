@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../lib/i18n'
 import './image-loop.css'
 
 /**
@@ -22,6 +23,7 @@ export function ImageLoop({
   className?: string
   dots?: boolean
 }) {
+  const { t } = useI18n()
   const root = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [visible, setVisible] = useState(false)
@@ -74,13 +76,13 @@ export function ImageLoop({
         ))}
       </div>
       {dots && images.length > 1 && (
-        <div className="iloop__dots" role="group" aria-label="Images">
+        <div className="iloop__dots" role="group" aria-label={t.images.group}>
           {images.map((src, i) => (
             <button
               type="button"
               key={src + i}
               className={i === active ? 'is-on' : ''}
-              aria-label={`Show image ${i + 1} of ${images.length}`}
+              aria-label={t.images.show(i + 1, images.length)}
               aria-current={i === active}
               onClick={() => go(i)}
             >

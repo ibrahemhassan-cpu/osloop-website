@@ -1,11 +1,13 @@
 import { useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { arabicCopy } from '../lib/i18n'
 import { pageSeo, pageSchema } from '../lib/seo'
 
 export function SiteMetadata() {
   const { pathname } = useLocation()
   useLayoutEffect(() => {
-    const seo = pageSeo(pathname)
+    const arabic = arabicCopy()?.seo
+    const seo = pageSeo(pathname, arabic)
     document.title = seo.title
     const set = (selector: string, value: string) => document.querySelector(selector)?.setAttribute('content', value)
     set('meta[name="description"]', seo.description)
@@ -24,14 +26,14 @@ export function SiteMetadata() {
       schema.type = 'application/ld+json'
       document.head.append(schema)
     }
-    schema.textContent = JSON.stringify(pageSchema(pathname))
-    if (pathname !== '/') document.querySelectorAll('link[hreflang]').forEach((link) => link.remove())
-    if (pathname === '/' && !document.querySelector('link[hreflang]')) {
-      for (const [lang, href] of [['en', '/'], ['ar', '/ar/'], ['x-default', '/']]) {
+    schema.textContent = JSON.stringify(pageSchema(pathname, arabic))
+    document.querySelectorAll('link[hreflang]').forEach((link) => link.remove())
+    if (seo.alternates) {
+      for (const [lang, href] of [['en', seo.alternates.en], ['ar', seo.alternates.ar], ['x-default', seo.alternates.en]]) {
         const link = document.createElement('link')
         link.rel = 'alternate'
         link.hreflang = lang
-        link.href = `https://agency.osloop.com${href}`
+        link.href = href
         document.head.append(link)
       }
     }

@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap, isTouch } from '../../lib/gsap'
-import { projects } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 import { TransitionLink } from '../../providers/Experience'
 import { ProjectCover } from '../../components/ProjectCover'
 import { Arrow } from '../../components/ui'
 
-const FEATURED = projects
-
 /** Selected work — a big index of projects with a floating preview that trails the cursor. */
 export function Work() {
+  const { t, c } = useI18n()
+  const projects = c.projects
   const root = useRef<HTMLElement>(null)
   const preview = useRef<HTMLDivElement>(null)
   const [hover, setHover] = useState<number | null>(null)
@@ -34,22 +35,21 @@ export function Work() {
     <section className="work" id="work" ref={root} data-header-theme="auto">
       <div className="work__head">
         <h2 className="work__h" data-reveal="lines">
-          Selected <span className="serif">work.</span>
+          {rich(t.work.title)}
         </h2>
         <p className="work__p" data-reveal="fade">
-          A few of the stories we’ve helped tell. Open any project to see where it started, how it was made and where it
-          ended.
+          {t.work.text}
         </p>
       </div>
 
       <ul className={`work__list${hover !== null ? ' is-hovering' : ''}`} onMouseLeave={() => setHover(null)}>
-        {FEATURED.map((p, i) => (
+        {projects.map((p, i) => (
           <li key={p.slug} data-reveal="fade" data-delay={String(i * 0.06)}>
             <TransitionLink
               to={`/projects/${p.slug}`}
               label={p.name}
               className={`work__row${hover === i ? ' is-hover' : ''}`}
-              data-cursor="View story"
+              data-cursor={t.work.view}
               onMouseEnter={() => setHover(i)}
             >
               <span className="work__idx mono">{String(i + 1).padStart(2, '0')}</span>
@@ -73,14 +73,14 @@ export function Work() {
 
       <div className="work__more" data-reveal="fade">
         <p>
-          <strong>{projects.length}</strong> projects, each with its full story.
+          <strong>{projects.length}</strong> {t.work.count}
         </p>
       </div>
 
       <div className={`work__preview${hover !== null ? ' is-on' : ''}`} ref={preview} aria-hidden>
         <div className="work__preview-inner">
           <div className="work__reel" style={{ transform: `translateY(${-(hover ?? 0) * 100}%)` }}>
-            {FEATURED.map((p) => (
+            {projects.map((p) => (
               <div className="work__frame" key={p.slug}>
                 <ProjectCover project={p} sizes="400px" />
               </div>

@@ -19,7 +19,7 @@
     var target = e.target instanceof Element ? e.target : null;
     var cta = target && target.closest('[data-open-form], a[href$="#contact"]');
     if (cta) event('form_open', {
-      form_id: location.pathname.indexOf('/ar') === 0 ? 'popup-lead-form' : 'webflow-form',
+      form_id: location.pathname.indexOf('/ar/landing') === 0 ? 'popup-lead-form' : 'webflow-form',
       trigger: cta.hasAttribute('data-open-form') ? 'dialog' : 'contact_link'
     });
     var link = target && target.closest('a[href]');

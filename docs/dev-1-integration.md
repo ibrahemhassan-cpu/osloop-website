@@ -37,7 +37,7 @@ No GTM container, Meta pixel, Clarity or separate error-monitoring service was p
 ## Forms and hosting
 
 - English posts multipart data to `/formAction.php`, using the original field names and preserving the current phone, company, service and budget selections.
-- Arabic inline and popup forms post to `/ar/formAction.php`.
+- The Arabic site at `/ar/` posts to `/formAction.php`, with the same English values for services and budget. The older Arabic landing page, now at `/ar/landing.html`, keeps its inline and popup forms posting to `/ar/formAction.php`.
 - SMTP connection configuration and recipients are retained from `dev-1`.
 - The English handler uses the PHPMailer library already under `ar/src`. The build includes that dependency and the shared country lookup files.
 - Both handlers disable SMTP output and return HTTP 200 with `{ "ok": true }` only when the mailer reports success. Clients reject an HTML fallback response or HTTP 204 as a lead success.

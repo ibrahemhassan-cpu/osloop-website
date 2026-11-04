@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../lib/gsap'
-import { testimonials } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 import { Arrow, Magnetic } from '../../components/ui'
 
 const DURATION = 9
@@ -13,12 +14,8 @@ type Review = { quote: string; project: string }
  * (they're all the same project). With a single review, the arrows and timer go too.
  */
 export function Testimonials({
-  items = testimonials,
-  title = (
-    <>
-      Echoes of <span className="serif">satisfaction.</span>
-    </>
-  ),
+  items: own,
+  title,
   id = 'testimonials',
   list = true,
   rating = 5,
@@ -30,6 +27,8 @@ export function Testimonials({
   /** stars out of 5; null when the client gave no rating (no stars shown) */
   rating?: number | null
 }) {
+  const { t: words, c, rtl } = useI18n()
+  const items = own ?? c.testimonials
   const N = items.length
   const single = N === 1
   const showList = list && !single
@@ -124,7 +123,8 @@ export function Testimonials({
     if (!s) return
     const dx = e.clientX - s.x
     const dy = e.clientY - s.y
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) show(idxRef.current + (dx < 0 ? 1 : -1))
+    // the next review is on the side the language reads towards
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) show(idxRef.current + (dx < 0 !== rtl ? 1 : -1))
   }
 
   const t = items[idx]
@@ -133,15 +133,15 @@ export function Testimonials({
     <section className={`v1-testi${showList ? '' : ' v1-testi--single'}${single ? ' v1-testi--one' : ''}`} id={id} ref={root} data-header-theme="dark" data-theme="dark">
       <div className="v1-testi__head">
         <h2 className="v1-testi__h" data-reveal="lines">
-          {title}
+          {title ?? rich(words.reviews.title)}
         </h2>
         <div className="v1-testi__rating" data-reveal="fade">
           {rating ? (
-            <span className="v1-testi__stars" aria-label={`${rating} out of 5 stars`}>
+            <span className="v1-testi__stars" aria-label={words.reviews.stars(rating)}>
               {'★'.repeat(Math.round(rating))}
             </span>
           ) : null}
-          <span className="mono">{single ? 'Client review' : 'Client reviews'}</span>
+          <span className="mono">{single ? words.reviews.one : words.reviews.many}</span>
         </div>
       </div>
 
@@ -160,14 +160,14 @@ export function Testimonials({
         onPointerCancel={() => (swipe.current = null)}
       >
         <div className="v1-testi__mark serif" aria-hidden>
-          “
+          {words.reviews.mark}
         </div>
         <blockquote className="v1-testi__quote" key={view.n} aria-live="polite">
           {t.quote}
         </blockquote>
         <div className="v1-testi__meta">
           <div className="v1-testi__project">
-            <span className="mono">Project</span>
+            <span className="mono">{words.reviews.project}</span>
             <strong>{t.project}</strong>
           </div>
           {!single && (
@@ -179,12 +179,12 @@ export function Testimonials({
                 <div className="v1-testi__timer-fill" />
               </div>
               <Magnetic>
-                <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current - 1)} aria-label="Previous review">
+                <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current - 1)} aria-label={words.reviews.previous}>
                   <Arrow rotate={180} />
                 </button>
               </Magnetic>
               <Magnetic>
-                <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current + 1)} aria-label="Next review">
+                <button type="button" className="v1-testi__btn" onClick={() => show(idxRef.current + 1)} aria-label={words.reviews.next}>
                   <Arrow />
                 </button>
               </Magnetic>

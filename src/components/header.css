@@ -148,6 +148,25 @@
   align-items: center;
   gap: 10px;
 }
+/* the language switch: phones have it in the menu, there's no room for it beside the logo */
+.hdr__lang {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  min-width: 48px;
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-line);
+  background: color-mix(in srgb, var(--glass) 70%, transparent);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  transition: border-color 0.4s, background 0.4s;
+}
+.hdr__lang:hover {
+  border-color: var(--fg-muted);
+}
 .hdr__theme {
   position: relative;
   flex: none;
@@ -306,7 +325,8 @@
   }
 }
 @media (max-width: 560px) {
-  .hdr__cta-wrap {
+  .hdr__cta-wrap,
+  .hdr__lang {
     display: none !important;
   }
   .hdr__bar {
@@ -474,6 +494,13 @@
 }
 .menu__muted {
   color: var(--muted-dark);
+}
+.menu__lang {
+  font-size: 22px;
+  font-weight: 500;
+}
+.menu__lang:hover {
+  color: var(--sky);
 }
 .menu__socials {
   display: flex;

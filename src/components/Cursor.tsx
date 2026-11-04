@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { gsap, isTouch } from '../lib/gsap'
+import { useI18n } from '../lib/i18n'
 import './cursor.css'
 
 /** Let non-DOM targets (e.g. the WebGL loop) drive the cursor label. */
@@ -15,6 +16,10 @@ export function Cursor() {
   const dot = useRef<HTMLDivElement>(null)
   const ring = useRef<HTMLDivElement>(null)
   const label = useRef<HTMLSpanElement>(null)
+  // the 3D scenes ask for their labels in English
+  const { t } = useI18n()
+  const words = useRef(t.cursor)
+  words.current = t.cursor
 
   useEffect(() => {
     if (isTouch()) return
@@ -60,7 +65,7 @@ export function Cursor() {
     const onLabel = (e: Event) => {
       forced = (e as CustomEvent<string | null>).detail
       if (forced) {
-        label.current!.textContent = forced
+        label.current!.textContent = words.current[forced] ?? forced
         r.dataset.state = 'label'
       } else r.dataset.state = ''
     }

@@ -46,11 +46,15 @@ The official logo files supplied by OsLoop live in `public/brand/`:
 
 The hero's glass ∞ and its orange play arrow are built in 3D from the **Media logo icon** (`src/pages/home/loopIcon.ts`).
 
+### Arabic site
+
+The Arabic version lives under `/ar/` and mirrors every English page. All its words are in `src/lib/arabic.ts` (interface words in English are in `src/lib/strings.ts`, in the same shape), loaded only on Arabic pages. Right-to-left rules and the two Arabic fonts (TROX for headings, Dubai for everything else) are in `src/styles/rtl.css`; every rule there starts from the page's language or direction, so none of them can reach the English site. The privacy, terms and consultation pages are in English only.
+
 ### Contact form and Apache hosting
 
 Run `npm ci`, `npm run typecheck`, and `npm run build`. Upload the contents of `dist`, including `.htaccess`, to the existing PHP/Apache document root.
 
-The English form posts to `/formAction.php`; both Arabic forms post to `/ar/formAction.php`. These use the SMTP configuration and recipients from `dev-1`. The build includes their PHPMailer dependencies, country-context endpoints, Arabic assets, Google tags, sitemap, robots file, LLM discovery file, policy pages and static project metadata.
+The English and Arabic sites both post to `/formAction.php` (the Arabic form shows Arabic labels and sends the same English values); the older Arabic landing page, now at `/ar/landing.html`, posts to `/ar/formAction.php`. These use the SMTP configuration and recipients from `dev-1`. The build includes their PHPMailer dependencies, country-context endpoints, Arabic assets, Google tags, sitemap, robots file, LLM discovery file, policy pages and static project metadata.
 
 The English form retains its current validation and quick-check UI. The server retains the original required-field validation, budget allow-list, honeypot and HTML escaping. The quick check is a client-side check. The older Vercel/Formspree endpoint in `api/contact.ts` is not used by this Apache configuration.
 

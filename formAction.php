@@ -204,6 +204,8 @@ try {
     $mail->addAddress('admin@agency.osloop.com', 'Osloop Media Production');
     // $mail->addAddress('abdel.elsaadi@agency.osloop.com', 'Osloop Media Production');
 
+    // Names and messages can be in Arabic.
+    $mail->CharSet = 'UTF-8';
     $mail->isHTML(true);
     $mail->Subject = "Osloop Media - Get a Quote Submission from $name";
     $mail->Body    = $mailBody;

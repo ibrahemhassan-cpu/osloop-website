@@ -9,23 +9,27 @@ import { useExperience, TransitionLink } from '../../providers/Experience'
 import { useAutoReveal } from '../../lib/useAutoReveal'
 import { useNavTo } from '../../lib/useNavTo'
 import { gsap, ScrollTrigger, SplitText, useGSAP } from '../../lib/gsap'
-import { projects, type Project } from '../../lib/content'
+import type { Project } from '../../lib/content'
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 import { Testimonials } from '../home/Testimonials'
-import { NAV } from '../../lib/nav'
 import { imageSizes, responsive } from '../../lib/images'
 import './projects.css'
 
 /** Route wrapper — remounts the page per project so every animation starts fresh. */
 export default function ProjectRoute() {
   const { slug } = useParams()
-  const project = projects.find((p) => p.slug === slug)
-  if (!project) return <Navigate to="/" replace />
+  const { c, path } = useI18n()
+  const project = c.projects.find((p) => p.slug === slug)
+  if (!project) return <Navigate to={path('/')} replace />
   return <ProjectPage key={project.slug} project={project} />
 }
 
 function ProjectPage({ project: p }: { project: Project }) {
   const { ready } = useExperience()
   const navTo = useNavTo()
+  const { t, c, rtl } = useI18n()
+  const { projects } = c
   const main = useRef<HTMLElement>(null)
   const [stage, setStage] = useState(0)
   const index = projects.indexOf(p)
@@ -42,11 +46,12 @@ function ProjectPage({ project: p }: { project: Project }) {
   useGSAP(
     () => {
       if (!ready) return
-      const title = SplitText.create('.case__title', { type: 'lines,words', mask: 'lines', linesClass: 'split-line' })
+      // Arabic titles can hold Latin names, whose words would swap places if split, so they rise line by line
+      const title = SplitText.create('.case__title', { type: rtl ? 'lines' : 'lines,words', mask: 'lines', linesClass: 'split-line' })
       gsap
         .timeline({ delay: 0.1 })
         .set('.case__title, .case__intro > *, .case__meta', { visibility: 'visible' })
-        .from(title.words, { yPercent: 120, duration: 1.4, stagger: 0.05 })
+        .from(rtl ? title.lines : title.words, { yPercent: 120, duration: 1.4, stagger: 0.05 })
         .from('.case__intro > *', { autoAlpha: 0, y: 24, duration: 1.1, stagger: 0.08 }, 0.4)
         .from('.case__meta > *', { autoAlpha: 0, y: 24, duration: 1.1, stagger: 0.06 }, 0.6)
 
@@ -107,11 +112,11 @@ function ProjectPage({ project: p }: { project: Project }) {
 
   return (
     <>
-      <Header links={NAV} />
+      <Header links={t.nav} />
       <main className="case" ref={main}>
         <section className="case__hero" data-header-theme="auto">
           <TransitionLink to="/#work" className="case__back mono">
-            <Arrow rotate={180} size={12} /> Back to work
+            <Arrow rotate={180} size={12} /> {t.project.back}
           </TransitionLink>
           <h1 className="case__title">{p.title}</h1>
           <div className="case__intro">
@@ -119,26 +124,26 @@ function ProjectPage({ project: p }: { project: Project }) {
           </div>
           <dl className="case__meta" style={{ '--cols': p.duration ? 5 : 4 } as CSSProperties}>
             <div>
-              <dt className="mono">Year</dt>
+              <dt className="mono">{t.project.year}</dt>
               <dd>{p.year}</dd>
             </div>
             {p.duration && (
               <div>
-                <dt className="mono">Duration</dt>
+                <dt className="mono">{t.project.duration}</dt>
                 <dd>{p.duration}</dd>
               </div>
             )}
             <div>
-              <dt className="mono">Category</dt>
+              <dt className="mono">{t.project.category}</dt>
               <dd>{p.category}</dd>
             </div>
             <div>
-              <dt className="mono">Deliverable</dt>
+              <dt className="mono">{t.project.deliverable}</dt>
               <dd>{p.deliverable}</dd>
             </div>
             <div>
-              <dt className="mono">Services</dt>
-              <dd>{p.services.join(' · ')}</dd>
+              <dt className="mono">{t.project.services}</dt>
+              <dd>{p.services.join(t.project.separator)}</dd>
             </div>
           </dl>
         </section>
@@ -149,7 +154,7 @@ function ProjectPage({ project: p }: { project: Project }) {
         <section className="case__chapter" data-header-theme="auto">
           <div className="case__chapter-head">
             <h2 data-reveal="lines">
-              Where it <span className="serif">started.</span>
+              {rich(t.project.started)}
             </h2>
           </div>
           <p className="case__lead">{p.start}</p>
@@ -157,7 +162,7 @@ function ProjectPage({ project: p }: { project: Project }) {
         <section className="case__chapter case__chapter--journey" data-header-theme="auto">
           <div className="case__chapter-head">
             <h2 data-reveal="lines">
-              How it was <span className="serif">made.</span>
+              {rich(t.project.made)}
             </h2>
           </div>
           <div className="journey">
@@ -203,7 +208,7 @@ function ProjectPage({ project: p }: { project: Project }) {
         <section className="case__chapter case__chapter--end" data-header-theme="auto">
           <div className="case__chapter-head">
             <h2 data-reveal="lines">
-              Where it <span className="serif">ended.</span>
+              {rich(t.project.ended)}
             </h2>
           </div>
           <div className="case__end">
@@ -244,32 +249,28 @@ function ProjectPage({ project: p }: { project: Project }) {
             list={false}
             rating={p.review.rating ?? null}
             items={[{ quote: p.review.quote, project: p.review.label }]}
-            title={
-              <>
-                What the client <span className="serif">said.</span>
-              </>
-            }
+            title={rich(t.project.said)}
           />
         )}
 
         <section className="case__next" data-header-theme="dark" data-theme="dark">
-          <TransitionLink to={`/projects/${next.slug}`} label={next.name} className="nextp" data-cursor="Next story">
+          <TransitionLink to={`/projects/${next.slug}`} label={next.name} className="nextp" data-cursor={t.project.nextCursor}>
             <span className="nextp__bg" aria-hidden>
               <ProjectCover project={next} />
             </span>
-            <span className="nextp__k mono">Next project</span>
+            <span className="nextp__k mono">{t.project.next}</span>
             <span className="nextp__title">{next.title}</span>
             <span className="nextp__go">
               <Arrow size={26} rotate={-45} />
             </span>
           </TransitionLink>
           <div className="case__cta">
-            <p>Have a story like this one?</p>
-            <Button label="Start your project" variant="blue" onClick={() => navTo('#contact')} />
+            <p>{t.project.question}</p>
+            <Button label={t.project.start} variant="blue" onClick={() => navTo('#contact')} />
           </div>
         </section>
 
-        <Footer links={NAV} />
+        <Footer links={t.nav} />
       </main>
     </>
   )

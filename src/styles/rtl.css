@@ -1,0 +1,511 @@
+/* =============== THE ARABIC SITE ===============
+   Its fonts, and everything that reads the other way. Every rule here starts from the page's language or
+   direction, so nothing in this file can touch the English site. The fonts are only fetched on pages that
+   use them. */
+@font-face {
+  font-family: 'TROX';
+  src: url('/fonts/ar/trox.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dubai';
+  src: url('/fonts/ar/dubai-300.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dubai';
+  src: url('/fonts/ar/dubai-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dubai';
+  src: url('/fonts/ar/dubai-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dubai';
+  src: url('/fonts/ar/dubai-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root[lang='ar'] {
+  --f-sans: 'Dubai', 'Segoe UI', Tahoma, sans-serif;
+  --f-mono: var(--f-sans);
+  --f-serif: var(--f-sans);
+  --f-head: 'TROX', 'Dubai', 'Segoe UI', Tahoma, sans-serif;
+  font-synthesis: none;
+}
+
+/* ---------- type ---------- */
+/* Arabic letters join up: any letter spacing tears the words apart */
+:root[lang='ar'] * {
+  letter-spacing: 0 !important;
+}
+/* stars aren't letters */
+:root[lang='ar'] .v1-testi__stars {
+  letter-spacing: 0.15em !important;
+}
+/* the English accent is a serif italic; the Arabic one is the colour alone */
+:root[lang='ar'] .serif {
+  font-family: inherit;
+  font-style: normal;
+  font-weight: inherit;
+}
+:root[lang='ar'] .v1-reel__word--r,
+:root[lang='ar'] .v1-ribbon--ink .v1-ribbon__item {
+  font-style: normal;
+}
+
+/* the headings' font; it comes in one weight */
+:root[lang='ar'] :is(h1, h2, h3, .v1-reel__word, .v1-reel__badge strong, .v1-ribbon__item, .v1-ribbon--ink .v1-ribbon__item, .work__title, .nextp__title, .menu__label-inner, .v1-process__step-title, .journey__stage) {
+  font-family: var(--f-head);
+  font-weight: 400;
+}
+:root[lang='ar'] .work__sub {
+  font-family: var(--f-sans);
+}
+
+/* the heading font is far wider than the English one, and its letters need taller lines */
+:root[lang='ar'] .v1-hero__title {
+  font-size: clamp(42px, 6.2vw, 118px);
+  line-height: 1.28;
+}
+:root[lang='ar'] .v1-ribbon__item {
+  font-size: clamp(24px, 4vw, 70px);
+  line-height: 1.45;
+}
+:root[lang='ar'] .v1-about__statement {
+  font-size: clamp(28px, 4.2vw, 80px);
+  line-height: 1.42;
+  max-width: 17em;
+}
+:root[lang='ar'] .v1-reel__word {
+  font-size: clamp(34px, 6.4vw, 124px);
+  line-height: 1.3;
+}
+:root[lang='ar'] .v1-reel__badge strong {
+  font-size: clamp(20px, 2.2vw, 34px);
+  line-height: 1.3;
+}
+:root[lang='ar'] .v1-services__h {
+  font-size: clamp(32px, 3.7vw, 72px);
+  line-height: 1.32;
+}
+:root[lang='ar'] .v1-svc__title {
+  font-size: clamp(28px, 3.3vw, 64px);
+  line-height: 1.3;
+}
+:root[lang='ar'] .v1-svc__lead {
+  font-size: clamp(20px, 1.8vw, 30px);
+  font-weight: 500;
+  line-height: 1.5;
+}
+:root[lang='ar'] .work__h {
+  font-size: clamp(40px, 5.4vw, 104px);
+  line-height: 1.25;
+}
+:root[lang='ar'] .work__title {
+  font-size: clamp(22px, 3.2vw, 60px);
+  line-height: 1.3;
+}
+:root[lang='ar'] .work__sub {
+  font-size: clamp(15px, 1.2vw, 20px);
+  line-height: 1.5;
+}
+:root[lang='ar'] .v1-process__h {
+  font-size: clamp(28px, 4.3vw, 84px);
+  line-height: 1.3;
+}
+:root[lang='ar'] .v1-ring__card h3 {
+  font-size: 22px;
+  line-height: 1.32;
+}
+:root[lang='ar'] .v1-process__step-title {
+  font-size: clamp(18px, 1.8vw, 28px);
+  line-height: 1.5;
+}
+:root[lang='ar'] .v1-values__h {
+  font-size: clamp(30px, 3.7vw, 72px);
+  line-height: 1.32;
+}
+:root[lang='ar'] .v1-value__t {
+  font-size: clamp(26px, 3.1vw, 58px);
+  line-height: 1.3;
+}
+:root[lang='ar'] .v1-value__right p {
+  line-height: 1.75;
+}
+:root[lang='ar'] .v1-testi__h {
+  font-size: clamp(34px, 4.8vw, 92px);
+  line-height: 1.28;
+}
+:root[lang='ar'] .v1-testi__quote {
+  font-size: clamp(22px, 2.5vw, 44px);
+  line-height: 1.6;
+}
+:root[lang='ar'] .reach__h {
+  font-size: clamp(30px, 3.9vw, 76px);
+  line-height: 1.32;
+}
+:root[lang='ar'] .v1-cta__title {
+  font-size: clamp(50px, 12.5vw, 250px);
+  line-height: 1.25;
+}
+:root[lang='ar'] .ftr__lead {
+  line-height: 1.55;
+}
+:root[lang='ar'] .menu__label-inner {
+  line-height: 1.4;
+}
+:root[lang='ar'] .case__title {
+  font-size: clamp(32px, 4.8vw, 92px);
+  line-height: 1.42;
+  max-width: 17em;
+}
+:root[lang='ar'] .case__chapter-head h2 {
+  font-size: clamp(32px, 4.4vw, 84px);
+  line-height: 1.3;
+}
+:root[lang='ar'] .case__lead {
+  font-size: clamp(22px, 2.7vw, 46px);
+  line-height: 1.6;
+}
+:root[lang='ar'] .jstep h3 {
+  font-size: clamp(22px, 2.2vw, 38px);
+  line-height: 1.32;
+}
+:root[lang='ar'] .jstep p {
+  line-height: 1.8;
+}
+:root[lang='ar'] .journey__stage {
+  font-size: clamp(18px, 1.6vw, 26px);
+  line-height: 1.4;
+}
+:root[lang='ar'] .case__end-text {
+  font-size: clamp(20px, 2vw, 32px);
+  line-height: 1.6;
+}
+:root[lang='ar'] .nextp__title {
+  font-size: clamp(30px, 4.6vw, 88px);
+  line-height: 1.3;
+  max-width: 15em;
+}
+
+/* body copy: the Arabic face reads smaller than the English one at the same size, and needs more air */
+:root[lang='ar'] .v1-hero__lede,
+:root[lang='ar'] .v1-services__p,
+:root[lang='ar'] .v1-svc__body,
+:root[lang='ar'] .v1-about__text,
+:root[lang='ar'] .work__p,
+:root[lang='ar'] .v1-values__p,
+:root[lang='ar'] .reach__p,
+:root[lang='ar'] .v1-cta__info p,
+:root[lang='ar'] .case__intro p,
+:root[lang='ar'] .cform--done p {
+  line-height: 1.8;
+}
+:root[lang='ar'] .v1-hero__lede,
+:root[lang='ar'] .v1-services__p,
+:root[lang='ar'] .v1-svc__body {
+  font-size: 17px;
+}
+:root[lang='ar'] .v1-ring__card p {
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* the small labels: Arabic is unreadable at the size the English capitals work at */
+:root[lang='ar'] .mono {
+  font-size: 13px;
+}
+:root[lang='ar'] :is(.v1-svc__tags li, .work__cat, .v1-reel__sound, .ftr__bottom, .v1-hero__hint-in, .v1-services__skip .mono, .reach__hint, .v1-testi__list .mono, .case__ext, .case__back, .case__meta dt, .nextp__k) {
+  font-size: 13px;
+}
+:root[lang='ar'] .cursor-ring__label {
+  font-size: 12px;
+}
+:root[lang='ar'] .pre__hud {
+  font-size: 13px;
+}
+
+/* the masks that lines rise from, and the labels that roll: room for the marks and tails above and below */
+:root[lang='ar'] .split-line-mask {
+  padding: 0.2em 0.15em 0.3em;
+  margin: -0.2em -0.15em -0.3em;
+}
+:root[lang='ar'] .roll {
+  line-height: 1.6;
+}
+:root[lang='ar'] .v1-prism__face {
+  font-size: 18px;
+}
+:root[lang='ar'] .menu__label {
+  padding-bottom: 0.14em;
+}
+
+/* ---------- arrows point the way the language reads ---------- */
+[dir='rtl'] .arrow {
+  scale: -1 1;
+}
+[dir='rtl'] .btn:hover .btn__icon {
+  transform: rotate(45deg);
+}
+[dir='rtl'] .work__row.is-hover .work__go,
+[dir='rtl'] .nextp:hover .nextp__go {
+  rotate: -45deg;
+}
+[dir='rtl'] .v1-services__hint-arrow {
+  animation-name: nudge-rtl;
+}
+@keyframes nudge-rtl {
+  50% {
+    transform: translateX(-10px);
+  }
+}
+
+/* ---------- shared ---------- */
+[dir='rtl'] .btn {
+  padding: 0 24px 0 10px;
+}
+/* the running ribbons keep their own direction (the loop's maths needs it); the words inside read Arabic */
+[dir='rtl'] .marquee {
+  direction: ltr;
+}
+[dir='rtl'] .marquee__copy {
+  flex-direction: row-reverse;
+}
+[dir='rtl'] .v1-ribbon__item {
+  direction: rtl;
+  padding-right: 0;
+  padding-left: 0.45em;
+}
+/* an address or a number stays left to right, but sits on the field's reading side */
+[dir='rtl'] .cfield input[dir='ltr'],
+[dir='rtl'] .phone__row input[dir='ltr'] {
+  text-align: right;
+}
+
+/* ---------- header and menu ---------- */
+[dir='rtl'] .hdr__bar {
+  padding: 10px 22px 10px 10px;
+}
+[dir='rtl'] .hdr__logo-img {
+  object-position: right center;
+}
+[dir='rtl'] .hdr__cta {
+  padding: 0 20px 0 18px;
+}
+[dir='rtl'] .hdr__burger {
+  padding: 0 18px 0 16px;
+}
+[dir='rtl'] .hdr__progress-bar {
+  transform-origin: right;
+  background: linear-gradient(270deg, var(--blue-2), var(--sky));
+}
+[dir='rtl'] .menu__label-inner {
+  transform-origin: right bottom;
+}
+[dir='rtl'] .menu__link:hover .menu__label {
+  transform: translateX(-18px);
+}
+[dir='rtl'] .menu__arrow {
+  transform: translateX(20px);
+}
+[dir='rtl'] .menu__link:hover .menu__arrow {
+  transform: none;
+}
+@media (max-width: 560px) {
+  [dir='rtl'] .hdr__bar {
+    padding: 8px 16px 8px 8px;
+  }
+}
+
+/* ---------- hero ---------- */
+[dir='rtl'] .v1-prism {
+  padding: 8px 12px 8px 18px;
+}
+
+/* ---------- ribbons and about ---------- */
+[dir='rtl'] .v1-ribbon {
+  margin-left: 0;
+  margin-right: -6%;
+}
+[dir='rtl'] .v1-about__inds li {
+  padding: 9px 11px 9px 14px;
+}
+[dir='rtl'] .v1-about__inds .v1-about__more {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+/* ---------- reel ---------- */
+[dir='rtl'] .v1-reel__badge {
+  left: auto;
+  right: var(--gutter);
+}
+[dir='rtl'] .v1-reel__sound {
+  right: auto;
+  left: var(--gutter);
+}
+/* on phones the words stack, so the first one (on the right) goes on top */
+@media (max-width: 760px) {
+  [dir='rtl'] .v1-reel__word--l {
+    top: 72%;
+  }
+  [dir='rtl'] .v1-reel__word--r {
+    top: 28%;
+  }
+}
+
+/* ---------- services ---------- */
+[dir='rtl'] .v1-services::before {
+  background: radial-gradient(60% 60% at 20% 20%, var(--glow), transparent 70%);
+}
+[dir='rtl'] .v1-services__intro {
+  padding-right: 0;
+  padding-left: 3vw;
+}
+[dir='rtl'] .v1-services__bar-fill {
+  transform-origin: right;
+}
+[dir='rtl'] .v1-services__skip {
+  padding: 0 22px 0 7px;
+}
+@media (max-width: 980px) {
+  [dir='rtl'] .v1-services__intro {
+    padding: 4vh 0;
+  }
+}
+
+/* ---------- work ---------- */
+[dir='rtl'] .work__row.is-hover .work__title {
+  translate: -24px 0;
+}
+[dir='rtl'] .work__cat {
+  text-align: left;
+}
+[dir='rtl'] .work__line {
+  transform-origin: right;
+}
+[dir='rtl'] .work__more strong {
+  margin-right: 0;
+  margin-left: 4px;
+}
+@media (max-width: 760px) {
+  [dir='rtl'] .work__cat {
+    text-align: right;
+  }
+}
+
+/* ---------- reviews ---------- */
+[dir='rtl'] .v1-testi__mark {
+  left: auto;
+  right: -0.08em;
+}
+[dir='rtl'] .v1-testi__count {
+  margin-right: 0;
+  margin-left: 6px;
+}
+[dir='rtl'] .v1-testi__timer {
+  margin-right: 0;
+  margin-left: 10px;
+}
+[dir='rtl'] .v1-testi__timer-fill {
+  transform-origin: right;
+}
+[dir='rtl'] .v1-testi__list button {
+  text-align: right;
+}
+[dir='rtl'] .v1-testi__list button.is-on {
+  padding-left: 0;
+  padding-right: 12px;
+}
+
+/* ---------- our reach ---------- */
+/* the flag's circle stays over its stem, and a name opens out to the left */
+[dir='rtl'] .reach__pin-in {
+  left: auto;
+  right: 0;
+  transform: translate(13px, calc(-100% - var(--lift) * 1px));
+}
+[dir='rtl'] .reach__pin-in:hover .reach__pin-name,
+[dir='rtl'] .reach__pin.is-on .reach__pin-name {
+  padding: 0 7px 0 6px;
+}
+[dir='rtl'] .reach__out {
+  padding: 0 13px 0 16px;
+}
+[dir='rtl'] .reach__list {
+  padding-right: 0;
+  padding-left: 4px;
+}
+[dir='rtl'] .reach__item {
+  text-align: right;
+}
+[dir='rtl'] .reach__chip {
+  padding: 0 9px 0 12px;
+}
+@media (max-width: 760px) {
+  [dir='rtl'] .reach__pin-in {
+    transform: translate(9px, calc(-100% - var(--lift) * 1px));
+  }
+}
+
+/* ---------- contact ---------- */
+/* its letters are laid along the circle in the order they're seen, whichever way they read */
+[dir='rtl'] .v1-badge__ring {
+  direction: ltr;
+  font-size: 16px;
+}
+[dir='rtl'] .phone__menu li button {
+  text-align: right;
+}
+[dir='rtl'] .phone__dial {
+  text-align: left;
+}
+
+/* ---------- reel popup ---------- */
+[dir='rtl'] .reel-modal__close {
+  right: auto;
+  left: var(--gutter);
+}
+
+/* ---------- project page ---------- */
+[dir='rtl'] .case__lead {
+  margin-left: 0;
+  margin-right: auto;
+}
+[dir='rtl'] .journey__list {
+  padding: 4vh 54px 30vh 0;
+}
+[dir='rtl'] .journey__line {
+  left: auto;
+  right: 11px;
+}
+[dir='rtl'] .jstep__dot {
+  left: auto;
+  right: -54px;
+}
+[dir='rtl'] .case__link-label {
+  left: auto;
+  right: 20px;
+}
+[dir='rtl'] .nextp__bg::after {
+  background: linear-gradient(270deg, var(--bg) 25%, transparent);
+}
+[dir='rtl'] .nextp:hover .nextp__title {
+  translate: -20px 0;
+}
+@media (max-width: 900px) {
+  [dir='rtl'] .journey__list {
+    padding-bottom: 6vh;
+  }
+  [dir='rtl'] .case__lead {
+    margin-right: 0;
+  }
+}

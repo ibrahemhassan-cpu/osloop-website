@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { yt } from '../lib/content'
+import { useI18n } from '../lib/i18n'
 
 /**
  * Lightweight YouTube embed: shows the poster + play button and only loads the player
  * on click (then autoplays from 0:00). Keeps pages fast and avoids loading YouTube up front.
  */
 export function VideoEmbed({ id, title, poster }: { id: string; title: string; poster?: string }) {
+  const { t } = useI18n()
   const [playing, setPlaying] = useState(false)
   return (
     <div className="vembed">
@@ -17,7 +19,7 @@ export function VideoEmbed({ id, title, poster }: { id: string; title: string; p
           allowFullScreen
         />
       ) : (
-        <button type="button" className="vembed__poster" onClick={() => setPlaying(true)} aria-label={`Play: ${title}`}>
+        <button type="button" className="vembed__poster" onClick={() => setPlaying(true)} aria-label={t.video.play(title)}>
           <img src={poster ?? yt(id)} alt="" loading="lazy" />
           <span className="vembed__play" aria-hidden>
             <svg viewBox="0 0 24 24" width="26" height="26">

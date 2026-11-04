@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import type { Project } from '../lib/content'
+import { useI18n } from '../lib/i18n'
 import { responsive } from '../lib/images'
 import './project-cover.css'
 
@@ -17,6 +18,7 @@ export function ProjectCover({
   /** how wide the image shows, so the browser picks the right file */
   sizes?: string
 }) {
+  const { t } = useI18n()
   if (project.cover)
     return (
       <img
@@ -24,7 +26,7 @@ export function ProjectCover({
         src={project.cover}
         {...responsive(project.cover)}
         sizes={sizes}
-        alt={`${project.title}, by OsLoop`}
+        alt={t.cover.alt(project.title)}
         loading={eager ? 'eager' : 'lazy'}
         fetchPriority={eager ? 'high' : 'auto'}
         decoding="async"

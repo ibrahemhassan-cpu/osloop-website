@@ -1,8 +1,7 @@
 import { useRef, type CSSProperties } from 'react'
 import { gsap, useGSAP } from '../../lib/gsap'
-import { pipeline } from '../../lib/content'
-
-const STEP = 360 / pipeline.length
+import { useI18n } from '../../lib/i18n'
+import { rich } from '../../lib/rich'
 
 /** each stage's icon (24 × 24, stroked): script, storyboard, illustrations, voice over, animation, vfx & sfx, final result */
 const icons = [
@@ -15,12 +14,15 @@ const icons = [
   '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M9 10l2 2 4-4"/>',
 ]
 
+const STEP = 360 / icons.length
+
 /**
  * A card's background art (600 × 780, the card's own shape): the blue grid the old illustrations had,
  * with the stage's icon in the top-right corner (beside the number, never over it), drawn in a white →
- * sky → orange line on a glass disc with a soft blue glow.
+ * sky → orange line on a glass disc with a soft blue glow. In Arabic the number starts on the right, so
+ * the disc moves to the top-left (x is its centre).
  */
-const art = (icon: string) =>
+const art = (icon: string, x: number) =>
   `url("data:image/svg+xml,${encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 780">
       <defs>
@@ -33,9 +35,9 @@ const art = (icon: string) =>
       </defs>
       <rect width="600" height="780" fill="url(#bg)"/>
       <rect width="600" height="780" fill="url(#grid)"/>
-      <circle cx="438" cy="162" r="230" fill="url(#glow)"/>
-      <circle cx="438" cy="162" r="108" fill="url(#disc)" stroke="#9db7ff" stroke-opacity=".3" stroke-width="2"/>
-      <g transform="translate(372 96) scale(5.5)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="${x}" cy="162" r="230" fill="url(#glow)"/>
+      <circle cx="${x}" cy="162" r="108" fill="url(#disc)" stroke="#9db7ff" stroke-opacity=".3" stroke-width="2"/>
+      <g transform="translate(${x - 66} 96) scale(5.5)" fill="none" stroke-linecap="round" stroke-linejoin="round">
         <g stroke="#2c5bff" stroke-width="2.4" opacity=".8" filter="url(#soft)">${icon}</g>
         <g stroke="url(#ink)" stroke-width="1.1">${icon}</g>
       </g>
@@ -44,6 +46,10 @@ const art = (icon: string) =>
 
 export function Process() {
   const root = useRef<HTMLElement>(null)
+  const { t, c, rtl } = useI18n()
+  const { pipeline } = c
+  // the ring turns the way the language reads: the next card comes from the side the eye is heading to
+  const turn = rtl ? -1 : 1
 
   useGSAP(
     () => {
@@ -61,7 +67,7 @@ export function Process() {
         let best = 0
         let bestCos = -2
         cards.forEach((card, i) => {
-          const a = ((i * STEP + state.ry) * Math.PI) / 180
+          const a = ((i * STEP * turn + state.ry) * Math.PI) / 180
           const c = Math.cos(a)
           card.style.opacity = String(gsap.utils.clamp(0, 1, 0.12 + (c + 0.2) * 0.85))
           card.style.setProperty('--glow', String(Math.max(0, c) ** 6))
@@ -101,7 +107,7 @@ export function Process() {
             },
           },
         })
-        .to(state, { ry: -STEP * (pipeline.length - 1), ease: 'none', duration: TURN, onUpdate: paint })
+        .to(state, { ry: -STEP * turn * (pipeline.length - 1), ease: 'none', duration: TURN, onUpdate: paint })
         .to({}, { duration: HOLD })
     },
     { scope: root },
@@ -111,7 +117,7 @@ export function Process() {
     <section className="v1-process" id="process" ref={root} data-header-theme="dark" data-theme="dark">
       <div className="v1-process__head">
         <h2 className="v1-process__h" data-reveal="lines">
-          From script <span className="serif">to screen.</span>
+          {rich(t.process.title)}
         </h2>
       </div>
 
@@ -125,7 +131,7 @@ export function Process() {
               <article
                 className="v1-ring__card"
                 key={s.title}
-                style={{ '--a': `${i * STEP}deg`, '--bg': art(icons[i]) } as CSSProperties}
+                style={{ '--a': `${i * STEP * turn}deg`, '--bg': art(icons[i], rtl ? 162 : 438) } as CSSProperties}
               >
                 {/* the icon is part of the background art; this keeps the number where it always was */}
                 <div className="v1-ring__top" aria-hidden />
